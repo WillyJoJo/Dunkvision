@@ -3,21 +3,22 @@ CREATE DATABASE IF NOT EXISTS dunkvision;
 USE dunkvision;
 
 -- Tabla Equipo
-CREATE TABLE Equipo (
+CREATE TABLE IF NOT EXISTS Equipo (
     id_equipo INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL
 );
 
--- Tabla Jugador
-CREATE TABLE Jugador (
+-- Tabla Jugador (se añade la columna posicion)
+CREATE TABLE IF NOT EXISTS Jugador (
     id_jugador INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     equipo_id INT,
+    posicion VARCHAR(50) NOT NULL, -- Nueva columna para la posición del jugador
     FOREIGN KEY (equipo_id) REFERENCES Equipo(id_equipo)
 );
 
 -- Tabla Enfrentamiento
-CREATE TABLE Enfrentamiento (
+CREATE TABLE IF NOT EXISTS Enfrentamiento (
     id_enfrentamiento INT AUTO_INCREMENT PRIMARY KEY,
     equipo1_id INT,
     equipo2_id INT,
@@ -29,7 +30,7 @@ CREATE TABLE Enfrentamiento (
 );
 
 -- Tabla intermedia Jugador_Partido para vincular jugadores con los partidos en los que participan
-CREATE TABLE Jugador_Partido (
+CREATE TABLE IF NOT EXISTS Jugador_Partido (
     id_jugador_partido INT AUTO_INCREMENT PRIMARY KEY,
     jugador_id INT,
     enfrentamiento_id INT,
@@ -41,17 +42,22 @@ CREATE TABLE Jugador_Partido (
     robos INT,
     tapones INT,
     perdidas_balon INT,
-	faltas_cometidas INT,
-	faltas_recibidas INT,
+    faltas_cometidas INT,
+    faltas_recibidas INT,
     porcentaje_tiros_de_campo FLOAT,
     porcentaje_triples FLOAT,
-	porcentaje_tiros_libres FLOAT,
+    porcentaje_tiros_libres FLOAT,
+    eficiencia_jugador FLOAT,
+    rating_ofensivo FLOAT,
+    rating_defensivo FLOAT,
+    win_shares FLOAT,
+    uso_porcentaje FLOAT,
     FOREIGN KEY (jugador_id) REFERENCES Jugador(id_jugador),
     FOREIGN KEY (enfrentamiento_id) REFERENCES Enfrentamiento(id_enfrentamiento)
 );
 
 -- Tabla Contexto_Partido para añadir detalles del contexto de cada enfrentamiento
-CREATE TABLE Contexto_Partido (
+CREATE TABLE IF NOT EXISTS Contexto_Partido (
     id_contexto INT AUTO_INCREMENT PRIMARY KEY,
     enfrentamiento_id INT,
     dias_descanso_equipo1 INT,
@@ -62,7 +68,7 @@ CREATE TABLE Contexto_Partido (
 );
 
 -- Tabla Lesiones_Jugador para registrar las lesiones de los jugadores
-CREATE TABLE Lesiones_Jugador (
+CREATE TABLE IF NOT EXISTS Lesiones_Jugador (
     id_lesion INT AUTO_INCREMENT PRIMARY KEY,
     jugador_id INT,
     enfrentamiento_id INT,
@@ -72,7 +78,7 @@ CREATE TABLE Lesiones_Jugador (
 );
 
 -- Tabla Historial_Enfrentamientos para registrar las victorias entre dos equipos
-CREATE TABLE Historial_Enfrentamientos (
+CREATE TABLE IF NOT EXISTS Historial_Enfrentamientos (
     id_historial INT AUTO_INCREMENT PRIMARY KEY,
     equipo1_id INT,
     equipo2_id INT,
@@ -82,4 +88,3 @@ CREATE TABLE Historial_Enfrentamientos (
     FOREIGN KEY (equipo2_id) REFERENCES Equipo(id_equipo),
     CONSTRAINT equipo_unico CHECK (equipo1_id <> equipo2_id)
 );
-
