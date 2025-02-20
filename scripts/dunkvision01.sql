@@ -47,11 +47,6 @@ CREATE TABLE IF NOT EXISTS Jugador_Partido (
     porcentaje_tiros_de_campo FLOAT,
     porcentaje_triples FLOAT,
     porcentaje_tiros_libres FLOAT,
-    eficiencia_jugador FLOAT,
-    rating_ofensivo FLOAT,
-    rating_defensivo FLOAT,
-    win_shares FLOAT,
-    uso_porcentaje FLOAT,
     FOREIGN KEY (jugador_id) REFERENCES Jugador(id_jugador),
     FOREIGN KEY (enfrentamiento_id) REFERENCES Enfrentamiento(id_enfrentamiento)
 );
@@ -107,7 +102,7 @@ JOIN jugador j ON jp.jugador_id = j.id_jugador
 GROUP BY j.equipo_id, jp.enfrentamiento_id;
 
 -- Vista para las estadísticas avanzadas de los jugadores
-CREATE VIEW Vista_Estadisticas_Jugador AS
+CREATE OR REPLACE VIEW Vista_Estadisticas_Jugador AS
 SELECT 
     jp.jugador_id,
     j.equipo_id,
@@ -118,11 +113,28 @@ SELECT
     jp.perdidas_balon,
     jp.porcentaje_tiros_de_campo,
     jp.porcentaje_tiros_libres,
+
+    -- Calcular uso porcentual del jugador en el equipo
     (jp.uso_porcentaje * 
         (SELECT SUM(uso_porcentaje) 
          FROM jugador_partido 
          WHERE enfrentamiento_id = jp.enfrentamiento_id 
            AND jugador_id IN (SELECT id_jugador FROM jugador WHERE equipo_id = j.equipo_id))
-    ) AS uso_porcentaje_equipo
+    ) AS uso_porcentaje_equipo,
+
+    -- Calcular eficiencia del jugador (Ejemplo: PER básico)
+    (jp.puntos + jp.rebotes_ofensivos + jp.rebotes_defensivos + jp.asistencias + jp.robos + jp.tapones 
+    - jp.perdidas_balon) / NULLIF(jp.minutos_jugados, 0) AS eficiencia_jugador,
+
+    -- Rating ofensivo y defensivo (simplificado)
+    (jp.puntos / NULLIF(jp.minutos_jugados, 0)) * 100 AS rating_ofensivo,
+    ((jp.rebotes_ofensivos + jp.rebotes_defensivos + jp.robos + jp.tapones) 
+    / NULLIF(jp.minutos_jugados, 0)) * 100 AS rating_defensivo,
+
+    -- Win Shares (simplificado basado en contribución a puntos y defensa)
+    ((jp.puntos * 0.5) + ((jp.rebotes_ofensivos + jp.rebotes_defensivos + jp.robos + jp.tapones) * 0.3) 
+    - (jp.perdidas_balon * 0.4)) / 100 AS win_shares
+
 FROM jugador_partido jp
 JOIN jugador j ON jp.jugador_id = j.id_jugador;
+

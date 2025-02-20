@@ -51,11 +51,6 @@ class Jugador_Partido(db.Model):
     porcentaje_tiros_de_campo = db.Column(db.Float)
     porcentaje_triples = db.Column(db.Float)
     porcentaje_tiros_libres = db.Column(db.Float)
-    eficiencia_jugador = db.Column(db.Float)
-    rating_ofensivo = db.Column(db.Float)
-    rating_defensivo = db.Column(db.Float)
-    win_shares = db.Column(db.Float)
-    uso_porcentaje = db.Column(db.Float)
 
 
 class Contexto_Partido(db.Model):
@@ -83,3 +78,37 @@ class Historial_Enfrentamientos(db.Model):
     equipo2_id = db.Column(db.Integer, db.ForeignKey('Equipo.id_equipo'))
     victorias_equipo1 = db.Column(db.Integer, default=0)
     victorias_equipo2 = db.Column(db.Integer, default=0)
+
+class VistaEquipoPartido(db.Model):
+    __tablename__ = 'Vista_Equipo_Partido' # Nombre de la vista en la base de datos
+    __table_args__ = {'info': {'viewonly': True}}  # Indica que es una vista de solo lectura
+
+    equipo_id = db.Column(db.Integer, primary_key=True)  # Necesario para que SQLAlchemy lo maneje
+    enfrentamiento_id = db.Column(db.Integer, primary_key=True)
+    puntos_equipo = db.Column(db.Integer)
+    rebotes_totales = db.Column(db.Integer)
+    asistencias_totales = db.Column(db.Integer)
+    perdidas_totales = db.Column(db.Integer)
+    faltas_totales = db.Column(db.Integer)
+    faltas_recibidas_totales = db.Column(db.Integer)
+    porcentaje_tiros_campo_equipo = db.Column(db.Float)
+
+
+class VistaEstadisticasJugador(db.Model):
+    __tablename__ = 'Vista_Estadisticas_Jugador' # Nombre de la vista en la base de datos
+    __table_args__ = {'extend_existing': True}  # Para evitar conflictos si la vista ya existe
+
+    jugador_id = db.Column(db.Integer, primary_key=False)
+    equipo_id = db.Column(db.Integer)
+    enfrentamiento_id = db.Column(db.Integer)
+    puntos = db.Column(db.Integer)
+    asistencias = db.Column(db.Integer)
+    rebotes_totales = db.Column(db.Integer)
+    perdidas_balon = db.Column(db.Integer)
+    porcentaje_tiros_de_campo = db.Column(db.Float)
+    porcentaje_tiros_libres = db.Column(db.Float)
+    uso_porcentaje_equipo = db.Column(db.Float)
+    eficiencia_jugador = db.Column(db.Float)
+    rating_ofensivo = db.Column(db.Float)
+    rating_defensivo = db.Column(db.Float)
+    win_shares = db.Column(db.Float)
