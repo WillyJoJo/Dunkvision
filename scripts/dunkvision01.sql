@@ -88,3 +88,41 @@ CREATE TABLE IF NOT EXISTS Historial_Enfrentamientos (
     FOREIGN KEY (equipo2_id) REFERENCES Equipo(id_equipo),
     CONSTRAINT equipo_unico CHECK (equipo1_id <> equipo2_id)
 );
+
+-- Vista para las estadísticas del equipo por partido
+CREATE VIEW Vista_Equipo_Partido AS
+SELECT 
+    j.equipo_id,
+    jp.enfrentamiento_id,
+    SUM(jp.puntos) AS puntos_equipo,
+    SUM(jp.rebotes_ofensivos + jp.rebotes_defensivos) AS rebotes_totales,
+    SUM(jp.asistencias) AS asistencias_totales,
+    SUM(jp.perdidas_balon) AS perdidas_totales,
+    SUM(jp.faltas_cometidas) AS faltas_totales,
+    SUM(jp.faltas_recibidas) AS faltas_recibidas_totales,
+    SUM(jp.porcentaje_tiros_de_campo * jp.minutos_jugados) / 
+        SUM(jp.minutos_jugados) AS porcentaje_tiros_campo_equipo
+FROM jugador_partido jp
+JOIN jugador j ON jp.jugador_id = j.id_jugador
+GROUP BY j.equipo_id, jp.enfrentamiento_id;
+
+-- Vista para las estadísticas avanzadas de los jugadores
+CREATE VIEW Vista_Estadisticas_Jugador AS
+SELECT 
+    jp.jugador_id,
+    j.equipo_id,
+    jp.enfrentamiento_id,
+    jp.puntos,
+    jp.asistencias,
+    jp.rebotes_ofensivos + jp.rebotes_defensivos AS rebotes_totales,
+    jp.perdidas_balon,
+    jp.porcentaje_tiros_de_campo,
+    jp.porcentaje_tiros_libres,
+    (jp.uso_porcentaje * 
+        (SELECT SUM(uso_porcentaje) 
+         FROM jugador_partido 
+         WHERE enfrentamiento_id = jp.enfrentamiento_id 
+           AND jugador_id IN (SELECT id_jugador FROM jugador WHERE equipo_id = j.equipo_id))
+    ) AS uso_porcentaje_equipo
+FROM jugador_partido jp
+JOIN jugador j ON jp.jugador_id = j.id_jugador;
