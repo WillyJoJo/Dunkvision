@@ -95,10 +95,11 @@ class VistaEquipoPartido(db.Model):
 
 
 class VistaEstadisticasJugador(db.Model):
-    __tablename__ = 'Vista_Estadisticas_Jugador' # Nombre de la vista en la base de datos
+    __tablename__ = 'Vista_Estadisticas_Jugador'  # Nombre de la vista en la base de datos
     __table_args__ = {'extend_existing': True}  # Para evitar conflictos si la vista ya existe
 
-    jugador_id = db.Column(db.Integer, primary_key=False)
+    # Define una clave primaria
+    jugador_id = db.Column(db.Integer, primary_key=True)  # Establece jugador_id como clave primaria
     equipo_id = db.Column(db.Integer)
     enfrentamiento_id = db.Column(db.Integer)
     puntos = db.Column(db.Integer)

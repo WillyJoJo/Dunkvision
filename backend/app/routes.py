@@ -5,13 +5,6 @@ from app.models import Equipo
 from flask import request, jsonify
 from .data_import import importar_equipos_nba
 
-# Ruta para predecir el partido
-@app.route('/api/predict', methods=['POST'])
-def predict():
-    # Lógica para hacer la predicción
-    result = {'prediction': 'Equipo 1 ganará'}
-    return jsonify(result)
-
 # Ruta por defecto que devuelve 'Hello World'
 @app.route('/')
 def hello_world():
@@ -30,4 +23,3 @@ def add_equipo():
 def importar_equipos():
     importar_equipos_nba()
     return jsonify({'message': 'Equipos importados exitosamente!'}), 200
-
