@@ -2,7 +2,9 @@ from nba_api.stats.static import teams
 from app import db
 from app.models import Equipo
 
+# IMPORTAR EQUIPOS DE LA NBA
 def importar_equipos_nba():
+    """Importa equipos de la NBA a la base de datos."""
     # Obtener los equipos de la NBA
     equipos_nba = teams.get_teams()
 
