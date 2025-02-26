@@ -14,7 +14,7 @@ HEADERS = {
 }
 
 # Configuración de IDs de partido
-start_id = 311  # Partido de la temporada por el que empieza a buscar
+start_id = 811  # Partido de la temporada por el que empieza a buscar
 max_games = 50  # Cantidad de partidos a buscar
 output_sql_file = "insert_partidos.sql"
 
