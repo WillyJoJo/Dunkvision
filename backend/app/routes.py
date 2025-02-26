@@ -4,7 +4,7 @@ from app import db  #Importante importar la base de datos
 from flask import jsonify
 from app.models import Equipo
 from flask import request, jsonify
-from .data_import import importar_equipos_nba, actualizar_historial
+from .data_import import importar_equipos_nba, actualizar_historial, calcular_contexto_partido
 
 # Ruta por defecto que devuelve 'Hello World'
 @app.route('/')
@@ -17,11 +17,18 @@ def importar_equipos():
     importar_equipos_nba()
     return jsonify({'message': 'Equipos importados exitosamente!'}), 200
 
-# Actualizar historial
+# Actualizar historial_enfrentamientos
 @app.route('/api/nba/actualizar_historial', methods=['POST'])
 def actualizar_historial_endpoint():
     actualizar_historial()
     return jsonify({"message": "Historial actualizado correctamente"}), 200
+
+# Calcular contexto_partido
+@app.route('/api/nba/contexto_partido', methods=['POST'])
+def contexto_partido():
+    calcular_contexto_partido()
+    return jsonify({"message": "Historial actualizado correctamente"}), 200
+
 
 
 @app.route('/api/nba/stats_partido', methods=['GET'])
