@@ -77,7 +77,7 @@ def actualizar_historial():
     print("✅ Historial de enfrentamientos actualizado correctamente.")
 
 
-# ACTUALIZAR CONTEXTO ENFRENTAMIENTOS DE EQUIPOS
+# CALCULAR CONTEXTO PARTIDO DE ENFRENTAMIENTOS
 def calcular_contexto_partido():
     """Calcula y actualiza los días de descanso y la racha antes de cada partido."""
 
