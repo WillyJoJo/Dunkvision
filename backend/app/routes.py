@@ -46,7 +46,7 @@ def obtener_stats_partido_nba():
     
 @app.route('/api/nba/stats_resumen_partido', methods=['GET'])
 def obtener_resumen_partido_nba():
-    game_id = "0022400061"  # KNICKS VS. BOSTON 2024-10-22 PRIMER PARTIDO DE LA TEMPORADA
+    game_id = "0022400809"  # KNICKS VS. BOSTON 2024-10-22 PRIMER PARTIDO DE LA TEMPORADA
     url = "https://stats.nba.com/stats/boxscoresummaryv2"
     params = {
         "GameID": game_id

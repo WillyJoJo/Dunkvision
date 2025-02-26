@@ -14,8 +14,8 @@ HEADERS = {
 }
 
 # Configuración de IDs de partido
-start_id = 811  # Partido de la temporada por el que empieza a buscar
-max_games = 50  # Cantidad de partidos a buscar
+start_id = 831  # Partido de la temporada por el que empieza a buscar
+max_games = 9  # Cantidad de partidos a buscar
 output_sql_file = "insert_partidos.sql"
 
 # Abrir archivo para escribir los INSERT
@@ -46,11 +46,20 @@ with open(output_sql_file, "w", encoding="utf-8") as file2:
             equipo_local_id = game_summary[6]
             equipo_visitante_id = game_summary[7]
 
-            # Puntos del equipo local y visitante
-            puntos_local = line_score[1][-1]  # Último valor de la fila del equipo local
-            puntos_visitante = line_score[0][-1]  # Último valor de la fila del equipo visitante
+            # Buscar los puntos asegurando que se asignen al equipo correcto
+            puntos_local = "NULL"
+            puntos_visitante = "NULL"
 
-            # Crear la línea de inserción
+            for team_stats in line_score:
+                team_id = team_stats[3]  # ID del equipo en LineScore
+                puntos = team_stats[-1]  # Última columna es el puntaje total del equipo
+
+                if team_id == equipo_local_id:
+                    puntos_local = puntos
+                elif team_id == equipo_visitante_id:
+                    puntos_visitante = puntos
+
+            # Crear la línea de inserción con NULL en caso de que no haya puntos
             valores.append(f"({equipo_local_id}, {equipo_visitante_id}, {puntos_local}, {puntos_visitante}, '{fecha}')")
 
             print(f"✅ Partido {game_id} agregado correctamente.")
