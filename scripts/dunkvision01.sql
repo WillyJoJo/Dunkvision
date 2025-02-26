@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS Jugador (
 
 -- Tabla Enfrentamiento
 CREATE TABLE IF NOT EXISTS Enfrentamiento (
-    id_enfrentamiento INT AUTO_INCREMENT PRIMARY KEY,
+    id_enfrentamiento INT(10) ZEROFILL AUTO_INCREMENT PRIMARY KEY,
     equipo1_id INT,
     equipo2_id INT,
     puntos_equipo1 INT,
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS Enfrentamiento (
 CREATE TABLE IF NOT EXISTS Jugador_Partido (
     id_jugador_partido INT AUTO_INCREMENT PRIMARY KEY,
     jugador_id INT,
-    enfrentamiento_id INT,
+	enfrentamiento_id INT(10) UNSIGNED ZEROFILL NOT NULL,
     minutos_jugados INT,
     puntos INT,
     asistencias INT,
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS Jugador_Partido (
 -- Tabla Contexto_Partido para añadir detalles del contexto de cada enfrentamiento
 CREATE TABLE IF NOT EXISTS Contexto_Partido (
     id_contexto INT AUTO_INCREMENT PRIMARY KEY,
-    enfrentamiento_id INT,
+	enfrentamiento_id INT(10) UNSIGNED ZEROFILL NOT NULL,
     dias_descanso_equipo1 INT,
     dias_descanso_equipo2 INT,
     racha_equipo1 VARCHAR(50),
