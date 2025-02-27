@@ -3,7 +3,6 @@ from app import db
 from app.models import Equipo, Enfrentamiento, Historial_Enfrentamientos, Contexto_Partido
 from sqlalchemy.sql import func, case
 
-
 # IMPORTAR EQUIPOS DE LA NBA
 def importar_equipos_nba():
     """Importa equipos de la NBA a la base de datos."""

@@ -554,4 +554,6 @@ INSERT INTO Jugador (id_jugador,nombre,equipo_id,posicion) VALUES
 (1627826,'Ivica Zubac',1610612746,'C'),
 (1641783,'Tristan da Silva',1610612753,'F'),
 (1628427,'Vlatko Čančar',1610612743,'F'),
-(203967,'Dario Šarić',1610612743,'F-C');
+(203967,'Dario Šarić',1610612743,'F-C'),
+(1629022, 'Lonnie Walker IV', 1610612755, 'G'),
+(1629667, 'Jalen McDaniels', 1610612764, 'F');
