@@ -1,11 +1,11 @@
-import requests
 from app import app
-from app import db  #Importante importar la base de datos
-from flask import jsonify
-from app.models import Equipo
 from flask import request, jsonify
 from .data_import import importar_equipos_nba, actualizar_historial, calcular_contexto_partido
+from app.auth import registrar_usuario, autenticar_usuario, cambiar_rol_usuario
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from app.models import Usuario
 
+# ------------------ Rutas para importar datos ------------------ #
 # Ruta por defecto que devuelve 'Hello World'
 @app.route('/')
 def hello_world():
@@ -29,55 +29,35 @@ def contexto_partido():
     calcular_contexto_partido()
     return jsonify({"message": "Historial actualizado correctamente"}), 200
 
+# ------------------ Rutas para Usuarios ------------------ #
+@app.route('/api/register', methods=['POST'])
+def register():
+    error = registrar_usuario()
+    if error:
+        return jsonify(error), 400
+    return jsonify({"msg": "Usuario creado correctamente"}), 201
 
+@app.route('/api/login', methods=['POST'])
+def login():
+    token, error = autenticar_usuario()
+    if error:
+        return jsonify(error), 401
+    return jsonify({"access_token": token}), 200
 
-@app.route('/api/nba/stats_partido', methods=['GET'])
-def obtener_stats_partido_nba():
-    game_id = "0022400820"  # TIMBERWOLVES VS. THUNDER 2025-02-23
-    url = "https://stats.nba.com/stats/boxscoretraditionalv2"
-    params = {
-        "GameID": game_id,
-        "StartPeriod": 1,
-        "EndPeriod": 10,
-        "StartRange": 0,
-        "EndRange": 55800,
-        "RangeType": 2
-    }
+@app.route('/api/cambiar_rol', methods=['POST'])
+@jwt_required()
+def cambiar_rol():
+    # Se espera que el JSON tenga 'user_id' y 'nuevo_rol'
+    data = request.get_json()
+    user_id = data.get("user_id")
+    nuevo_rol = data.get("nuevo_rol")
     
-    headers = {
-        "Host": "stats.nba.com",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-        "Accept": "application/json, text/plain, */*",
-        "Referer": "https://www.nba.com/",
-        "Connection": "keep-alive"
-    }
+    # Verificar que el usuario autenticado es admin
+    usuario_actual = Usuario.query.get(get_jwt_identity())
+    if not usuario_actual or usuario_actual.rol != "admin":
+        return jsonify({"msg": "No tienes permisos para cambiar roles"}), 403
 
-    response = requests.get(url, headers=headers, params=params)
-    
-    if response.status_code == 200:
-        return jsonify(response.json()), 200
-    else:
-        return jsonify({'error': 'No se pudieron obtener los datos de la NBA'}), response.status_code
-    
-@app.route('/api/nba/stats_resumen_partido', methods=['GET'])
-def obtener_resumen_partido_nba():
-    game_id = "0022400809"  # KNICKS VS. BOSTON 2024-10-22 PRIMER PARTIDO DE LA TEMPORADA
-    url = "https://stats.nba.com/stats/boxscoresummaryv2"
-    params = {
-        "GameID": game_id
-    }
-    
-    headers = {
-        "Host": "stats.nba.com",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-        "Accept": "application/json, text/plain, */*",
-        "Referer": "https://www.nba.com/",
-        "Connection": "keep-alive"
-    }
-
-    response = requests.get(url, headers=headers, params=params)
-    
-    if response.status_code == 200:
-        return jsonify(response.json()), 200
-    else:
-        return jsonify({'error': 'No se pudieron obtener los datos de la NBA'}), response.status_code
+    error = cambiar_rol_usuario(user_id, nuevo_rol)
+    if error:
+        return jsonify(error), 400
+    return jsonify({"msg": f"Rol de usuario {user_id} actualizado a {nuevo_rol}"}), 200

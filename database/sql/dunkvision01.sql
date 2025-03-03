@@ -2,6 +2,14 @@
 CREATE DATABASE IF NOT EXISTS dunkvision;
 USE dunkvision;
 
+-- Tabla Usuario
+CREATE TABLE IF NOT EXISTS Usuario (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_usuario VARCHAR(50) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    rol VARCHAR(20) DEFAULT 'usuario'
+);
+
 -- Tabla Equipo
 CREATE TABLE IF NOT EXISTS Equipo (
     id_equipo INT AUTO_INCREMENT PRIMARY KEY,

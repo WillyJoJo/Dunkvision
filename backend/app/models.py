@@ -1,5 +1,12 @@
 from app import db
 
+class Usuario(db.Model):
+    __tablename__ = "usuario"
+    id = db.Column(db.Integer, primary_key=True)
+    nombre_usuario = db.Column(db.String(50), unique=True)
+    password_hash = db.Column(db.String(255))
+    rol = db.Column(db.String(20), default="usuario")  # si ponemos admin, el usuario será administrador
+
 class Equipo(db.Model):
     __tablename__ = 'Equipo'
     id_equipo = db.Column(db.Integer, primary_key=True, autoincrement=True)
