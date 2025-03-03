@@ -13,18 +13,21 @@ def hello_world():
 
 # Importar equipos
 @app.route('/api/importar_equipos', methods=['POST'])
+##@jwt_required()
 def importar_equipos():
     importar_equipos_nba()
     return jsonify({'message': 'Equipos importados exitosamente!'}), 200
 
 # Actualizar historial_enfrentamientos
 @app.route('/api/nba/actualizar_historial', methods=['POST'])
+##@jwt_required()
 def actualizar_historial_endpoint():
     actualizar_historial()
     return jsonify({"message": "Historial actualizado correctamente"}), 200
 
 # Calcular contexto_partido
 @app.route('/api/nba/contexto_partido', methods=['POST'])
+##@jwt_required()
 def contexto_partido():
     calcular_contexto_partido()
     return jsonify({"message": "Historial actualizado correctamente"}), 200
