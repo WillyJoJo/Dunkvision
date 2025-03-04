@@ -4,7 +4,7 @@ from .data_import import importar_record_equipos_nba, actualizar_historial, calc
 from app.auth import registrar_usuario, autenticar_usuario, cambiar_rol_usuario
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models import Usuario
-from app.crud.equipo_crud import obtener_equipo, listar_equipos
+from app.crud.equipo_crud import obtener_equipo, listar_equipos, filtrar_equipos_logica
 from app.crud.jugador_crud import listar_jugadores, obtener_jugador
 from app.crud.enfrentamiento_crud import (obtener_enfrentamiento, listar_enfrentamientos, 
 listar_enfrentamientos_equipo, listar_enfrentamientos_equipo_local, listar_enfrentamientos_equipo_visitante, listar_enfrentamientos_fecha)
@@ -74,8 +74,19 @@ def cambiar_rol():
 # ------------------ Rutas para Equipos ------------------ #
 ## Rutas para obtener y listar equipos
 @app.route('/api/equipos', methods=['GET'])
-def route_listar_equipos():
-    respuesta, status = listar_equipos()
+def route_equipos():
+    # Recuperar parámetros de la query string
+    conferencia = request.args.get('conferencia')
+    division = request.args.get('division')
+    puesto = request.args.get('puesto', type=int)
+    
+    # Si se pasa al menos un filtro, usamos la función de filtrado; de lo contrario, listamos todos.
+    if conferencia or division or puesto:
+        print(f"Filtrando: Conferencia: {conferencia}, División: {division}, Puesto: {puesto}")
+        respuesta, status = filtrar_equipos_logica(conferencia, division, puesto)
+    else:
+        respuesta, status = listar_equipos()
+    
     return jsonify(respuesta), status
 
 ## Rutas para obtener un equipo por ID
