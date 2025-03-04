@@ -4,6 +4,11 @@ from .data_import import importar_record_equipos_nba, actualizar_historial, calc
 from app.auth import registrar_usuario, autenticar_usuario, cambiar_rol_usuario
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models import Usuario
+from app.crud.equipo_crud import obtener_equipo, listar_equipos
+from app.crud.jugador_crud import listar_jugadores, obtener_jugador
+from app.crud.enfrentamiento_crud import (obtener_enfrentamiento, listar_enfrentamientos, 
+listar_enfrentamientos_equipo, listar_enfrentamientos_equipo_local, listar_enfrentamientos_equipo_visitante, listar_enfrentamientos_fecha)
+
 
 # ------------------ Rutas para importar datos ------------------ #
 # Ruta por defecto que devuelve 'Hello World'
@@ -12,7 +17,7 @@ def hello_world():
     return "¡Bienvenido a DUNKVISION!"
 
 # Importar equipos
-@app.route('/api/importar_record_equipos', methods=['POST'])
+@app.route('/api/nba/importar_record_equipos', methods=['POST'])
 ##@jwt_required()
 def importar_record_equipos():
     importar_record_equipos_nba()
@@ -64,3 +69,69 @@ def cambiar_rol():
     if error:
         return jsonify(error), 400
     return jsonify({"msg": f"Rol de usuario {user_id} actualizado a {nuevo_rol}"}), 200
+
+
+# ------------------ Rutas para Equipos ------------------ #
+## Rutas para obtener y listar equipos
+@app.route('/api/equipos', methods=['GET'])
+def route_listar_equipos():
+    respuesta, status = listar_equipos()
+    return jsonify(respuesta), status
+
+## Rutas para obtener un equipo por ID
+@app.route('/api/equipos/<int:id_equipo>', methods=['GET'])
+def route_obtener_equipo(id_equipo):
+    respuesta, status = obtener_equipo(id_equipo)
+    return jsonify(respuesta), status
+
+
+# ------------------ Rutas para Jugadores ------------------ #
+## Rutas para obtener y listar jugadores
+@app.route('/api/jugadores', methods=['GET'])
+def route_listar_jugadores():
+    respuesta, status = listar_jugadores()
+    return jsonify(respuesta), status
+
+## Rutas para obtener un jugador por ID
+@app.route('/api/jugadores/<int:id_jugador>', methods=['GET'])
+def route_obtener_jugador(id_jugador):
+    respuesta, status = obtener_jugador(id_jugador)
+    return jsonify(respuesta), status
+
+
+# ------------------ Rutas para Enfrentamientos ------------------ #
+# Listar todos los enfrentamientos
+@app.route('/api/enfrentamientos', methods=['GET'])
+def route_listar_enfrentamientos():
+    respuesta, status = listar_enfrentamientos()
+    return jsonify(respuesta), status
+
+# Obtener un enfrentamiento por su ID
+@app.route('/api/enfrentamientos/<int:id_enfrentamiento>', methods=['GET'])
+def route_obtener_enfrentamiento(id_enfrentamiento):
+    respuesta, status = obtener_enfrentamiento(id_enfrentamiento)
+    return jsonify(respuesta), status
+
+# Listar enfrentamientos de un equipo (local o visitante)
+@app.route('/api/enfrentamientos/equipo/<int:id_equipo>', methods=['GET'])
+def route_listar_enfrentamientos_equipo(id_equipo):
+    respuesta, status = listar_enfrentamientos_equipo(id_equipo)
+    return jsonify(respuesta), status
+
+# Listar enfrentamientos en los que el equipo fue local
+@app.route('/api/enfrentamientos/equipo/local/<int:id_equipo>', methods=['GET'])
+def route_listar_enfrentamientos_equipo_local(id_equipo):
+    respuesta, status = listar_enfrentamientos_equipo_local(id_equipo)
+    return jsonify(respuesta), status
+
+# Listar enfrentamientos en los que el equipo fue visitante
+@app.route('/api/enfrentamientos/equipo/visitante/<int:id_equipo>', methods=['GET'])
+def route_listar_enfrentamientos_equipo_visitante(id_equipo):
+    respuesta, status = listar_enfrentamientos_equipo_visitante(id_equipo)
+    return jsonify(respuesta), status
+
+# Listar enfrentamientos por fecha (la fecha se pasa como cadena, por ejemplo "2025-03-01")
+@app.route('/api/enfrentamientos/fecha/<fecha>', methods=['GET'])
+def route_listar_enfrentamientos_fecha(fecha):
+    respuesta, status = listar_enfrentamientos_fecha(fecha)
+    return jsonify(respuesta), status
