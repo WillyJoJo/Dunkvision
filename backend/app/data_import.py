@@ -3,24 +3,54 @@ from app import db
 from app.models import Equipo, Enfrentamiento, Historial_Enfrentamientos, Contexto_Partido
 from sqlalchemy.sql import func, case
 
-# IMPORTAR EQUIPOS DE LA NBA
-def importar_equipos_nba():
-    """Importa equipos de la NBA a la base de datos."""
-    # Obtener los equipos de la NBA
-    equipos_nba = teams.get_teams()
+def importar_record_equipos_nba():
+    """
+    Importa y actualiza el récord de victorias y derrotas de cada equipo de la NBA a partir de la tabla Enfrentamiento.
+    El récord se almacena en el campo 'record' de la tabla Equipo en formato "victorias-derrotas" (ej. "38-21").
+    """
+    # Diccionario para almacenar las victorias y derrotas acumuladas por equipo.
+    records = {}
 
-    # Iterar sobre los equipos y agregarlos a la base de datos
-    for equipo in equipos_nba:
-        id_equipo = equipo['id']
-        nombre_equipo = equipo['full_name']
+    # Obtener todos los enfrentamientos registrados.
+    enfrentamientos = Enfrentamiento.query.all()
 
-        # Verificar si el equipo ya existe en la base de datos
-        if not Equipo.query.filter_by(id_equipo=id_equipo).first():
-            nuevo_equipo = Equipo(id_equipo=id_equipo, nombre=nombre_equipo)
-            db.session.add(nuevo_equipo)
-    
-    # Confirmar los cambios en la base de datos
+    # Recorrer cada enfrentamiento para contar victorias y derrotas.
+    for enfrentamiento in enfrentamientos:
+        equipo1_id = enfrentamiento.equipo1_id
+        equipo2_id = enfrentamiento.equipo2_id
+        puntos1 = enfrentamiento.puntos_equipo1
+        puntos2 = enfrentamiento.puntos_equipo2
+
+        # Omitir enfrentamientos con puntos nulos (sin resultado registrado)
+        if puntos1 is None or puntos2 is None:
+            continue
+
+        # Asegurarse de que ambos equipos tengan un registro inicial.
+        if equipo1_id not in records:
+            records[equipo1_id] = {'wins': 0, 'losses': 0}
+        if equipo2_id not in records:
+            records[equipo2_id] = {'wins': 0, 'losses': 0}
+
+        # Actualizar el conteo según el resultado del enfrentamiento.
+        if puntos1 > puntos2:
+            records[equipo1_id]['wins'] += 1
+            records[equipo2_id]['losses'] += 1
+        else:
+            records[equipo1_id]['losses'] += 1
+            records[equipo2_id]['wins'] += 1
+
+    # Recorrer todos los equipos para actualizar el campo 'record' en la base de datos.
+    equipos = Equipo.query.all()
+    for equipo in equipos:
+        # Si no hay datos, se asume "0-0"
+        rec = records.get(equipo.id_equipo, {'wins': 0, 'losses': 0})
+        equipo.record = f"{rec['wins']}-{rec['losses']}"
+
+    # Confirmar los cambios en la base de datos.
     db.session.commit()
+    print("Récord de equipos actualizado correctamente.")
+
+
 
 # ACTUALIZAR HISTORIAL ENFRENTAMIENTOS ENTRE EQUIPOS
 def actualizar_historial():
@@ -73,7 +103,7 @@ def actualizar_historial():
 
     # Confirmar los cambios en la base de datos
     db.session.commit()
-    print("✅ Historial de enfrentamientos actualizado correctamente.")
+    print("Historial de enfrentamientos actualizado correctamente.")
 
 
 # CALCULAR CONTEXTO PARTIDO DE ENFRENTAMIENTOS
@@ -124,7 +154,7 @@ def calcular_contexto_partido():
             db.session.add(nuevo_contexto)
 
     db.session.commit()
-    print("✅ Contexto de partidos actualizado correctamente.")
+    print("Contexto de partidos actualizado correctamente.")
 
 def obtener_racha(equipo_id, fecha_partido):
     """Obtiene la racha de los últimos 6 partidos antes de la fecha del partido en formato 'X-Y'."""

@@ -33,7 +33,7 @@ with open(output_sql_file, "w", encoding="utf-8") as file2:
         try:
             response = requests.get(NBA_API_URL, headers=HEADERS, params=params)
             if response.status_code != 200:
-                print(f"⚠️ No se pudo obtener el partido {game_id} (Código {response.status_code})")
+                print(f"No se pudo obtener el partido {game_id} (Código {response.status_code})")
                 continue
 
             data = response.json()
@@ -62,10 +62,10 @@ with open(output_sql_file, "w", encoding="utf-8") as file2:
             # Crear la línea de inserción con NULL en caso de que no haya puntos
             valores.append(f"({equipo_local_id}, {equipo_visitante_id}, {puntos_local}, {puntos_visitante}, '{fecha}')")
 
-            print(f"✅ Partido {game_id} agregado correctamente.")
+            print(f"Partido {game_id} agregado correctamente.")
 
         except Exception as e:
-            print(f"❌ Error al procesar {game_id}: {e}")
+            print(f"Error al procesar {game_id}: {e}")
 
         time.sleep(1)  # Evita bloqueos por exceso de peticiones
 
@@ -73,4 +73,4 @@ with open(output_sql_file, "w", encoding="utf-8") as file2:
     if valores:
         file2.write(",\n".join(valores) + ";\n")
 
-print(f"\n✅ Archivo SQL generado: {output_sql_file}")
+print(f"\nArchivo SQL generado: {output_sql_file}")

@@ -50,12 +50,12 @@ with open(sql_file_path, "w", encoding="utf-8") as file:
     for game_id in range(start_id, start_id + 1):  
         game_id_str = f"002240{game_id:04d}"  # Formato correcto del GameID
 
-        print(f"📊 Consultando partido: {game_id_str}")
+        print(f"Consultando partido: {game_id_str}")
 
         # Obtener los datos de la API
         response = requests.get(NBA_API_URL, headers=HEADERS, params={"GameID": game_id_str}, timeout=10)
         if response.status_code != 200:
-            print(f"⚠️ No se pudo obtener el partido {game_id_str}, código {response.status_code}")
+            print(f"No se pudo obtener el partido {game_id_str}, código {response.status_code}")
             continue
         
         data = response.json()
@@ -81,9 +81,9 @@ with open(sql_file_path, "w", encoding="utf-8") as file:
             # Convertir minutos "MM:SS" a enteros en minutos jugados
             minutos_jugados = convertir_minutos(minutos)
 
-            # 🚨 **Filtro: NO incluir jugadores que NO JUGARON (0 minutos)**
+            # **Filtro: NO incluir jugadores que NO JUGARON (0 minutos)**
             if minutos_jugados == 0:
-                print(f"⏩ Jugador {jugador_id} estuvo convocado pero no jugó en {game_id_str}, omitiendo...")
+                print(f"Jugador {jugador_id} estuvo convocado pero no jugó en {game_id_str}, omitiendo...")
                 continue  
 
             # Crear la línea SQL para este jugador en este partido
@@ -94,4 +94,4 @@ with open(sql_file_path, "w", encoding="utf-8") as file:
 
     file.write(",\n".join(valores) + ";\n")
 
-print(f"\n✅ Script SQL generado correctamente en: {sql_file_path}")
+print(f"\nScript SQL generado correctamente en: {sql_file_path}")

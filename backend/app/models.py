@@ -7,10 +7,14 @@ class Usuario(db.Model):
     password_hash = db.Column(db.String(255))
     rol = db.Column(db.String(20), default="usuario")  # si ponemos admin, el usuario será administrador
 
+
 class Equipo(db.Model):
     __tablename__ = 'Equipo'
     id_equipo = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nombre = db.Column(db.String(100), nullable=False, unique=True)
+    conferencia = db.Column(db.String(50), nullable=False)
+    division = db.Column(db.String(50), nullable=False)
+    record = db.Column(db.String(10), nullable=True)  # Ejemplo: "38-21" (victorias-derrotas)
     jugadores = db.relationship('Jugador', backref='equipo', lazy=True)
 
 
@@ -54,6 +58,7 @@ class Jugador_Partido(db.Model):
     porcentaje_triples = db.Column(db.Float)
     porcentaje_tiros_libres = db.Column(db.Float)
 
+
 class Contexto_Partido(db.Model):
     __tablename__ = 'Contexto_Partido'  # Nombre de la tabla en la base de datos
     id_contexto = db.Column(db.Integer, primary_key=True)
@@ -63,6 +68,7 @@ class Contexto_Partido(db.Model):
     racha_equipo1 = db.Column(db.String(50))
     racha_equipo2 = db.Column(db.String(50))
     
+
 class Lesiones_Jugador(db.Model):
     __tablename__ = 'Lesiones_Jugador'
     id_lesion = db.Column(db.Integer, primary_key=True, autoincrement=True)

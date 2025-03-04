@@ -1,6 +1,6 @@
 from app import app
 from flask import request, jsonify
-from .data_import import importar_equipos_nba, actualizar_historial, calcular_contexto_partido
+from .data_import import importar_record_equipos_nba, actualizar_historial, calcular_contexto_partido
 from app.auth import registrar_usuario, autenticar_usuario, cambiar_rol_usuario
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models import Usuario
@@ -12,11 +12,11 @@ def hello_world():
     return "¡Bienvenido a DUNKVISION!"
 
 # Importar equipos
-@app.route('/api/importar_equipos', methods=['POST'])
+@app.route('/api/importar_record_equipos', methods=['POST'])
 ##@jwt_required()
-def importar_equipos():
-    importar_equipos_nba()
-    return jsonify({'message': 'Equipos importados exitosamente!'}), 200
+def importar_record_equipos():
+    importar_record_equipos_nba()
+    return jsonify({'message': 'Records de los equipos importados exitosamente!'}), 200
 
 # Actualizar historial_enfrentamientos
 @app.route('/api/nba/actualizar_historial', methods=['POST'])

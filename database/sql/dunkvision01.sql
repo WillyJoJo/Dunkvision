@@ -13,7 +13,10 @@ CREATE TABLE IF NOT EXISTS Usuario (
 -- Tabla Equipo
 CREATE TABLE IF NOT EXISTS Equipo (
     id_equipo INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL
+    nombre VARCHAR(100) NOT NULL,
+    conferencia VARCHAR(50) NOT NULL,
+    division VARCHAR(50) NOT NULL,
+    record VARCHAR(10)
 );
 
 -- Tabla Jugador (se añade la columna posicion)

@@ -30,11 +30,11 @@ with open(sql_file_path, "w", encoding="utf-8") as file:
 
     for game_id in range(start_id, end_id - 1, -1):  # Recorremos en orden descendente
         game_id_str = f"002240{game_id:04d}"  
-        print(f"📊 Consultando partido: {game_id_str}")
+        print(f"Consultando partido: {game_id_str}")
 
         response = requests.get(NBA_API_URL, headers=HEADERS, params={"GameID": game_id_str}, timeout=10)
         if response.status_code != 200:
-            print(f"⚠️ No se pudo obtener el partido {game_id_str}")
+            print(f"No se pudo obtener el partido {game_id_str}")
             continue
         
         data = response.json()
@@ -46,7 +46,7 @@ with open(sql_file_path, "w", encoding="utf-8") as file:
             equipo_id = stats[1]  
             posicion = stats[7] or "N/A"  # Si no hay posición, poner "N/A"
 
-            # 🚨 **Evitar jugadores duplicados en este script**
+            # **Evitar jugadores duplicados en este script**
             if jugador_id in jugadores_insertados:
                 continue  
             
@@ -59,4 +59,4 @@ with open(sql_file_path, "w", encoding="utf-8") as file:
     if valores:
         file.write(",\n".join(valores) + ";\n")
 
-print(f"\n✅ Script SQL generado correctamente en: {sql_file_path}")
+print(f"\nScript SQL generado correctamente en: {sql_file_path}")
