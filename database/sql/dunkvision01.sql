@@ -97,55 +97,55 @@ CREATE TABLE IF NOT EXISTS Historial_Enfrentamientos (
 CREATE OR REPLACE VIEW Vista_Estadisticas_Jugador AS
 SELECT 
     jp.jugador_id,
-    j.equipo_id,
-    jp.enfrentamiento_id,
-    jp.puntos,
-    jp.asistencias,
-    jp.rebotes_ofensivos + jp.rebotes_defensivos AS rebotes_totales,
-    jp.perdidas_balon,
-    jp.porcentaje_tiros_de_campo,
-    jp.porcentaje_tiros_libres,
-
-    -- Calcular uso de porcentaje del jugador (Percentage usage)
-    (jp.puntos + jp.asistencias * 2 + jp.perdidas_balon) / 
-    (SELECT SUM(puntos + asistencias * 2 + perdidas_balon) 
-     FROM Jugador_Partido 
-     WHERE enfrentamiento_id = jp.enfrentamiento_id) * 100 AS uso_porcentaje,
-
-    -- Calcular eficiencia del jugador (PER básico simplificado)
-    (jp.puntos + jp.rebotes_ofensivos + jp.rebotes_defensivos + 
-     jp.asistencias + jp.robos + jp.tapones - 
-     jp.perdidas_balon - (1 - jp.porcentaje_tiros_de_campo) * 100) AS eficiencia_jugador,
-
-    -- Rating ofensivo (simplificado)
-    (jp.puntos * 1.5 + jp.asistencias * 2) / jp.minutos_jugados * 48 AS rating_ofensivo,
-
-    -- Rating defensivo (simplificado)
-    (jp.rebotes_defensivos + jp.robos * 2 + jp.tapones * 2) / jp.minutos_jugados * 48 AS rating_defensivo,
-    
-    -- Win Shares (simplificado basado en contribución a puntos y defensa)
-    (jp.puntos + jp.asistencias * 0.5 + (jp.rebotes_ofensivos + jp.rebotes_defensivos) * 0.5 + 
-     jp.robos + jp.tapones - jp.perdidas_balon) / 
-    (SELECT SUM(puntos) FROM Jugador_Partido WHERE enfrentamiento_id = jp.enfrentamiento_id) * 0.5 AS win_shares
-
+    j.equipo_id, -- este valor es el actual, ya que está en la tabla Jugador
+    AVG(jp.puntos) AS puntos_promedio,
+    AVG(jp.asistencias) AS asistencias_promedio,
+    AVG(jp.rebotes_ofensivos + jp.rebotes_defensivos) AS rebotes_totales_promedio,
+    AVG(jp.perdidas_balon) AS perdidas_promedio,
+    AVG(jp.porcentaje_tiros_de_campo) AS porcentaje_tiros_de_campo_promedio,
+    AVG(jp.porcentaje_tiros_libres) AS porcentaje_tiros_libres_promedio,
+    AVG(jp.porcentaje_triples) AS porcentaje_triples_promedio,
+    AVG(jp.minutos_jugados) AS minutos_jugados_promedio,
+    AVG(jp.robos) AS robos_promedio,
+    AVG(jp.tapones) AS tapones_promedio,
+    AVG(jp.faltas_cometidas) AS faltas_cometidas_promedio,
+    AVG(jp.faltas_recibidas) AS faltas_recibidas_promedio
+    -- Uso de porcentaje del jugador (Percentage usage USG%)
+    -- Eficiencia del jugador (Player Efficiency Rating PER)
+    -- Rating ofensivo (Offensive Rating ORTG)
+    -- Rating defensivo (Defensive Rating DRTG)
+    -- Win Shares (WS Victorias Aportadas) 
 FROM Jugador_Partido jp
-JOIN Jugador j ON jp.jugador_id = j.id_jugador;
-
+JOIN Jugador j ON jp.jugador_id = j.id_jugador
+GROUP BY jp.jugador_id, j.equipo_id;
 
 -- Vista para las estadísticas del equipo por partido
-CREATE OR REPLACE VIEW Vista_Equipo_Partido AS
+CREATE OR REPLACE VIEW Vista_Equipo_Promedio AS
 SELECT 
-    j.equipo_id,
-    jp.enfrentamiento_id,
-    SUM(jp.puntos) AS puntos_equipo,
-    SUM(jp.rebotes_ofensivos + jp.rebotes_defensivos) AS rebotes_totales,
-    SUM(jp.asistencias) AS asistencias_totales,
-    SUM(jp.perdidas_balon) AS perdidas_totales,
-    SUM(jp.faltas_cometidas) AS faltas_totales,
-    SUM(jp.faltas_recibidas) AS faltas_recibidas_totales,
-    SUM(jp.porcentaje_tiros_de_campo * jp.minutos_jugados) / 
-        SUM(jp.minutos_jugados) AS porcentaje_tiros_campo_equipo
-FROM jugador_partido jp
-JOIN jugador j ON jp.jugador_id = j.id_jugador
-GROUP BY j.equipo_id, jp.enfrentamiento_id;
-
+    equipo_id,
+    COUNT(*) AS partidos_jugados,
+    AVG(puntos) AS puntos_promedio,
+    AVG(rebotes) AS rebotes_promedio,
+    AVG(asistencias) AS asistencias_promedio,
+    AVG(perdidas) AS perdidas_promedio,
+    AVG(faltas_cometidas) AS faltas_cometidas_promedio,
+    AVG(faltas_recibidas) AS faltas_recibidas_promedio,
+    AVG(tiros_campo) AS tiros_campo_promedio
+    -- Rating ofensivo (simplificado)
+    -- Rating defensivo (simplificado)
+FROM (
+    SELECT 
+        j.equipo_id,
+        jp.enfrentamiento_id,
+        SUM(jp.puntos) AS puntos,
+        SUM(jp.rebotes_ofensivos + jp.rebotes_defensivos) AS rebotes,
+        SUM(jp.asistencias) AS asistencias,
+        SUM(jp.perdidas_balon) AS perdidas,
+        SUM(jp.faltas_cometidas) AS faltas_cometidas,
+        SUM(jp.faltas_recibidas) AS faltas_recibidas,
+        SUM(jp.porcentaje_tiros_de_campo * jp.minutos_jugados) / SUM(jp.minutos_jugados) AS tiros_campo
+    FROM jugador_partido jp
+    JOIN jugador j ON jp.jugador_id = j.id_jugador
+    GROUP BY j.equipo_id, jp.enfrentamiento_id
+) AS resumen
+GROUP BY equipo_id;
