@@ -556,4 +556,18 @@ INSERT INTO Jugador (id_jugador,nombre,equipo_id,posicion) VALUES
 (1628427,'Vlatko Čančar',1610612743,'F'),
 (203967,'Dario Šarić',1610612743,'F-C'),
 (1629022, 'Lonnie Walker IV', 1610612755, 'G'),
-(1629667, 'Jalen McDaniels', 1610612764, 'F');
+(1629667, 'Jalen McDaniels', 1610612764, 'F'),
+(1626174, 'Christian Wood', 1610612747, 'C'),
+(1627746, 'Skal Labissiere', 1610612758, 'C'),
+(1628396, 'Tony Bradley', 1610612754, 'C'),
+(1630201, 'Malachi Flynn', 1610612766, 'G'),
+(1630205, 'Lamar Stevens', 1610612763, 'F'),
+(1630284, 'Kevon Harris', 1610612737, 'G'),
+(1630296, 'Braxton Key', 1610612744, 'F'),
+(1630554, 'Jason Preston', 1610612762, 'G'),
+(1630623, 'Tyson Etienne', 1610612751, 'G'),
+(1630647, 'Eugene Omoruyi', 1610612761, 'F'),
+(1631123, 'Jamaree Bouyea', 1610612749, 'G'),
+(1641936, 'Miles Norris', 1610612738, 'F'),
+(1642379, 'Taran Armstrong', 1610612744, 'G');
+

@@ -1,20 +1,27 @@
 import requests
-import time
 import math
+import configparser
 
-# Configuración de la API de la NBA
-NBA_API_URL = "https://stats.nba.com/stats/boxscoretraditionalv2"
+# 1) Cargamos el archivo config.ini
+config = configparser.ConfigParser()
+config.read("config.ini") 
+
+# 2) Leemos las secciones
+NBA_API_URL = config["NBA_API"]["url_jugador"]
 
 HEADERS = {
-    "Host": "stats.nba.com",
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-    "Accept": "application/json, text/plain, */*",
-    "Referer": "https://www.nba.com/",
-    "Connection": "keep-alive"
+    "Host": config["HEADERS"]["host"],
+    "User-Agent": config["HEADERS"]["user_agent"],
+    "Accept": config["HEADERS"]["accept"],
+    "Referer": config["HEADERS"]["referer"],
+    "Connection": config["HEADERS"]["connection"]
 }
 
-# Archivo donde guardaremos el script SQL
-sql_file_path = "insert_jugador_partido.sql"
+competicion = config["GAME_CONFIG"]["competicion"]
+temporada = config["GAME_CONFIG"]["temporada"]
+start_id = int(config["GAME_CONFIG"]["start_id"])
+last_id = int(config["GAME_CONFIG"]["last_id"])
+output_sql_file = config["SQL_CONFIG"]["ficherosql_jugador_partido"]
 
 def convertir_minutos(minutos_str):
     """Convierte una cadena de minutos 'MM.SSSSSS:SS' en un valor entero de minutos.
@@ -35,20 +42,17 @@ def convertir_minutos(minutos_str):
     except ValueError:
         return 0  # Si hay algún otro valor inesperado, asumimos 0 minutos
 
-# Definir manualmente el primer partido a consultar
-start_id = 61  # Cambia este número según el partido desde donde quieras empezar
-
 # Abrir el archivo para escribir las sentencias SQL
-with open(sql_file_path, "w", encoding="utf-8") as file:
+with open(output_sql_file, "w", encoding="utf-8") as file:
     file.write("INSERT INTO Jugador_Partido (jugador_id, enfrentamiento_id, minutos_jugados, puntos, asistencias, "
                "rebotes_ofensivos, rebotes_defensivos, robos, tapones, perdidas_balon, faltas_cometidas, faltas_recibidas, "
                "porcentaje_tiros_de_campo, porcentaje_triples, porcentaje_tiros_libres) VALUES\n")
 
     valores = []
 
-    # Iterar sobre los siguientes 50 partidos desde el ID indicado
-    for game_id in range(start_id, start_id + 1):  
-        game_id_str = f"002240{game_id:04d}"  # Formato correcto del GameID
+    # Iterar sobre los siguientes partidos desde start_id hasta last_id
+    for game_id in range(start_id, last_id + 1):  
+        game_id_str = f"{competicion}{temporada}{game_id:05d}"  # Formato correcto del GameID
 
         print(f"Consultando partido: {game_id_str}")
 
@@ -94,4 +98,4 @@ with open(sql_file_path, "w", encoding="utf-8") as file:
 
     file.write(",\n".join(valores) + ";\n")
 
-print(f"\nScript SQL generado correctamente en: {sql_file_path}")
+print(f"\nScript SQL generado correctamente en: {output_sql_file}")

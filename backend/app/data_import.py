@@ -156,6 +156,7 @@ def calcular_contexto_partido():
     db.session.commit()
     print("Contexto de partidos actualizado correctamente.")
 
+##REVISAR
 def obtener_racha(equipo_id, fecha_partido):
     """Obtiene la racha de los últimos 6 partidos antes de la fecha del partido en formato 'X-Y'."""
     ultimos_partidos = db.session.query(
