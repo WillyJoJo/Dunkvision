@@ -15,8 +15,7 @@ CREATE TABLE IF NOT EXISTS Equipo (
     id_equipo INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     conferencia VARCHAR(50) NOT NULL,
-    division VARCHAR(50) NOT NULL,
-    record VARCHAR(10)
+    division VARCHAR(50) NOT NULL
 );
 
 -- Tabla Jugador (se añade la columna posicion)
@@ -100,9 +99,8 @@ CREATE TABLE IF NOT EXISTS Temporada (
     nombre_temporada VARCHAR(50) NOT NULL UNIQUE
 );
 
--- Tabla Estadísticas_avanzadas_jugador (estadísticas calculadas del jugador por partido)
--- Asociada a un jugador (id_jugador) y a una temporada (id_temporada)
-CREATE TABLE IF NOT EXISTS Estadisticas_avanzadas_jugador (
+-- Tabla Estadísticas_Avanzadas_Jugador (estadísticas calculadas del jugador por partido)
+CREATE TABLE IF NOT EXISTS Estadisticas_Avanzadas_Jugador (
     id_estadisticas INT AUTO_INCREMENT PRIMARY KEY,
     jugador_id INT,
     temporada_id INT,
@@ -138,11 +136,37 @@ CREATE TABLE IF NOT EXISTS Estadisticas_avanzadas_jugador (
     FOREIGN KEY (temporada_id) REFERENCES Temporada(id_temporada)
 );
 
-
-
---
---
---
-
--- Tabla para las estadísticas promedio del equipo por temporada
-
+-- Tabla Estadisticas_Avanzadas_Equipo (estadísticas calculadas del equipo por partido)
+CREATE TABLE IF NOT EXISTS Estadisticas_Avanzadas_Equipo (
+    id_estadisticas INT AUTO_INCREMENT PRIMARY KEY,
+    equipo_id INT,
+    temporada_id INT,
+    puntos INT,
+    asistencias INT,
+    rebotes_ofensivos INT,
+    rebotes_defensivos INT,
+    rebotes_totales INT,
+    robos INT,
+    tapones INT,
+    perdidas_balon INT,
+    faltas_cometidas INT,
+    tiros_de_campo_intentados INT,
+    porcentaje_tiros_de_campo FLOAT,
+    triples_intentados INT,
+    porcentaje_triples FLOAT,
+    tiros_de_dos_intentados INT,
+    porcentaje_tiros_de_dos FLOAT,
+    porcentaje_efectivo_tiros_de_campo FLOAT,
+    tiros_libres_intentados INT,
+    porcentaje_tiros_libres FLOAT,
+    rating_ofensivo FLOAT,
+    rating_defensivo FLOAT,
+    fuerza_del_adversario FLOAT,
+    sistema_valoración_simple FLOAT,
+    ritmo FLOAT,
+    margen_de_victoria FLOAT,
+    victorias INT,
+    derrotas INT,
+    FOREIGN KEY (equipo_id) REFERENCES Equipo(id_equipo),
+    FOREIGN KEY (temporada_id) REFERENCES Temporada(id_temporada)
+);
