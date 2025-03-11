@@ -1,4 +1,3 @@
-from nba_api.stats.static import teams
 from app import db
 from app.models import Equipo, Enfrentamiento, Historial_Enfrentamientos, Contexto_Partido
 from sqlalchemy.sql import func, case
