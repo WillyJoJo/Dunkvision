@@ -36,7 +36,7 @@ def convertir_minutos(minutos_str):
         return 0  # Si hay algún otro valor inesperado, asumimos 0 minutos
 
 # Definir manualmente el primer partido a consultar
-start_id = 835  # Cambia este número según el partido desde donde quieras empezar
+start_id = 61  # Cambia este número según el partido desde donde quieras empezar
 
 # Abrir el archivo para escribir las sentencias SQL
 with open(sql_file_path, "w", encoding="utf-8") as file:

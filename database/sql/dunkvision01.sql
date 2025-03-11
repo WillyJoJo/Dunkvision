@@ -94,58 +94,55 @@ CREATE TABLE IF NOT EXISTS Historial_Enfrentamientos (
     CONSTRAINT equipo_unico CHECK (equipo1_id <> equipo2_id)
 );
 
-CREATE OR REPLACE VIEW Vista_Estadisticas_Jugador AS
-SELECT 
-    jp.jugador_id,
-    j.equipo_id, -- este valor es el actual, ya que está en la tabla Jugador
-    AVG(jp.puntos) AS puntos_promedio,
-    AVG(jp.asistencias) AS asistencias_promedio,
-    AVG(jp.rebotes_ofensivos + jp.rebotes_defensivos) AS rebotes_totales_promedio,
-    AVG(jp.perdidas_balon) AS perdidas_promedio,
-    AVG(jp.porcentaje_tiros_de_campo) AS porcentaje_tiros_de_campo_promedio,
-    AVG(jp.porcentaje_tiros_libres) AS porcentaje_tiros_libres_promedio,
-    AVG(jp.porcentaje_triples) AS porcentaje_triples_promedio,
-    AVG(jp.minutos_jugados) AS minutos_jugados_promedio,
-    AVG(jp.robos) AS robos_promedio,
-    AVG(jp.tapones) AS tapones_promedio,
-    AVG(jp.faltas_cometidas) AS faltas_cometidas_promedio,
-    AVG(jp.faltas_recibidas) AS faltas_recibidas_promedio
-    -- Uso de porcentaje del jugador (Percentage usage USG%)
-    -- Eficiencia del jugador (Player Efficiency Rating PER)
-    -- Rating ofensivo (Offensive Rating ORTG)
-    -- Rating defensivo (Defensive Rating DRTG)
-    -- Win Shares (WS Victorias Aportadas) 
-FROM Jugador_Partido jp
-JOIN Jugador j ON jp.jugador_id = j.id_jugador
-GROUP BY jp.jugador_id, j.equipo_id;
+-- Tabla enumerado de temporada
+CREATE TABLE IF NOT EXISTS Temporada (
+    id_temporada INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_temporada VARCHAR(50) NOT NULL UNIQUE
+);
 
--- Vista para las estadísticas del equipo por partido
-CREATE OR REPLACE VIEW Vista_Equipo_Promedio AS
-SELECT 
-    equipo_id,
-    COUNT(*) AS partidos_jugados,
-    AVG(puntos) AS puntos_promedio,
-    AVG(rebotes) AS rebotes_promedio,
-    AVG(asistencias) AS asistencias_promedio,
-    AVG(perdidas) AS perdidas_promedio,
-    AVG(faltas_cometidas) AS faltas_cometidas_promedio,
-    AVG(faltas_recibidas) AS faltas_recibidas_promedio,
-    AVG(tiros_campo) AS tiros_campo_promedio
-    -- Rating ofensivo (simplificado)
-    -- Rating defensivo (simplificado)
-FROM (
-    SELECT 
-        j.equipo_id,
-        jp.enfrentamiento_id,
-        SUM(jp.puntos) AS puntos,
-        SUM(jp.rebotes_ofensivos + jp.rebotes_defensivos) AS rebotes,
-        SUM(jp.asistencias) AS asistencias,
-        SUM(jp.perdidas_balon) AS perdidas,
-        SUM(jp.faltas_cometidas) AS faltas_cometidas,
-        SUM(jp.faltas_recibidas) AS faltas_recibidas,
-        SUM(jp.porcentaje_tiros_de_campo * jp.minutos_jugados) / SUM(jp.minutos_jugados) AS tiros_campo
-    FROM jugador_partido jp
-    JOIN jugador j ON jp.jugador_id = j.id_jugador
-    GROUP BY j.equipo_id, jp.enfrentamiento_id
-) AS resumen
-GROUP BY equipo_id;
+-- Tabla Estadísticas_avanzadas_jugador (estadísticas calculadas del jugador por partido)
+-- Asociada a un jugador (id_jugador) y a una temporada (id_temporada)
+CREATE TABLE IF NOT EXISTS Estadisticas_avanzadas_jugador (
+    id_estadisticas INT AUTO_INCREMENT PRIMARY KEY,
+    jugador_id INT,
+    temporada_id INT,
+    partidos_jugados INT,
+    minutos_jugados INT,
+    puntos INT,
+    asistencias INT,
+    rebotes_ofensivos INT,
+    rebotes_defensivos INT,
+    rebotes_totales INT,
+    robos INT,
+    tapones INT,
+    perdidas_balon INT,
+    faltas_cometidas INT,
+    tiros_de_campo_intentados INT,
+    porcentaje_tiros_de_campo FLOAT,
+    triples_intentados INT,
+    porcentaje_triples FLOAT,
+    tiros_de_dos_intentados INT,
+    porcentaje_tiros_de_dos FLOAT,
+    porcentaje_efectivo_tiros_de_campo FLOAT,
+    tiros_libres_intentados INT,
+    porcentaje_tiros_libres FLOAT,
+    rating_ofensivo FLOAT,
+    rating_defensivo FLOAT,
+    player_efficiency_rating FLOAT,
+    porcentaje_de_uso FLOAT,
+    win_share_ofensivo FLOAT,
+    win_share_defensivo FLOAT,
+    win_share_total FLOAT,
+    box_plus_minus FLOAT,
+    FOREIGN KEY (jugador_id) REFERENCES Jugador(id_jugador),
+    FOREIGN KEY (temporada_id) REFERENCES Temporada(id_temporada)
+);
+
+
+
+--
+--
+--
+
+-- Tabla para las estadísticas promedio del equipo por temporada
+
