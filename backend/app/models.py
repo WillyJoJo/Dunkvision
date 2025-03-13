@@ -85,36 +85,71 @@ class Historial_Enfrentamientos(db.Model):
     victorias_equipo2 = db.Column(db.Integer, default=0)
 
 
-class VistaEquipoPartido(db.Model):
-    __tablename__ = 'Vista_Equipo_Partido'
-    __table_args__ = {'info': {'viewonly': True}}
+class Estadisticas_Avanzadas_Jugador(db.Model):
+    __tablename__ = 'Estadisticas_Avanzadas_Jugador'
     
-    equipo_id = db.Column(db.Integer, primary_key=True)
-    enfrentamiento_id = db.Column(db.Integer, primary_key=True)
-    puntos_equipo = db.Column(db.Integer)
-    rebotes_totales = db.Column(db.Integer)
-    asistencias_totales = db.Column(db.Integer)
-    perdidas_totales = db.Column(db.Integer)
-    faltas_totales = db.Column(db.Integer)
-    faltas_recibidas_totales = db.Column(db.Integer)
-    porcentaje_tiros_campo_equipo = db.Column(db.Float)
-
-
-class VistaEstadisticasJugador(db.Model):
-    __tablename__ = 'Vista_Estadisticas_Jugador'
-    __table_args__ = {'extend_existing': True}
-    
-    jugador_id = db.Column(db.Integer, primary_key=True)
-    equipo_id = db.Column(db.Integer)
-    enfrentamiento_id = db.Column(db.Integer)
+    id_estadisticas = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    jugador_id = db.Column(db.Integer, db.ForeignKey('Jugador.id_jugador'), nullable=False)
+    temporada_id = db.Column(db.Integer, db.ForeignKey('Temporada.id_temporada'), nullable=False)
+    partidos_jugados = db.Column(db.Integer)
+    minutos_jugados = db.Column(db.Integer)
     puntos = db.Column(db.Integer)
     asistencias = db.Column(db.Integer)
+    rebotes_ofensivos = db.Column(db.Integer)
+    rebotes_defensivos = db.Column(db.Integer)
     rebotes_totales = db.Column(db.Integer)
+    robos = db.Column(db.Integer)
+    tapones = db.Column(db.Integer)
     perdidas_balon = db.Column(db.Integer)
+    faltas_cometidas = db.Column(db.Integer)
+    tiros_de_campo_intentados = db.Column(db.Integer)
     porcentaje_tiros_de_campo = db.Column(db.Float)
+    triples_intentados = db.Column(db.Integer)
+    porcentaje_triples = db.Column(db.Float)
+    tiros_de_dos_intentados = db.Column(db.Integer)
+    porcentaje_tiros_de_dos = db.Column(db.Float)
+    porcentaje_efectivo_tiros_de_campo = db.Column(db.Float)
+    tiros_libres_intentados = db.Column(db.Integer)
     porcentaje_tiros_libres = db.Column(db.Float)
-    uso_porcentaje_equipo = db.Column(db.Float)
-    eficiencia_jugador = db.Column(db.Float)
     rating_ofensivo = db.Column(db.Float)
     rating_defensivo = db.Column(db.Float)
-    win_shares = db.Column(db.Float)
+    player_efficiency_rating = db.Column(db.Float)
+    usage_porcentage = db.Column(db.Float)
+    win_share_ofensivo = db.Column(db.Float)
+    win_share_defensivo = db.Column(db.Float)
+    win_share_total = db.Column(db.Float)
+    box_plus_minus = db.Column(db.Float)
+
+
+class Estadisticas_Avanzadas_Equipo(db.Model):
+    __tablename__ = 'Estadisticas_Avanzadas_Equipo'
+    
+    id_estadisticas = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    equipo_id = db.Column(db.Integer, db.ForeignKey('Equipo.id_equipo'), nullable=False)
+    temporada_id = db.Column(db.Integer, db.ForeignKey('Temporada.id_temporada'), nullable=False)
+    puntos = db.Column(db.Integer)
+    asistencias = db.Column(db.Integer)
+    rebotes_ofensivos = db.Column(db.Integer)
+    rebotes_defensivos = db.Column(db.Integer)
+    rebotes_totales = db.Column(db.Integer)
+    robos = db.Column(db.Integer)
+    tapones = db.Column(db.Integer)
+    perdidas_balon = db.Column(db.Integer)
+    faltas_cometidas = db.Column(db.Integer)
+    tiros_de_campo_intentados = db.Column(db.Integer)
+    porcentaje_tiros_de_campo = db.Column(db.Float)
+    triples_intentados = db.Column(db.Integer)
+    porcentaje_triples = db.Column(db.Float)
+    tiros_de_dos_intentados = db.Column(db.Integer)
+    porcentaje_tiros_de_dos = db.Column(db.Float)
+    porcentaje_efectivo_tiros_de_campo = db.Column(db.Float)
+    tiros_libres_intentados = db.Column(db.Integer)
+    porcentaje_tiros_libres = db.Column(db.Float)
+    rating_ofensivo = db.Column(db.Float)
+    rating_defensivo = db.Column(db.Float)
+    strength_of_schedule = db.Column(db.Float)
+    simple_rating_system = db.Column(db.Float)
+    ritmo = db.Column(db.Float)
+    margen_de_victoria = db.Column(db.Float)
+    victorias = db.Column(db.Integer)
+    derrotas = db.Column(db.Integer)

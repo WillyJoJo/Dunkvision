@@ -9,6 +9,8 @@ from app.crud.jugador_crud import listar_jugadores, obtener_jugador, filtrar_jug
 from app.crud.enfrentamiento_crud import (obtener_enfrentamiento, listar_enfrentamientos, 
 listar_enfrentamientos_equipo, listar_enfrentamientos_equipo_local, listar_enfrentamientos_equipo_visitante, listar_enfrentamientos_fecha)
 from app.crud.jugador_partido_crud import listar_jugador_partido,filtrar_jugador_partido_logica
+from app.crud.estadisticas_avanzadas_jugador_crud import (obtener_estadisticas_avanzadas,listar_estadisticas_avanzadas,
+filtrar_estadisticas_avanzadas_logica, crear_estadisticas_avanzadas, actualizar_estadisticas_avanzadas)
 
 # ------------------ Rutas para importar datos ------------------ #
 # Ruta por defecto que devuelve 'Hello World'
@@ -165,4 +167,41 @@ def route_jugador_partido():
     else:
         respuesta, status = listar_jugador_partido()
     
+    return jsonify(respuesta), status
+
+# ------------------ Rutas para Estadisticas_Avanzadas_Jugador ------------------ #
+## Ruta para obtener o filtrar estadísticas avanzadas
+@app.route('/api/estadisticas_avanzadas', methods=['GET'])
+def route_estadisticas_avanzadas():
+    jugador_id = request.args.get('jugador_id', type=int)
+    temporada_id = request.args.get('temporada_id', type=int)
+    order_by = request.args.get('order_by')
+    order_dir = request.args.get('order_dir', "desc")
+    
+    # Si se pasa algún filtro u ordenamiento, se utiliza el método de filtrado; de lo contrario, se listan todos.
+    if jugador_id or temporada_id or order_by:
+        respuesta, status = filtrar_estadisticas_avanzadas_logica(jugador_id, temporada_id, order_by, order_dir)
+    else:
+        respuesta, status = listar_estadisticas_avanzadas()
+    
+    return jsonify(respuesta), status
+
+## Ruta para obtener un registro por ID
+@app.route('/api/estadisticas_avanzadas/<int:id_estadisticas>', methods=['GET'])
+def route_obtener_estadisticas(id_estadisticas):
+    respuesta, status = obtener_estadisticas_avanzadas(id_estadisticas)
+    return jsonify(respuesta), status
+
+## Ruta para crear un nuevo registro
+@app.route('/api/estadisticas_avanzadas', methods=['POST'])
+def route_crear_estadisticas():
+    data = request.get_json()
+    respuesta, status = crear_estadisticas_avanzadas(data)
+    return jsonify(respuesta), status
+
+## Ruta para actualizar un registro existente
+@app.route('/api/estadisticas_avanzadas/<int:id_estadisticas>', methods=['PUT'])
+def route_actualizar_estadisticas(id_estadisticas):
+    data = request.get_json()
+    respuesta, status = actualizar_estadisticas_avanzadas(id_estadisticas, data)
     return jsonify(respuesta), status
