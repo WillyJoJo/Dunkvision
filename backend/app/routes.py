@@ -1,27 +1,20 @@
 from app import app
 from flask import request, jsonify
-from .data_import import importar_record_equipos_nba, actualizar_historial, calcular_contexto_partido
+from .data_import import actualizar_historial, calcular_contexto_partido
 from app.auth import registrar_usuario, autenticar_usuario, cambiar_rol_usuario
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models import Usuario
 from app.crud.equipo_crud import obtener_equipo, listar_equipos, filtrar_equipos_logica
-from app.crud.jugador_crud import listar_jugadores, obtener_jugador
+from app.crud.jugador_crud import listar_jugadores, obtener_jugador, filtrar_jugadores_logica
 from app.crud.enfrentamiento_crud import (obtener_enfrentamiento, listar_enfrentamientos, 
 listar_enfrentamientos_equipo, listar_enfrentamientos_equipo_local, listar_enfrentamientos_equipo_visitante, listar_enfrentamientos_fecha)
-
+from app.crud.jugador_partido_crud import listar_jugador_partido,filtrar_jugador_partido_logica
 
 # ------------------ Rutas para importar datos ------------------ #
 # Ruta por defecto que devuelve 'Hello World'
 @app.route('/')
 def hello_world():
     return "¡Bienvenido a DUNKVISION!"
-
-# Importar equipos
-@app.route('/api/nba/importar_record_equipos', methods=['POST'])
-##@jwt_required()
-def importar_record_equipos():
-    importar_record_equipos_nba()
-    return jsonify({'message': 'Records de los equipos importados exitosamente!'}), 200
 
 # Actualizar historial_enfrentamientos
 @app.route('/api/nba/actualizar_historial', methods=['POST'])
@@ -78,12 +71,11 @@ def route_equipos():
     # Recuperar parámetros de la query string
     conferencia = request.args.get('conferencia')
     division = request.args.get('division')
-    puesto = request.args.get('puesto', type=int)
     
     # Si se pasa al menos un filtro, usamos la función de filtrado; de lo contrario, listamos todos.
-    if conferencia or division or puesto:
-        print(f"Filtrando: Conferencia: {conferencia}, División: {division}, Puesto: {puesto}")
-        respuesta, status = filtrar_equipos_logica(conferencia, division, puesto)
+    if conferencia or division:
+        print(f"Filtrando: Conferencia: {conferencia}, División: {division}")
+        respuesta, status = filtrar_equipos_logica(conferencia, division)
     else:
         respuesta, status = listar_equipos()
     
@@ -97,10 +89,20 @@ def route_obtener_equipo(id_equipo):
 
 
 # ------------------ Rutas para Jugadores ------------------ #
-## Rutas para obtener y listar jugadores
+## Ruta para obtener o filtrar jugadores
 @app.route('/api/jugadores', methods=['GET'])
-def route_listar_jugadores():
-    respuesta, status = listar_jugadores()
+def route_jugadores():
+    # Recupera parámetros de la query string
+    letra_apellido = request.args.get('letra_apellido')
+    equipo = request.args.get('equipo', type=int)
+    posicion = request.args.get('posicion')
+    
+    # Si se pasa al menos un filtro, usa la función de filtrado; de lo contrario, lista todos.
+    if letra_apellido or equipo or posicion:
+        respuesta, status = filtrar_jugadores_logica(letra_apellido, equipo, posicion)
+    else:
+        respuesta, status = listar_jugadores()
+    
     return jsonify(respuesta), status
 
 ## Rutas para obtener un jugador por ID
@@ -145,4 +147,22 @@ def route_listar_enfrentamientos_equipo_visitante(id_equipo):
 @app.route('/api/enfrentamientos/fecha/<fecha>', methods=['GET'])
 def route_listar_enfrentamientos_fecha(fecha):
     respuesta, status = listar_enfrentamientos_fecha(fecha)
+    return jsonify(respuesta), status
+
+# ------------------ Rutas para Jugador_Partido ------------------ #
+## Ruta para obtener o filtrar registros de Jugador_Partido
+@app.route('/api/jugador_partido', methods=['GET'])
+def route_jugador_partido():
+    # Recuperar parámetros de la query string
+    enfrentamiento_id = request.args.get('enfrentamiento_id', type=int)
+    jugador_id = request.args.get('jugador_id', type=int)
+    order_by = request.args.get('order_by')
+    order_dir = request.args.get('order_dir', "desc")   ## Por defecto, orden descendente
+
+    # Si se pasa algún filtro o parámetro de orden, se usa el método de filtrado; de lo contrario, se listan todos.
+    if enfrentamiento_id or jugador_id or order_by:
+        respuesta, status = filtrar_jugador_partido_logica(enfrentamiento_id, jugador_id, order_by, order_dir)
+    else:
+        respuesta, status = listar_jugador_partido()
+    
     return jsonify(respuesta), status

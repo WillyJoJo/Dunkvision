@@ -14,7 +14,6 @@ class Equipo(db.Model):
     nombre = db.Column(db.String(100), nullable=False, unique=True)
     conferencia = db.Column(db.String(50), nullable=False)
     division = db.Column(db.String(50), nullable=False)
-    record = db.Column(db.String(10), nullable=True)  # Ejemplo: "38-21" (victorias-derrotas)
     jugadores = db.relationship('Jugador', backref='equipo', lazy=True)
 
 
