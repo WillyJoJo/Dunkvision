@@ -2,7 +2,6 @@ from flask import Flask
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
-from app import routes  ## NO TOCAR, MUY IMPORTANTE
 
 app = Flask(__name__)
 
@@ -17,3 +16,5 @@ app.config['JWT_SECRET_KEY'] = 'Dunkvision1333'
 jwt = JWTManager(app)
 
 db = SQLAlchemy(app)
+
+from app import routes  ## NO TOCAR, MUY IMPORTANTE

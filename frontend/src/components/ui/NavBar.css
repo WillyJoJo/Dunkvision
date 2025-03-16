@@ -1,0 +1,65 @@
+/* Sidebar en pantallas grandes */
+.navbar-container {
+    width: 200px;
+    background-color: #000; /* Fondo negro */
+    color: #fff;           /* Texto en blanco */
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+  
+  .navbar-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+  }
+  
+  .navbar-list li {
+    background-color: transparent;
+    border-radius: 4px;
+    margin-bottom: 0.25rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .navbar-list li a {
+    display: block;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    color: #fff;
+  }
+  
+  /* Ítem activo: fondo rojo */
+  .navbar-list li.active {
+    background-color: red;
+  }
+  
+  /* Responsive: en pantallas menores o iguales a 768px */
+  @media (max-width: 768px) {
+    /* El contenedor se hace horizontal */
+    .navbar-container {
+      width: 100%;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-around;
+    }
+  
+    .navbar-list {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      justify-content: space-around;
+    }
+  
+    .navbar-list li {
+      margin-bottom: 0;
+    }
+  
+    .navbar-list li a {
+      padding: 0.5rem;
+    }
+  }
+  

@@ -1,54 +1,51 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { Calendar } from "@/components/ui/calendar";
+import React from "react";
 
-const API_URL = process.env.NEXT_PUBLIC_APP_API_URL;
-
-export default function Home() {
-  // Mueve la inicialización de date aquí
-  const [date, setDate] = useState(new Date());
-  const [equipos, setEquipos] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchEquipos = async () => {
-      try {
-        const response = await axios.get(`${API_URL}/api/equipos`);
-        console.log(response);
-        // Se asume que la API devuelve un array de objetos con { id, nombre, conferencia, division, ... }
-        setEquipos(response.data);
-      } catch (err) {
-        setError(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEquipos();
-  }, []);
-
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
-
+export default function HomePage() {
   return (
-    <div>
-      <Calendar
-        mode="single"
-        selected={date}
-        onSelect={setDate}
-        className="rounded-md border"
-      />
-      <h1>Equipos</h1>
-      <ul>
-        {equipos.map((equipo) => (
-          <li key={equipo.id}>
-            Nombre: {equipo.nombre} - Conferencia: {equipo.conferencia} - División: {equipo.division}
-          </li>
-        ))}
-      </ul>
-    </div>
+    <main style={{ fontFamily: "Arial, sans-serif" }}>
+      {/* Hero Section */}
+      <section
+        style={{
+          background: "linear-gradient(135deg,rgb(0, 0, 0),rgb(255, 0, 0))",
+          color: "#fff",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "60vh",
+          textAlign: "center",
+          padding: "2rem",
+        }}
+      >
+        <h1 style={{ fontSize: "3rem", marginBottom: "1rem" }}>
+          ¡Bienvenido a DUNKVISION!
+        </h1>
+        <p style={{ fontSize: "1.25rem", maxWidth: "600px" }}>
+          Descubre un proyecto innovador para predecir resultados y estadísticas de la NBA.
+        </p>
+      </section>
+
+      {/* Acerca del Proyecto */}
+      <section
+        style={{
+          padding: "2rem",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          textAlign: "center",
+        }}
+      >
+        <h2 style={{ fontSize: "2rem", marginBottom: "1rem", color: "rgb(255, 0, 0)" }}>
+          Acerca del Proyecto
+        </h2>
+        <p style={{ fontSize: "1rem", maxWidth: "800px" }}>
+          Este proyecto es el resultado de una investigación y aplicación de
+          nuevas tecnologías, enfocado en brindar una experiencia única y
+          atractiva.
+        </p>
+      </section>
+    </main>
   );
 }
