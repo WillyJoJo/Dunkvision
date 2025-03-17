@@ -1,22 +1,15 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getJugadores } from "@/services/jugadoresService"; // Asegúrate de que la ruta es correcta
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { getJugadores } from "@/services/jugadoresService"; // Ajusta la ruta a tu servicio
+import { DataTable } from "./data-table"; // Importa tu componente DataTable
 
 export default function Jugadores() {
   const [jugadores, setJugadores] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Estados para los filtros
+  // Filtros
   const [letraApellido, setLetraApellido] = useState("");
   const [equipo, setEquipo] = useState("");
   const [posicion, setPosicion] = useState("");
@@ -58,7 +51,7 @@ export default function Jugadores() {
   // Opciones para el select de Posición
   const posicionOptions = ["Base", "Escolta", "Alero", "Ala-Pívot", "Pívot"];
 
-  // Función para transformar la posición a la letra requerida
+  // Función para transformar la posición al formato que tu API espera
   const transformPosicion = (pos) => {
     if (pos === "Base" || pos === "Escolta") return "G";
     if (pos === "Alero" || pos === "Ala-Pívot") return "F";
@@ -66,7 +59,7 @@ export default function Jugadores() {
     return "";
   };
 
-  // Función para obtener jugadores con filtros opcionales
+  // Obtener jugadores (con o sin filtros)
   const fetchJugadores = async (filters = {}) => {
     setLoading(true);
     try {
@@ -79,15 +72,16 @@ export default function Jugadores() {
     }
   };
 
-  // Consulta inicial sin filtros
+  // Carga inicial sin filtros
   useEffect(() => {
     fetchJugadores();
   }, []);
 
+  // Manejo de submit en el formulario
   const handleFilterSubmit = (e) => {
     e.preventDefault();
 
-    // Validamos que el campo, si no está vacío, contenga solo letras (Unicode)
+    // Validación de "Letra del Apellido": solo letras
     if (letraApellido !== "" && !/^[\p{L}]+$/u.test(letraApellido)) {
       alert("El campo 'Letra del Apellido' solo puede contener letras.");
       return;
@@ -95,13 +89,16 @@ export default function Jugadores() {
 
     // Transformamos la posición seleccionada
     const posicionTransformada = transformPosicion(posicion);
+
+    // Llamamos a la API con los filtros
     fetchJugadores({
       letra_apellido: letraApellido,
-      equipo,       // Se envía el ID numérico seleccionado
+      equipo, // ID numérico
       posicion: posicionTransformada,
     });
   };
 
+  // Manejo de estados de carga y error
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
@@ -223,43 +220,8 @@ export default function Jugadores() {
         </button>
       </form>
 
-      {/* Sección con scroll vertical para la tabla */}
-      <section
-        style={{
-          maxHeight: "400px",
-          overflowY: "auto",
-          border: "1px solid #ccc",
-          padding: "1rem",
-          marginTop: "1rem",
-        }}
-      >
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nombre</TableHead>
-              <TableHead>Equipo</TableHead>
-              <TableHead>Posición</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {jugadores.length > 0 ? (
-              jugadores.map((jugador) => (
-                <TableRow key={jugador.id}>
-                  <TableCell>{jugador.nombre}</TableCell>
-                  <TableCell>{jugador.nombre_equipo}</TableCell>
-                  <TableCell>{jugador.posicion}</TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={3} style={{ textAlign: "center" }}>
-                  No hay ningún jugador que cumpla los filtros establecidos
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </section>
+      {/* Aquí en lugar de renderizar la tabla directamente, usamos el DataTable */}
+      <DataTable jugadores={jugadores} />
     </div>
   );
 }
