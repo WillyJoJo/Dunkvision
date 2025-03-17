@@ -16,9 +16,10 @@ export default function Equipos() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Estados para filtros
+  // Estados para filtros; por defecto, orden es "asc"
   const [conferencia, setConferencia] = useState("");
   const [division, setDivision] = useState("");
+  const [orden, setOrden] = useState("asc");
 
   // Opciones de división según la conferencia seleccionada
   const divisionsByConference = {
@@ -27,7 +28,14 @@ export default function Equipos() {
   };
 
   // Todas las divisiones disponibles
-  const allDivisions = ["Atlántico", "Central", "Sudeste", "Sudoeste", "Noroeste", "Pacífico"];
+  const allDivisions = [
+    "Atlántico",
+    "Central",
+    "Sudeste",
+    "Sudoeste",
+    "Noroeste",
+    "Pacífico",
+  ];
 
   // Si se selecciona conferencia, se muestran divisiones correspondientes; si no, se muestran todas.
   const divisionOptions =
@@ -48,15 +56,36 @@ export default function Equipos() {
     }
   };
 
-  // Consulta inicial sin filtros
+  // Cargar filtros guardados en localStorage al inicio (por defecto, orden: "asc")
   useEffect(() => {
-    fetchEquipos();
+    const savedConferencia = localStorage.getItem("conferencia") || "";
+    const savedDivision = localStorage.getItem("division") || "";
+    const savedOrden = localStorage.getItem("orden") || "asc";
+    setConferencia(savedConferencia);
+    setDivision(savedDivision);
+    setOrden(savedOrden);
+    fetchEquipos({ conferencia: savedConferencia, division: savedDivision, orden: savedOrden });
   }, []);
+
+  // Guardar filtros en localStorage cada vez que cambien
+  useEffect(() => {
+    localStorage.setItem("conferencia", conferencia);
+    localStorage.setItem("division", division);
+    localStorage.setItem("orden", orden);
+  }, [conferencia, division, orden]);
 
   // Manejo del envío del formulario de filtros
   const handleFilterSubmit = (e) => {
     e.preventDefault();
-    fetchEquipos({ conferencia, division });
+    fetchEquipos({ conferencia, division, orden });
+  };
+
+  // Función para resetear filtros a su estado inicial (orden: "asc")
+  const handleReset = () => {
+    setConferencia("");
+    setDivision("");
+    setOrden("asc");
+    fetchEquipos({ orden: "asc" });
   };
 
   // Al cambiar la conferencia, resetea la división
@@ -83,11 +112,11 @@ export default function Equipos() {
       >
         <h2 style={{ margin: 0, fontSize: "2rem" }}>Lista de Equipos</h2>
         <p style={{ margin: 0, fontSize: "1rem", marginTop: "0.5rem" }}>
-          Filtra y explora los equipos de la NBA
+          Filtra, ordena y explora los equipos de la NBA
         </p>
       </div>
 
-      {/* Formulario de filtros con select y botón */}
+      {/* Formulario de filtros */}
       <form
         onSubmit={handleFilterSubmit}
         style={{
@@ -98,6 +127,7 @@ export default function Equipos() {
           backgroundColor: "#000",
           padding: "1rem",
           borderRadius: "4px",
+          flexWrap: "wrap",
         }}
       >
         <label style={{ color: "#fff" }}>
@@ -142,6 +172,25 @@ export default function Equipos() {
           </select>
         </label>
 
+        <label style={{ color: "#fff" }}>
+          Orden:
+          <select
+            value={orden}
+            onChange={(e) => setOrden(e.target.value)}
+            style={{
+              backgroundColor: "#000",
+              color: "#fff",
+              border: "1px solid #fff",
+              padding: "0.5rem",
+              borderRadius: "4px",
+              marginLeft: "0.5rem",
+            }}
+          >
+            <option value="asc">Ascendente</option>
+            <option value="desc">Descendente</option>
+          </select>
+        </label>
+
         <button
           type="submit"
           style={{
@@ -158,9 +207,26 @@ export default function Equipos() {
         >
           Filtrar
         </button>
+        <button
+          type="button"
+          onClick={handleReset}
+          style={{
+            backgroundColor: "#000",
+            color: "#fff",
+            border: "1px solid #fff",
+            padding: "0.5rem 1rem",
+            borderRadius: "4px",
+            cursor: "pointer",
+            transition: "background-color 0.3s ease",
+          }}
+          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "red")}
+          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#000")}
+        >
+          Resetear Filtros
+        </button>
       </form>
 
-      {/* Sección con scroll vertical para la tabla */}
+      {/* Tabla de equipos con scroll vertical */}
       <section
         style={{
           maxHeight: "400px",

@@ -10,7 +10,6 @@ def obtener_equipo(id_equipo):
     if not equipo:
         return {"error": "Equipo no encontrado"}, 404
     
-    # Ejemplo de cómo devolver la info
     return {
         "id": equipo.id_equipo,
         "nombre": equipo.nombre,
@@ -30,7 +29,11 @@ def listar_equipos():
     ]
     return lista, 200
 
-def filtrar_equipos_logica(conferencia=None, division=None):
+def filtrar_equipos_logica(conferencia=None, division=None, orden=None):
+    """
+    Lógica para filtrar equipos por conferencia y división, y ordenarlos alfabéticamente
+    según el parámetro 'orden' (ascendente o descendente). Si 'orden' es None o "asc", se ordena de forma ascendente.
+    """
     consulta = Equipo.query
 
     if conferencia and conferencia.strip() != "":
@@ -39,7 +42,13 @@ def filtrar_equipos_logica(conferencia=None, division=None):
     
     if division and division.strip() != "":
         consulta = consulta.filter(func.lower(Equipo.division) == division.lower())
-
+    
+    # Ordenar por el nombre: por defecto ascendente, o descendente si se especifica "desc"
+    if not orden or orden.lower() == "asc":
+        consulta = consulta.order_by(Equipo.nombre.asc())
+    elif orden.lower() == "desc":
+        consulta = consulta.order_by(Equipo.nombre.desc())
+    
     equipos = consulta.all()
 
     lista = []

@@ -73,11 +73,12 @@ def route_equipos():
     # Recuperar parámetros de la query string
     conferencia = request.args.get('conferencia')
     division = request.args.get('division')
+    orden = request.args.get('orden')
     
     # Si se pasa al menos un filtro, usamos la función de filtrado; de lo contrario, listamos todos.
-    if conferencia or division:
-        print(f"Filtrando: Conferencia: {conferencia}, División: {division}")
-        respuesta, status = filtrar_equipos_logica(conferencia, division)
+    if conferencia or division or orden:
+        print(f"Filtrando: Conferencia: {conferencia}, División: {division}, Orden: {orden}")
+        respuesta, status = filtrar_equipos_logica(conferencia, division, orden)
     else:
         respuesta, status = listar_equipos()
     

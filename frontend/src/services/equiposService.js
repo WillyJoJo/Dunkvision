@@ -2,14 +2,14 @@ import axios from 'axios';
 
 const API_URL = process.env.NEXT_PUBLIC_APP_API_URL;
 
-// Función para obtener equipos con filtros opcionales
+// Función para obtener equipos con filtros opcionales y ordenamiento
 export async function getEquipos(filters = {}) {
-  const { conferencia, division } = filters;
+  const { conferencia, division, orden } = filters;
   const params = {};
   if (conferencia) params.conferencia = conferencia;
   if (division) params.division = division;
-  
+  if (orden) params.orden = orden; // "asc" o "desc", según se requiera
+
   const response = await axios.get(`${API_URL}/api/equipos`, { params });
-  // Aquí podrías manejar la data de forma más específica si lo deseas
   return response.data;
 }
