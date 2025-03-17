@@ -1,15 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { getJugadores } from "@/services/jugadoresService"; // Ajusta la ruta a tu servicio
-import { DataTable } from "./data-table"; // Importa tu componente DataTable
+import React, { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { getJugadores } from "@/services/jugadoresService";
+import { DataTable } from "./data-table";
 
 export default function Jugadores() {
-  const [jugadores, setJugadores] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  // Filtros
+  // Estados para los filtros
   const [letraApellido, setLetraApellido] = useState("");
   const [equipo, setEquipo] = useState("");
   const [posicion, setPosicion] = useState("");
@@ -51,7 +48,7 @@ export default function Jugadores() {
   // Opciones para el select de Posición
   const posicionOptions = ["Base", "Escolta", "Alero", "Ala-Pívot", "Pívot"];
 
-  // Función para transformar la posición al formato que tu API espera
+  // Función para transformar la posición a la letra requerida
   const transformPosicion = (pos) => {
     if (pos === "Base" || pos === "Escolta") return "G";
     if (pos === "Alero" || pos === "Ala-Pívot") return "F";
@@ -59,47 +56,33 @@ export default function Jugadores() {
     return "";
   };
 
-  // Obtener jugadores (con o sin filtros)
-  const fetchJugadores = async (filters = {}) => {
-    setLoading(true);
-    try {
-      const data = await getJugadores(filters);
-      setJugadores(data);
-    } catch (err) {
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Carga inicial sin filtros
-  useEffect(() => {
-    fetchJugadores();
-  }, []);
+  // Usamos useQuery con la firma en forma de objeto (nueva en v5)
+  const { data: jugadores, error, isLoading, refetch } = useQuery({
+    queryKey: ["jugadores", { letraApellido, equipo, posicion }],
+    queryFn: () =>
+      getJugadores({
+        letra_apellido: letraApellido,
+        equipo, // Se envía el ID numérico seleccionado
+        posicion: transformPosicion(posicion),
+      }),
+    staleTime: 1000 * 60 * 5, // Cachea la data durante 5 minutos
+  });
 
   // Manejo de submit en el formulario
   const handleFilterSubmit = (e) => {
     e.preventDefault();
 
-    // Validación de "Letra del Apellido": solo letras
+    // Validación del campo Letra del Apellido: solo letras Unicode
     if (letraApellido !== "" && !/^[\p{L}]+$/u.test(letraApellido)) {
       alert("El campo 'Letra del Apellido' solo puede contener letras.");
       return;
     }
 
-    // Transformamos la posición seleccionada
-    const posicionTransformada = transformPosicion(posicion);
-
-    // Llamamos a la API con los filtros
-    fetchJugadores({
-      letra_apellido: letraApellido,
-      equipo, // ID numérico
-      posicion: posicionTransformada,
-    });
+    // Al cambiar los filtros, la queryKey se actualiza y React Query refetch automáticamente.
+    refetch();
   };
 
-  // Manejo de estados de carga y error
-  if (loading) return <div>Loading...</div>;
+  if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
   return (
@@ -220,8 +203,8 @@ export default function Jugadores() {
         </button>
       </form>
 
-      {/* Aquí en lugar de renderizar la tabla directamente, usamos el DataTable */}
-      <DataTable jugadores={jugadores} />
+      {/* Aquí se usa el componente DataTable para renderizar la tabla con paginación */}
+      <DataTable jugadores={jugadores || []} />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import NavBar from "@/components/ui/NavBar";
+import { ReactQueryProvider } from "@/components/ReactQueryProvider"; // Ajusta la ruta según tu estructura
 
 const items = [
   { label: "Inicio", href: "/" },
@@ -28,12 +29,16 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <header className="header" />
-        <div className="main-container">
-          <NavBar items={items} />
-          <main className="main-content">{children}</main>
-        </div>
-        <footer className="footer">Hecho por Guillermo Pichaco Panal 👑🏀</footer>
+        <ReactQueryProvider>
+          <header className="header" />
+          <div className="main-container">
+            <NavBar items={items} />
+            <main className="main-content">{children}</main>
+          </div>
+          <footer className="footer">
+            Hecho por Guillermo Pichaco Panal 👑🏀
+          </footer>
+        </ReactQueryProvider>
       </body>
     </html>
   );

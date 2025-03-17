@@ -1,22 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { getEquipos } from "@/services/equiposService";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DataTable } from "./data-table";
 
 export default function Equipos() {
-  const [equipos, setEquipos] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  // Estados para filtros; por defecto, orden es "asc"
+  // Estados para los filtros; por defecto, orden es "asc"
   const [conferencia, setConferencia] = useState("");
   const [division, setDivision] = useState("");
   const [orden, setOrden] = useState("asc");
@@ -43,20 +33,14 @@ export default function Equipos() {
       ? ["", ...divisionsByConference[conferencia]]
       : ["", ...allDivisions];
 
-  // Función para obtener los equipos desde la API con filtros
-  const fetchEquipos = async (filters = {}) => {
-    setLoading(true);
-    try {
-      const data = await getEquipos(filters);
-      setEquipos(data);
-    } catch (err) {
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Usamos useQuery para obtener y cachear la data de equipos con los filtros
+  const { data: equipos = [], error, isLoading, refetch } = useQuery({
+    queryKey: ["equipos", { conferencia, division, orden }],
+    queryFn: () => getEquipos({ conferencia, division, orden }),
+    staleTime: 1000 * 60 * 5, // Cachea la data durante 5 minutos
+  });
 
-  // Cargar filtros guardados en localStorage al inicio (por defecto, orden: "asc")
+  // Cargar filtros guardados en localStorage al inicio
   useEffect(() => {
     const savedConferencia = localStorage.getItem("conferencia") || "";
     const savedDivision = localStorage.getItem("division") || "";
@@ -64,7 +48,6 @@ export default function Equipos() {
     setConferencia(savedConferencia);
     setDivision(savedDivision);
     setOrden(savedOrden);
-    fetchEquipos({ conferencia: savedConferencia, division: savedDivision, orden: savedOrden });
   }, []);
 
   // Guardar filtros en localStorage cada vez que cambien
@@ -77,7 +60,7 @@ export default function Equipos() {
   // Manejo del envío del formulario de filtros
   const handleFilterSubmit = (e) => {
     e.preventDefault();
-    fetchEquipos({ conferencia, division, orden });
+    refetch();
   };
 
   // Función para resetear filtros a su estado inicial (orden: "asc")
@@ -85,7 +68,7 @@ export default function Equipos() {
     setConferencia("");
     setDivision("");
     setOrden("asc");
-    fetchEquipos({ orden: "asc" });
+    refetch();
   };
 
   // Al cambiar la conferencia, resetea la división
@@ -94,12 +77,12 @@ export default function Equipos() {
     setDivision("");
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
   return (
     <div>
-      {/* Encabezado degradado (negro → rojo) con texto en blanco */}
+      {/* Encabezado degradado */}
       <div
         style={{
           background: "linear-gradient(135deg, #000 0%, #f00 100%)",
@@ -226,35 +209,8 @@ export default function Equipos() {
         </button>
       </form>
 
-      {/* Tabla de equipos con scroll vertical */}
-      <section
-        style={{
-          maxHeight: "400px",
-          overflowY: "auto",
-          border: "1px solid #ccc",
-          padding: "1rem",
-          marginTop: "1rem",
-        }}
-      >
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nombre</TableHead>
-              <TableHead>Conferencia</TableHead>
-              <TableHead>División</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {equipos.map((equipo) => (
-              <TableRow key={equipo.id}>
-                <TableCell>{equipo.nombre}</TableCell>
-                <TableCell>{equipo.conferencia}</TableCell>
-                <TableCell>{equipo.division}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </section>
+      {/* Renderizamos la tabla con paginación */}
+      <DataTable equipos={equipos} />
     </div>
   );
 }
