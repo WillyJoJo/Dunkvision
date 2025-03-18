@@ -1,6 +1,7 @@
 from app import db
-from app.models import Equipo, Enfrentamiento, Historial_Enfrentamientos, Contexto_Partido
+from app.models import Equipo, Enfrentamiento, Estadisticas_Avanzadas_Jugador, Historial_Enfrentamientos, Contexto_Partido, Jugador, Jugador_Partido, Lesiones_Jugador
 from sqlalchemy.sql import func, case
+import statistics
 
 # ACTUALIZAR HISTORIAL ENFRENTAMIENTOS ENTRE EQUIPOS
 def actualizar_historial():
@@ -127,3 +128,109 @@ def obtener_racha(equipo_id, fecha_partido):
             derrotas += 1
 
     return f"{victorias}-{derrotas}"  # Formato "X-Y"
+
+
+def obtener_posibles_lesiones():
+    """
+    Identifica posibles lesiones en jugadores basándose en la convocatoria y el rendimiento reciente.
+    
+    Ajustes:
+      - Si un jugador tiene menos de 10 partidos jugados en la temporada, se omite la evaluación,
+        a menos que su promedio de minutos sea mayor de 15.
+      - Para jugadores con menos de 10 partidos (y promedio >15):
+            Se marca como posible lesión únicamente si NO han sido convocados en ninguno de los 4 últimos enfrentamientos.
+      - Para jugadores con 10 o más partidos:
+            * Si el promedio es menor a 15: se marca posible lesión si NO han sido convocados en los 4 últimos enfrentamientos.
+            * Si el promedio es de 15 o más: se marca como posible lesión si NO han sido convocados en los 4 últimos partidos, 
+              o, si han sido convocados, se evalúa el rendimiento en una ventana de 3 partidos y se detecta un desempeño significativamente inferior.
+              
+    Se evita duplicar registros en la tabla Lesiones_Jugador.
+    Los registros se insertan con tipo_lesion "Por confirmar" y sin fecha de recuperación.
+    """
+    # Obtener estadísticas avanzadas de cada jugador
+    stats = db.session.query(Estadisticas_Avanzadas_Jugador).all()
+
+    for stat in stats:
+        if stat.partidos_jugados == 0:
+            continue
+
+        # Calcular el promedio de minutos jugados en la temporada
+        avg_minutos = stat.minutos_jugados / stat.partidos_jugados
+
+        # Obtener el jugador para conocer su equipo
+        jugador = db.session.query(Jugador).get(stat.jugador_id)
+        if not jugador:
+            continue
+
+        equipo_id = jugador.equipo_id
+
+        # Obtener los 4 últimos enfrentamientos del equipo (ordenados por fecha descendente)
+        last_four_matches = db.session.query(Enfrentamiento).filter(
+            (Enfrentamiento.equipo1_id == equipo_id) | (Enfrentamiento.equipo2_id == equipo_id)
+        ).order_by(Enfrentamiento.fecha.desc()).limit(4).all()
+        if not last_four_matches:
+            continue
+
+        # Verificar si el jugador fue convocado en alguno de los 4 últimos enfrentamientos
+        convocado_in_last_four = any(
+            db.session.query(Jugador_Partido).filter_by(
+                jugador_id=stat.jugador_id,
+                enfrentamiento_id=match.id_enfrentamiento
+            ).first() for match in last_four_matches
+        )
+
+        # Evitar duplicar registros de lesión para el jugador
+        lesion_existente = db.session.query(Lesiones_Jugador).filter_by(jugador_id=stat.jugador_id).first()
+        if lesion_existente:
+            continue
+
+        lesion_detectada = False
+
+        # Evaluación para jugadores con menos de 10 partidos jugados
+        if stat.partidos_jugados < 10:
+            # Solo se evalúa si el promedio de minutos es mayor a 15
+            if avg_minutos > 15:
+                if not convocado_in_last_four:
+                    lesion_detectada = True
+                else:
+                    continue  # Si ha sido convocado, se asume que ya está en acción
+            else:
+                continue  # Se omite la evaluación para quienes tienen avg <= 15 y pocos partidos
+        else:
+            # Para jugadores con 10 o más partidos jugados
+            if avg_minutos < 15:
+                # Se marca posible lesión si NO han sido convocados en los 4 últimos enfrentamientos
+                if not convocado_in_last_four:
+                    lesion_detectada = True
+            else:
+                # Si el promedio es de 15 o más minutos:
+                if not convocado_in_last_four:
+                    lesion_detectada = True
+                else:
+                    # Si han sido convocados, evaluar el rendimiento en una ventana de 3 partidos
+                    last_games = db.session.query(Jugador_Partido).filter_by(jugador_id=stat.jugador_id) \
+                                    .order_by(Jugador_Partido.enfrentamiento_id.desc()).limit(3).all()
+                    if last_games:
+                        minutos_list = [game.minutos_jugados for game in last_games]
+                        promedio_ultimos = sum(minutos_list) / len(minutos_list)
+                        std_dev = statistics.stdev(minutos_list) if len(minutos_list) > 1 else 0
+
+                        # Condición 1: Promedio de los últimos 3 partidos menor al 33% del promedio de temporada.
+                        cond1 = promedio_ultimos < 0.33 * avg_minutos
+                        # Condición 2: El último partido es al menos 2 desviaciones estándar inferior al promedio reciente.
+                        cond2 = last_games[0].minutos_jugados < (promedio_ultimos - 2 * std_dev)
+                        if cond1 or cond2:
+                            lesion_detectada = True
+
+        if lesion_detectada:
+            nueva_lesion = Lesiones_Jugador(
+                jugador_id=stat.jugador_id,
+                fecha_recuperacion_estimada=None,
+                tipo_lesion="Por confirmar"
+            )
+            db.session.add(nueva_lesion)
+
+    db.session.commit()
+    mensaje = "Posibles lesiones actualizadas correctamente."
+    print(mensaje)
+    return {"message": mensaje}, 200

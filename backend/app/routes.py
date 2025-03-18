@@ -1,6 +1,6 @@
 from app import app
 from flask import request, jsonify
-from .data_import import actualizar_historial, calcular_contexto_partido
+from .data_import import actualizar_historial, calcular_contexto_partido, obtener_posibles_lesiones
 from app.auth import registrar_usuario, autenticar_usuario, cambiar_rol_usuario
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models import Usuario
@@ -112,6 +112,14 @@ def route_jugadores():
 @app.route('/api/jugadores/<int:id_jugador>', methods=['GET'])
 def route_obtener_jugador(id_jugador):
     respuesta, status = obtener_jugador(id_jugador)
+    return jsonify(respuesta), status
+
+
+# ------------------ Rutas para Lesiones_Jugador ------------------ #
+# Listar todas las posibles lesiones de jugadores
+@app.route('/api/lesiones_jugador', methods=['GET'])
+def route_listar_lesiones_jugador():
+    respuesta, status = obtener_posibles_lesiones()
     return jsonify(respuesta), status
 
 

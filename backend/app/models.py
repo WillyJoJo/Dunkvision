@@ -84,7 +84,11 @@ class Historial_Enfrentamientos(db.Model):
     victorias_equipo1 = db.Column(db.Integer, default=0)
     victorias_equipo2 = db.Column(db.Integer, default=0)
 
-
+class Temporada(db.Model):
+    __tablename__ = 'Temporada'
+    id_temporada = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    nombre_temporada = db.Column(db.String(50), nullable=False, unique=True)
+    
 class Estadisticas_Avanzadas_Jugador(db.Model):
     __tablename__ = 'Estadisticas_Avanzadas_Jugador'
     
@@ -153,3 +157,4 @@ class Estadisticas_Avanzadas_Equipo(db.Model):
     margen_de_victoria = db.Column(db.Float)
     victorias = db.Column(db.Integer)
     derrotas = db.Column(db.Integer)
+
