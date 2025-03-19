@@ -1,6 +1,7 @@
 from app import app
 from flask import request, jsonify
-from .data_import import actualizar_historial, calcular_contexto_partido, obtener_posibles_lesiones
+from app.crud.lesiones_jugador_crud import actualizar_lesiones, administrar_lesion, crear_lesion, eliminar_lesion, obtener_posibles_lesiones
+from .data_import import actualizar_historial, calcular_contexto_partido
 from app.auth import registrar_usuario, autenticar_usuario, cambiar_rol_usuario
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models import Usuario
@@ -116,10 +117,36 @@ def route_obtener_jugador(id_jugador):
 
 
 # ------------------ Rutas para Lesiones_Jugador ------------------ #
-# Listar todas las posibles lesiones de jugadores
+# GET: Listar todas las posibles lesiones de jugadores
 @app.route('/api/lesiones_jugador', methods=['GET'])
 def route_listar_lesiones_jugador():
     respuesta, status = obtener_posibles_lesiones()
+    return jsonify(respuesta), status
+
+# PUT: Actualizar (eliminar) lesiones antiguas (automatizado)
+@app.route('/api/lesiones_jugador/actualizar', methods=['PUT'])
+def route_actualizar_lesiones():
+    respuesta, status = actualizar_lesiones()
+    return jsonify(respuesta), status
+
+# POST: Crear una nueva lesión (por ejemplo, para agregar de primeras una lesión)
+@app.route('/api/lesiones_jugador', methods=['POST'])
+def route_crear_lesion():
+    data = request.get_json()
+    respuesta, status = crear_lesion(data)
+    return jsonify(respuesta), status
+
+# DELETE: Eliminar una lesión específica, pasando el id de la lesión en la URL
+@app.route('/api/lesiones_jugador/<int:lesion_id>', methods=['DELETE'])
+def route_eliminar_lesion(lesion_id):
+    respuesta, status = eliminar_lesion(lesion_id)
+    return jsonify(respuesta), status
+
+# PUT: Administrar (actualizar) una lesión, modificando fecha de recuperación y/o tipo de lesión
+@app.route('/api/lesiones_jugador/administrar', methods=['PUT'])
+def route_administrar_lesion():
+    data = request.get_json()
+    respuesta, status = administrar_lesion(data)
     return jsonify(respuesta), status
 
 

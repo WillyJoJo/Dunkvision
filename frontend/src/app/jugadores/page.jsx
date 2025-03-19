@@ -6,10 +6,17 @@ import { getJugadores } from "@/services/jugadoresService";
 import { DataTable } from "./data-table";
 
 export default function Jugadores() {
-  // Estados para los filtros
+  // Estados para los filtros (valores en el formulario)
   const [letraApellido, setLetraApellido] = useState("");
   const [equipo, setEquipo] = useState("");
   const [posicion, setPosicion] = useState("");
+
+  // Estado para los filtros "enviados" (se usa en el query)
+  const [submittedFilters, setSubmittedFilters] = useState({
+    letra_apellido: "",
+    equipo: "",
+    posicion: "",
+  });
 
   // Opciones para el select de Equipo (lista completa)
   const equipoOptions = [
@@ -56,19 +63,21 @@ export default function Jugadores() {
     return "";
   };
 
-  // Usamos useQuery con la firma en forma de objeto (nueva en v5)
+  // useQuery usa los filtros enviados para hacer la consulta.
+  // Con keepPreviousData se mantiene la data previa mientras se carga la nueva consulta.
   const { data: jugadores, error, isLoading, refetch } = useQuery({
-    queryKey: ["jugadores", { letraApellido, equipo, posicion }],
+    queryKey: ["jugadores", submittedFilters],
     queryFn: () =>
       getJugadores({
-        letra_apellido: letraApellido,
-        equipo, // Se envía el ID numérico seleccionado
-        posicion: transformPosicion(posicion),
+        letra_apellido: submittedFilters.letra_apellido,
+        equipo: submittedFilters.equipo, // Se envía el ID numérico seleccionado
+        posicion: transformPosicion(submittedFilters.posicion),
       }),
-    staleTime: 1000 * 60 * 5, // Cachea la data durante 5 minutos
+    staleTime: 1000 * 60 * 5,
+    keepPreviousData: true,
   });
 
-  // Manejo de submit en el formulario
+  // Manejo de submit en el formulario: actualiza el estado de los filtros enviados
   const handleFilterSubmit = (e) => {
     e.preventDefault();
 
@@ -78,7 +87,14 @@ export default function Jugadores() {
       return;
     }
 
-    // Al cambiar los filtros, la queryKey se actualiza y React Query refetch automáticamente.
+    setSubmittedFilters({
+      letra_apellido: letraApellido,
+      equipo,
+      posicion,
+    });
+
+    // Aunque al actualizar el queryKey el useQuery ejecuta automáticamente,
+    // se puede llamar a refetch si se desea forzar la consulta.
     refetch();
   };
 
@@ -203,7 +219,7 @@ export default function Jugadores() {
         </button>
       </form>
 
-      {/* Aquí se usa el componente DataTable para renderizar la tabla con paginación */}
+      {/* Se usa el componente DataTable para renderizar la tabla con paginación */}
       <DataTable jugadores={jugadores || []} />
     </div>
   );

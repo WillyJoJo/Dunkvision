@@ -6,10 +6,17 @@ import { getEquipos } from "@/services/equiposService";
 import { DataTable } from "./data-table";
 
 export default function Equipos() {
-  // Estados para los filtros; por defecto, orden es "asc"
+  // Estados para los filtros en el formulario
   const [conferencia, setConferencia] = useState("");
   const [division, setDivision] = useState("");
   const [orden, setOrden] = useState("asc");
+
+  // Estado para los filtros "enviados" (se usan en la query)
+  const [submittedFilters, setSubmittedFilters] = useState({
+    conferencia: "",
+    division: "",
+    orden: "asc",
+  });
 
   // Opciones de división según la conferencia seleccionada
   const divisionsByConference = {
@@ -33,13 +40,6 @@ export default function Equipos() {
       ? ["", ...divisionsByConference[conferencia]]
       : ["", ...allDivisions];
 
-  // Usamos useQuery para obtener y cachear la data de equipos con los filtros
-  const { data: equipos = [], error, isLoading, refetch } = useQuery({
-    queryKey: ["equipos", { conferencia, division, orden }],
-    queryFn: () => getEquipos({ conferencia, division, orden }),
-    staleTime: 1000 * 60 * 5, // Cachea la data durante 5 minutos
-  });
-
   // Cargar filtros guardados en localStorage al inicio
   useEffect(() => {
     const savedConferencia = localStorage.getItem("conferencia") || "";
@@ -48,6 +48,12 @@ export default function Equipos() {
     setConferencia(savedConferencia);
     setDivision(savedDivision);
     setOrden(savedOrden);
+    // También actualizamos los filtros enviados
+    setSubmittedFilters({
+      conferencia: savedConferencia,
+      division: savedDivision,
+      orden: savedOrden,
+    });
   }, []);
 
   // Guardar filtros en localStorage cada vez que cambien
@@ -57,17 +63,35 @@ export default function Equipos() {
     localStorage.setItem("orden", orden);
   }, [conferencia, division, orden]);
 
-  // Manejo del envío del formulario de filtros
+  // useQuery utiliza los filtros enviados; se mantiene la data previa con keepPreviousData
+  const { data: equipos = [], error, isLoading, refetch } = useQuery({
+    queryKey: ["equipos", submittedFilters],
+    queryFn: () => getEquipos(submittedFilters),
+    staleTime: 1000 * 60 * 5, // Cachea la data durante 5 minutos
+    keepPreviousData: true,
+  });
+
+  // Manejo del envío del formulario: se actualizan los filtros enviados y se refetch la data
   const handleFilterSubmit = (e) => {
     e.preventDefault();
+    setSubmittedFilters({
+      conferencia,
+      division,
+      orden,
+    });
     refetch();
   };
 
-  // Función para resetear filtros a su estado inicial (orden: "asc")
+  // Función para resetear filtros a su estado inicial
   const handleReset = () => {
     setConferencia("");
     setDivision("");
     setOrden("asc");
+    setSubmittedFilters({
+      conferencia: "",
+      division: "",
+      orden: "asc",
+    });
     refetch();
   };
 
@@ -113,6 +137,7 @@ export default function Equipos() {
           flexWrap: "wrap",
         }}
       >
+        {/* Filtro: Conferencia */}
         <label style={{ color: "#fff" }}>
           Conferencia:
           <select
@@ -133,6 +158,7 @@ export default function Equipos() {
           </select>
         </label>
 
+        {/* Filtro: División */}
         <label style={{ color: "#fff" }}>
           División:
           <select
@@ -155,6 +181,7 @@ export default function Equipos() {
           </select>
         </label>
 
+        {/* Filtro: Orden */}
         <label style={{ color: "#fff" }}>
           Orden:
           <select
@@ -209,7 +236,7 @@ export default function Equipos() {
         </button>
       </form>
 
-      {/* Renderizamos la tabla con paginación */}
+      {/* Se usa el componente DataTable para renderizar la tabla con paginación */}
       <DataTable equipos={equipos} />
     </div>
   );
