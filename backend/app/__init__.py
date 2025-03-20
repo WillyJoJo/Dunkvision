@@ -1,20 +1,17 @@
+# __init__.py
 from flask import Flask
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
+from config import Config  # Importa la configuración desde config.py
 
 app = Flask(__name__)
+app.config.from_object(Config)  # Carga la configuración
 
-# Esto habilita CORS en todas las rutas de la aplicación
-CORS(app) 
-
-# Configuración de MySQL
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Dunkvision1333@localhost:3306/dunkvision'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] = 'Dunkvision1333'
+# Habilitar CORS en todas las rutas de la aplicación
+CORS(app)
 
 jwt = JWTManager(app)
-
 db = SQLAlchemy(app)
 
-from app import routes  ## NO TOCAR, MUY IMPORTANTE
+from app import routes  # NO TOCAR, MUY IMPORTANTE

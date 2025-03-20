@@ -43,19 +43,31 @@ def register():
 
 @app.route('/api/login', methods=['POST'])
 def login():
-    token, error = autenticar_usuario()
+    token, usuario, error = autenticar_usuario()
     if error:
         return jsonify(error), 401
-    return jsonify({"access_token": token}), 200
+    # Se devuelve también el rol del usuario
+    return jsonify({
+        "access_token": token,
+        "email": usuario.email,
+        "rol": usuario.rol
+    }), 200
+
 
 @app.route('/api/cambiar_rol', methods=['POST'])
 @jwt_required()
 def cambiar_rol():
     # Se espera que el JSON tenga 'user_id' y 'nuevo_rol'
     data = request.get_json()
+    if not data:
+        return jsonify({"msg": "No se enviaron datos en formato JSON"}), 400
+
     user_id = data.get("user_id")
     nuevo_rol = data.get("nuevo_rol")
     
+    if not user_id or not nuevo_rol:
+        return jsonify({"msg": "Faltan parámetros 'user_id' o 'nuevo_rol'"}), 400
+
     # Verificar que el usuario autenticado es admin
     usuario_actual = Usuario.query.get(get_jwt_identity())
     if not usuario_actual or usuario_actual.rol != "admin":

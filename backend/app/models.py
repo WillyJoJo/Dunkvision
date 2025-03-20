@@ -4,6 +4,7 @@ class Usuario(db.Model):
     __tablename__ = "usuario"
     id = db.Column(db.Integer, primary_key=True)
     nombre_usuario = db.Column(db.String(50), unique=True)
+    email = db.Column(db.String(100), unique=True)
     password_hash = db.Column(db.String(255))
     rol = db.Column(db.String(20), default="usuario")  # si ponemos admin, el usuario será administrador
 

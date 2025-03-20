@@ -3,19 +3,17 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import ButtonAuth from "../ButtonAuth";
 
 export default function NavBar({ items = [] }) {
-  // Detecta la ruta actual (por ejemplo, "/", "/equipos", "/jugadores", etc.)
   const pathname = usePathname();
-
-  // Detecta si es móvil o escritorio para cambiar el layout
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
     };
-    handleResize(); // Comprobamos al montar
+    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -30,7 +28,10 @@ export default function NavBar({ items = [] }) {
       display: "flex",
       flexDirection: "column",
       alignItems: "flex-start",
-      justifyContent: "flex-start",
+      // Ponemos todo arriba; si quieres espacio extra abajo, ajusta "marginTop"
+    },
+    buttonContainer: {
+      marginBottom: "1rem", // Espacio debajo del botón
     },
     list: {
       listStyle: "none",
@@ -61,9 +62,11 @@ export default function NavBar({ items = [] }) {
       color: "#fff",
       padding: "0.5rem",
       display: "flex",
-      flexDirection: "row",
+      flexDirection: "column", // Cambiamos a columna para que el botón quede arriba
       alignItems: "center",
-      justifyContent: "space-around",
+    },
+    buttonContainer: {
+      marginBottom: "1rem",
     },
     list: {
       listStyle: "none",
@@ -71,8 +74,7 @@ export default function NavBar({ items = [] }) {
       padding: 0,
       display: "flex",
       flexDirection: "row",
-      width: "100%",
-      justifyContent: "space-around",
+      gap: "1rem",
     },
     listItem: {
       backgroundColor: "transparent",
@@ -91,12 +93,16 @@ export default function NavBar({ items = [] }) {
   const styles = isMobile ? mobileStyles : desktopStyles;
 
   return (
-    <aside style={styles.container}>
+    <nav style={styles.container}>
+      {/* Contenedor para el botón de autenticación */}
+      <div style={styles.buttonContainer}>
+        <ButtonAuth />
+      </div>
+
+      {/* Listado de páginas */}
       <ul style={styles.list}>
         {items.map((item) => {
-          // Si la ruta actual coincide con el href del ítem, se considera "activo"
           const isActive = pathname === item.href;
-
           return (
             <li
               key={item.label}
@@ -112,6 +118,6 @@ export default function NavBar({ items = [] }) {
           );
         })}
       </ul>
-    </aside>
+    </nav>
   );
 }

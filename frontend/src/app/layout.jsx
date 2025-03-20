@@ -1,7 +1,9 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "bootstrap/dist/css/bootstrap.css";
 import NavBar from "@/components/ui/NavBar";
-import { ReactQueryProvider } from "@/components/ReactQueryProvider"; // Ajusta la ruta según tu estructura
+import { ReactQueryProvider } from "@/context/ReactQueryProvider"; // Ajusta la ruta según tu estructura
+import SessionAuthProvider from "@/context/SessionAuthProvider";
 
 const items = [
   { label: "Inicio", href: "/" },
@@ -29,6 +31,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <SessionAuthProvider>
         <ReactQueryProvider>
           <header className="header" />
           <div className="main-container">
@@ -39,6 +42,7 @@ export default function RootLayout({ children }) {
             Hecho por Guillermo Pichaco Panal 👑🏀
           </footer>
         </ReactQueryProvider>
+        </SessionAuthProvider>
       </body>
     </html>
   );
