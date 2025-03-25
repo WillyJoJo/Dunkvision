@@ -23,6 +23,7 @@ export function DataTable({ equipos = [] }) {
   const table = useReactTable({
     data: equipos,
     columns,
+    initialState: { pagination: { pageSize: 15 } }, // Configura 15 filas por página
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });

@@ -19,10 +19,9 @@ import {
 
 import { columns } from "./columns";
 
-export function DataTable({ jugadores = [] }) {
-  // Configuramos la tabla con paginación
+export function DataTable({ lesiones = [] }) {
   const table = useReactTable({
-    data: jugadores,
+    data: lesiones,
     columns,
     initialState: { pagination: { pageSize: 20 } }, // Configura 15 filas por página
     getCoreRowModel: getCoreRowModel(),
@@ -60,7 +59,10 @@ export function DataTable({ jugadores = [] }) {
               <TableRow key={row.id}>
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    {flexRender(
+                      cell.column.columnDef.cell,
+                      cell.getContext()
+                    )}
                   </TableCell>
                 ))}
               </TableRow>
@@ -68,7 +70,7 @@ export function DataTable({ jugadores = [] }) {
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} style={{ textAlign: "center" }}>
-                No hay ningún jugador que cumpla los filtros establecidos
+                No hay lesiones registradas.
               </TableCell>
             </TableRow>
           )}

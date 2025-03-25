@@ -135,9 +135,9 @@ def route_listar_lesiones():
     lista = listar_lesiones()
     return jsonify(lista), 200
 
-# GET: Importar posibles lesiones de jugadores
+# GET: Obtener posibles lesiones de jugadores
 @app.route('/api/posibles_lesiones_jugador', methods=['GET'])
-def route_listar_lesiones_jugador():
+def route_obtener_posibles_lesiones():
     respuesta, status = obtener_posibles_lesiones()
     return jsonify(respuesta), status
 

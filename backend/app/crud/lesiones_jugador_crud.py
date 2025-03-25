@@ -12,6 +12,7 @@ def listar_lesiones():
     lista_lesiones = []
     for lesion in lesiones:
         lesion_data = {
+            "id": lesion.id_lesion,
             "jugador_id": lesion.jugador_id,
             "tipo_lesion": lesion.tipo_lesion,
             "fecha_recuperacion_estimada": lesion.fecha_recuperacion_estimada.isoformat() if lesion.fecha_recuperacion_estimada else None
