@@ -3,6 +3,22 @@ from app.models import Enfrentamiento, Estadisticas_Avanzadas_Jugador, Jugador, 
 import statistics
 from datetime import date, datetime
 
+def listar_lesiones():
+    """
+    Consulta todas las lesiones registradas en la tabla Lesiones_Jugador y las devuelve
+    como una lista de diccionarios para facilitar su serialización.
+    """
+    lesiones = db.session.query(Lesiones_Jugador).all()
+    lista_lesiones = []
+    for lesion in lesiones:
+        lesion_data = {
+            "jugador_id": lesion.jugador_id,
+            "tipo_lesion": lesion.tipo_lesion,
+            "fecha_recuperacion_estimada": lesion.fecha_recuperacion_estimada.isoformat() if lesion.fecha_recuperacion_estimada else None
+        }
+        lista_lesiones.append(lesion_data)
+    return lista_lesiones, 200
+
 def obtener_posibles_lesiones():
     """
     Identifica posibles lesiones en jugadores basándose en la convocatoria y el rendimiento reciente.
