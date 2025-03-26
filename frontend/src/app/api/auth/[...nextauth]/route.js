@@ -12,11 +12,16 @@ const handler = NextAuth({
       },
       async authorize(credentials) {
         try {
+          // Validate input
+          if (!credentials?.email || !credentials?.password) {
+            throw new Error("Invalid credentials");
+          }
+
           const response = await axios.post(
-            `${process.env.NEXT_PUBLIC_APP_API_URL}/api/login`,
+            `${process.env.NEXT_PUBLIC_APP_API_URL}/api/login`, // Use server-side environment variable
             {
-              email: credentials?.email,
-              password: credentials?.password,
+              email: credentials.email,
+              password: credentials.password,
             },
             {
               headers: { "Content-Type": "application/json" },
@@ -24,27 +29,29 @@ const handler = NextAuth({
           );
 
           const user = response.data;
-          console.log({ user });
 
+          // Check for errors in the response
           if (user.error) {
-            throw new Error(user.msg || "Credenciales inválidas");
+            throw new Error("Invalid credentials");
           }
 
-          // Se espera que "user" tenga: access_token, email y rol
-          return user;
+          // Return user object (ensure it contains only necessary fields)
+          return {
+            access_token: user.access_token,
+            email: user.email,
+            rol: user.rol,
+          };
         } catch (error) {
-          throw new Error(
-            error.response?.data?.msg || "Error en la autenticación"
-          );
+          console.error("Authentication error:", error.message); // Avoid logging sensitive data
+          throw new Error("Authentication failed");
         }
       },
     }),
   ],
   callbacks: {
     async jwt({ token, user }) {
-      // Solo se ejecuta la primera vez (al hacer login)
       if (user) {
-        token.accessToken = user.access_token; // Ajusta si tu backend devuelve otro nombre
+        token.accessToken = user.access_token;
         token.email = user.email;
         token.rol = user.rol;
       }
