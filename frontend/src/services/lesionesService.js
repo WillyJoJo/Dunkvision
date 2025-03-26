@@ -35,8 +35,15 @@ export async function updateLesion(data) {
   return response.data;
 }
 
-// Función para eliminar una lesión a partir de su id
-export async function deleteLesion(lesionId) {
-  const response = await axios.delete(`${API_URL}/api/lesiones_jugador/${lesionId}`);
+// Función para eliminar una lesión a partir de su id, ahora incluyendo el token
+export async function deleteLesion(lesionId, token) {
+  const response = await axios.delete(`${API_URL}/api/lesiones_jugador/${lesionId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
   return response.data;
 }
+
+
+

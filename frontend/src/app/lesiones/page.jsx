@@ -1,11 +1,19 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { getLesiones, getNombreJugador } from "@/services/lesionesService";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getLesiones, getNombreJugador, deleteLesion } from "@/services/lesionesService";
 import { DataTable } from "./data-table";
+import { useSession } from "next-auth/react";
 
 export default function Lesiones() {
+  // Obtenemos la sesión para comprobar el rol del usuario y obtener el token
+  const { data: session } = useSession();
+  
+  const isAdmin = session?.user?.rol === "admin";
+
+  const queryClient = useQueryClient();
+
   // Consulta el listado completo de lesiones
   const { data: lesiones = [], error, isLoading } = useQuery({
     queryKey: ["lesiones"],
@@ -13,12 +21,20 @@ export default function Lesiones() {
     staleTime: 1000 * 60 * 5,
   });
 
+  // Mutation para eliminar una lesión, pasando el token desde la sesión
+  const deleteLesionMutation = useMutation({
+    mutationFn: (lesionId) => deleteLesion(lesionId, session?.user?.token),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["lesiones"]);
+    },
+  });
+
   // Estado para almacenar las lesiones con el nombre del jugador (propiedad "jugador")
   const [lesionesConNombre, setLesionesConNombre] = useState([]);
 
   useEffect(() => {
     if (lesiones && lesiones.length > 0) {
-      console.log("Lesiones recibidas:", lesiones);
+      //console.log("Lesiones recibidas:", lesiones);
       Promise.all(
         lesiones.map(async (lesion, index) => {
           // Verifica que exista jugador_id y haz el log
@@ -45,6 +61,13 @@ export default function Lesiones() {
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
+  // Handler para eliminar una lesión
+  const handleDelete = (lesionId) => {
+    if (confirm("¿Estás seguro de eliminar esta lesión?")) {
+      deleteLesionMutation.mutate(lesionId);
+    }
+  };
+
   return (
     <div>
       {/* Encabezado */}
@@ -64,8 +87,12 @@ export default function Lesiones() {
         </p>
       </div>
 
-      {/* Renderiza la tabla de lesiones */}
-      <DataTable lesiones={lesionesConNombre} />
+      {/* Renderiza la tabla de lesiones, pasando el flag isAdmin y la función de borrado */}
+      <DataTable
+        lesiones={lesionesConNombre}
+        isAdmin={isAdmin}
+        onDelete={handleDelete}
+      />
     </div>
   );
 }

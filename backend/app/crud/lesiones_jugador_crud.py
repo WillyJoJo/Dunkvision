@@ -187,46 +187,33 @@ def eliminar_lesion(lesion_id):
     print(mensaje)
     return {"message": mensaje}, 200
 
-def administrar_lesion(data):
+def editar_lesion(lesion_id, data):
     """
-    Actualiza el registro de una lesión en la tabla Lesiones_Jugador.
-    
-    Se espera recibir un diccionario (data) con los siguientes campos:
-      - "id_lesion": (int) Identificador de la lesión (obligatorio)
-      - "fecha_recuperacion_estimada": (str, opcional) Fecha en formato "YYYY-MM-DD".
-            Si se envía una cadena vacía o null, se asigna None.
-      - "tipo_lesion": (str, opcional) Nuevo tipo de lesión.
-    
-    Retorna un diccionario con la respuesta y el código de estado.
+    Edita una lesión existente en la tabla Lesiones_Jugador.
+    Se espera un diccionario con los campos a actualizar:
+      - "fecha_recuperacion_estimada": (str, opcional) Fecha en formato "YYYY-MM-DD"
+      - "tipo_lesion": (str, opcional) Tipo de lesión
     """
-    if "id_lesion" not in data:
-        return {"error": "Falta el campo 'id_lesion'."}, 400
-
-    try:
-        lesion_id = int(data["id_lesion"])
-    except ValueError:
-        return {"error": "El campo 'id_lesion' debe ser un entero."}, 400
-
+    # Buscar la lesión por ID
     lesion = db.session.query(Lesiones_Jugador).get(lesion_id)
     if not lesion:
         return {"error": "Lesión no encontrada."}, 404
 
-    # Actualizar fecha_recuperacion_estimada si se proporciona
-    if "fecha_recuperacion_estimada" in data:
-        fecha_str = data.get("fecha_recuperacion_estimada")
-        if fecha_str:
-            try:
-                lesion.fecha_recuperacion_estimada = datetime.strptime(fecha_str, "%Y-%m-%d").date()
-            except ValueError:
-                return {"error": "Formato de fecha incorrecto, se espera YYYY-MM-DD."}, 400
-        else:
-            lesion.fecha_recuperacion_estimada = None
+    # Actualizar los campos proporcionados en el diccionario `data`
+    fecha_str = data.get("fecha_recuperacion_estimada")
+    if fecha_str:
+        try:
+            lesion.fecha_recuperacion_estimada = datetime.strptime(fecha_str, "%Y-%m-%d").date()
+        except ValueError:
+            return {"error": "Formato de fecha incorrecto, se espera YYYY-MM-DD."}, 400
 
-    # Actualizar tipo_lesion si se proporciona
-    if "tipo_lesion" in data:
-        lesion.tipo_lesion = data.get("tipo_lesion")
+    tipo_lesion = data.get("tipo_lesion")
+    if tipo_lesion:
+        lesion.tipo_lesion = tipo_lesion
 
+    # Guardar los cambios en la base de datos
     db.session.commit()
-    mensaje = "Lesión actualizada correctamente."
+
+    mensaje = f"Lesión con id {lesion_id} actualizada correctamente."
     print(mensaje)
     return {"message": mensaje}, 200

@@ -17,13 +17,43 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { columns } from "./columns";
+import { columns as baseColumns } from "./columns";
 
-export function DataTable({ lesiones = [] }) {
+export function DataTable({ lesiones = [], isAdmin = false, onDelete }) {
+  // Creamos una copia de las columnas base y, si el usuario es admin,
+  // agregamos una columna de acciones al final.
+  const columns = React.useMemo(() => {
+    if (isAdmin) {
+      return [
+        ...baseColumns,
+        {
+          id: "actions",
+          header: "Acciones",
+          cell: ({ row }) => (
+            <button
+              onClick={() => onDelete(row.original.id)}
+              style={{
+                padding: "0.3rem 0.6rem",
+                backgroundColor: "#f00",
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              Eliminar
+            </button>
+          ),
+        },
+      ];
+    }
+    return baseColumns;
+  }, [isAdmin, onDelete]);
+
   const table = useReactTable({
     data: lesiones,
     columns,
-    initialState: { pagination: { pageSize: 20 } }, // Configura 15 filas por página
+    initialState: { pagination: { pageSize: 20 } },
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
