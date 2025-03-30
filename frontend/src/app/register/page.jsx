@@ -86,33 +86,51 @@ const RegisterPage = () => {
           maxWidth: "400px",
         }}
       >
-        <input
-          type="text"
-          placeholder="Nombre de usuario"
-          name="nombre_usuario"  // Puedes actualizar el atributo name si lo deseas
-          className="form-control mb-2"
-          style={{ fontSize: "1.1rem" }}
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-        />
-        <input
-          type="email"
-          placeholder="test@test.com"
-          name="email"
-          className="form-control mb-2"
-          style={{ fontSize: "1.1rem" }}
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="123123"
-          name="password"
-          className="form-control mb-2"
-          style={{ fontSize: "1.1rem" }}
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-        />
+        <div className="form-group mb-2">
+          <label htmlFor="nombre_usuario" style={{ fontSize: "1.1rem", fontWeight: "bold" }}>
+            Nombre de Usuario
+          </label>
+          <input
+            type="text"
+            id="nombre_usuario"
+            placeholder="Nombre de usuario"
+            name="nombre_usuario"
+            className="form-control"
+            style={{ fontSize: "1.1rem" }}
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+          />
+        </div>
+        <div className="form-group mb-2">
+          <label htmlFor="email" style={{ fontSize: "1.1rem", fontWeight: "bold" }}>
+            Email
+          </label>
+          <input
+            type="email"
+            id="email"
+            placeholder="ejemplo@email.com"
+            name="email"
+            className="form-control"
+            style={{ fontSize: "1.1rem" }}
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
+        </div>
+        <div className="form-group mb-2">
+          <label htmlFor="password" style={{ fontSize: "1.1rem", fontWeight: "bold" }}>
+            Contraseña
+          </label>
+          <input
+            type="password"
+            id="password"
+            placeholder="8caracteres"
+            name="password"
+            className="form-control"
+            style={{ fontSize: "1.1rem" }}
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+          />
+        </div>
         <button
           type="submit"
           className="btn btn-primary w-100"

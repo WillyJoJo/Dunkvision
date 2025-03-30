@@ -57,17 +57,25 @@ const LoginPage = () => {
           maxWidth: "400px",
         }}
       >
+        <label htmlFor="email" style={{ fontSize: "1.1rem", fontWeight: "bold" }}>
+          Email
+        </label>
         <input
           type="email"
-          placeholder="usuario@gmail.com"
+          id="email"
+          placeholder="ejemplo@email.com"
           name="email"
           className="form-control mb-2"
           style={{ fontSize: "1.1rem" }}
           value={email}
           onChange={(event) => setEmail(event.target.value)}
         />
+        <label htmlFor="password" style={{ fontSize: "1.1rem", fontWeight: "bold" }}>
+          Contraseña
+        </label>
         <input
           type="password"
+          id="password"
           placeholder="8caracteres"
           name="password"
           className="form-control mb-2"
