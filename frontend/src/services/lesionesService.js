@@ -45,5 +45,23 @@ export async function deleteLesion(lesionId, token) {
   return response.data;
 }
 
+// Función para obtener una lesión por su ID
+export async function getLesionById(lesionId) {
+  const response = await axios.get(`${API_URL}/api/lesiones_jugador/${lesionId}`);
+  return response.data;
+}
+
+// Función para editar una lesión a partir de su id
+export async function editarLesion(lesion_id, data, token) {
+  console.log("Datos que se van a enviar a editarLesion:", data);
+  
+  const response = await axios.put(`${API_URL}/api/lesiones_jugador/editar/${lesion_id}`, data, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+}
 
 

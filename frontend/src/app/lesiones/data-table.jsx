@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link"; // Se importa para la navegación
 import {
   flexRender,
   getCoreRowModel,
@@ -20,8 +21,8 @@ import {
 import { columns as baseColumns } from "./columns";
 
 export function DataTable({ lesiones = [], isAdmin = false, onDelete }) {
-  // Creamos una copia de las columnas base y, si el usuario es admin,
-  // agregamos una columna de acciones al final.
+  // Se crea una copia de las columnas base y, si el usuario es admin,
+  // se agrega una columna de acciones al final, incluyendo botones para editar y eliminar.
   const columns = React.useMemo(() => {
     if (isAdmin) {
       return [
@@ -30,19 +31,37 @@ export function DataTable({ lesiones = [], isAdmin = false, onDelete }) {
           id: "actions",
           header: "Acciones",
           cell: ({ row }) => (
-            <button
-              onClick={() => onDelete(row.original.id)}
-              style={{
-                padding: "0.3rem 0.6rem",
-                backgroundColor: "#f00",
-                color: "#fff",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-            >
-              Eliminar
-            </button>
+            <div style={{ display: "flex", gap: "0.5rem" }}>
+              {/* Botón Editar */}
+              <Link href={`/lesiones/editar/${row.original.id}`}>
+                <button
+                  style={{
+                    padding: "0.3rem 0.6rem",
+                    backgroundColor: "#00f",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                  }}
+                >
+                  Editar
+                </button>
+              </Link>
+              {/* Botón Eliminar */}
+              <button
+                onClick={() => onDelete(row.original.id)}
+                style={{
+                  padding: "0.3rem 0.6rem",
+                  backgroundColor: "#f00",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                }}
+              >
+                Eliminar
+              </button>
+            </div>
           ),
         },
       ];

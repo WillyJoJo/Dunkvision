@@ -1,6 +1,6 @@
 from app import app
 from flask import request, jsonify
-from app.crud.lesiones_jugador_crud import actualizar_lesiones, crear_lesion, editar_lesion, eliminar_lesion, listar_lesiones, obtener_posibles_lesiones
+from app.crud.lesiones_jugador_crud import actualizar_lesiones, crear_lesion, editar_lesion, eliminar_lesion, listar_lesiones, obtener_lesion_by_ID, obtener_posibles_lesiones
 from .data_import import actualizar_historial, calcular_contexto_partido
 from app.auth import registrar_usuario, autenticar_usuario, cambiar_rol_usuario
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -134,6 +134,12 @@ def route_obtener_jugador(id_jugador):
 def route_listar_lesiones():
     lista = listar_lesiones()
     return jsonify(lista), 200
+
+# GET: Obtener lesión por ID
+@app.route('/api/lesiones_jugador/<int:lesion_id>', methods=['GET'])
+def route_obtener_lesion(lesion_id):
+    respuesta, status = obtener_lesion_by_ID(lesion_id)
+    return jsonify(respuesta), status
 
 # GET: Obtener posibles lesiones de jugadores
 @app.route('/api/posibles_lesiones_jugador', methods=['GET'])

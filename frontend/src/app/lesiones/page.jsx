@@ -9,7 +9,7 @@ import { useSession } from "next-auth/react";
 export default function Lesiones() {
   // Obtenemos la sesión para comprobar el rol del usuario y obtener el token
   const { data: session } = useSession();
-  
+
   const isAdmin = session?.user?.rol === "admin";
 
   const queryClient = useQueryClient();
@@ -79,6 +79,9 @@ export default function Lesiones() {
           padding: "1rem",
           borderRadius: "8px",
           marginBottom: "1rem",
+          maxWidth: "800px",       // ⬅️ ancho máximo
+          marginInline: "auto",    // ⬅️ centrado horizontal
+          width: "90%",            // ⬅️ responsive en pantallas pequeñas
         }}
       >
         <h2 style={{ margin: 0, fontSize: "2rem" }}>Lista de Lesiones</h2>

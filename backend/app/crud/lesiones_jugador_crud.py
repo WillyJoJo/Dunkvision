@@ -20,6 +20,25 @@ def listar_lesiones():
         lista_lesiones.append(lesion_data)
     return lista_lesiones, 200
 
+def obtener_lesion_by_ID(lesion_id):
+    """
+    Obtiene los detalles de una lesión específica a partir de su ID.
+    """
+    # Buscar la lesión por ID
+    lesion = db.session.query(Lesiones_Jugador).get(lesion_id)
+    if not lesion:
+        return {"error": "Lesión no encontrada."}, 404
+
+    # Crear un diccionario con los detalles de la lesión
+    lesion_data = {
+        "id": lesion.id_lesion,
+        "jugador_id": lesion.jugador_id,
+        "tipo_lesion": lesion.tipo_lesion,
+        "fecha_recuperacion_estimada": lesion.fecha_recuperacion_estimada.isoformat() if lesion.fecha_recuperacion_estimada else None
+    }
+
+    return {"lesion": lesion_data}, 200
+
 def obtener_posibles_lesiones():
     """
     Identifica posibles lesiones en jugadores basándose en la convocatoria y el rendimiento reciente.
