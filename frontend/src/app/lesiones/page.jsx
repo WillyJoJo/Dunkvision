@@ -2,26 +2,42 @@
 
 import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getLesiones, getNombreJugador, deleteLesion } from "@/services/lesionesService";
+import {
+  getLesiones,
+  getNombreJugador,
+  deleteLesion,
+  limpiarLesiones,
+} from "@/services/lesionesService";
 import { DataTable } from "./data-table";
 import { useSession } from "next-auth/react";
 
 export default function Lesiones() {
-  // Obtenemos la sesión para comprobar el rol del usuario y obtener el token
   const { data: session } = useSession();
-
   const isAdmin = session?.user?.rol === "admin";
-
   const queryClient = useQueryClient();
 
-  // Consulta el listado completo de lesiones
+  // Ejecutar limpieza automática de lesiones antiguas al cargar la página
+  useEffect(() => {
+    if (session?.user?.token) {
+      limpiarLesiones(session.user.token)
+        .then((res) => {
+          console.log("Limpieza automática de lesiones:", res.message);
+          queryClient.invalidateQueries(["lesiones"]);
+        })
+        .catch((error) => {
+          console.error("Error al limpiar lesiones antiguas:", error);
+        });
+    }
+  }, [session?.user?.token]);
+
+  // 📥 Obtener lesiones
   const { data: lesiones = [], error, isLoading } = useQuery({
     queryKey: ["lesiones"],
     queryFn: getLesiones,
     staleTime: 1000 * 60 * 5,
   });
 
-  // Mutation para eliminar una lesión, pasando el token desde la sesión
+  // 🗑️ Eliminar lesión manualmente
   const deleteLesionMutation = useMutation({
     mutationFn: (lesionId) => deleteLesion(lesionId, session?.user?.token),
     onSuccess: () => {
@@ -29,15 +45,13 @@ export default function Lesiones() {
     },
   });
 
-  // Estado para almacenar las lesiones con el nombre del jugador (propiedad "jugador")
   const [lesionesConNombre, setLesionesConNombre] = useState([]);
 
+  // 🧠 Asociar nombre del jugador a cada lesión
   useEffect(() => {
     if (lesiones && lesiones.length > 0) {
-      //console.log("Lesiones recibidas:", lesiones);
       Promise.all(
         lesiones.map(async (lesion, index) => {
-          // Verifica que exista jugador_id y haz el log
           if (!lesion.jugador_id) {
             console.warn(`Lesión en índice ${index} no tiene jugador_id definido.`, lesion);
             return { ...lesion, jugador: "Desconocido" };
@@ -58,15 +72,14 @@ export default function Lesiones() {
     }
   }, [JSON.stringify(lesiones)]);
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
-
-  // Handler para eliminar una lesión
   const handleDelete = (lesionId) => {
     if (confirm("¿Estás seguro de eliminar esta lesión?")) {
       deleteLesionMutation.mutate(lesionId);
     }
   };
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
 
   return (
     <div>
@@ -76,7 +89,7 @@ export default function Lesiones() {
           background: "linear-gradient(135deg, #000 0%, #f00 100%)",
           color: "#fff",
           textAlign: "center",
-          padding: "1rem", 
+          padding: "1rem",
           borderRadius: "8px",
           marginBottom: "1rem",
         }}
@@ -87,7 +100,7 @@ export default function Lesiones() {
         </p>
       </div>
 
-      {/* Renderiza la tabla de lesiones, pasando el flag isAdmin y la función de borrado */}
+      {/* Tabla de lesiones */}
       <DataTable
         lesiones={lesionesConNombre}
         isAdmin={isAdmin}

@@ -133,7 +133,7 @@ def obtener_posibles_lesiones():
     print(mensaje)
     return {"message": mensaje}, 200
 
-def actualizar_lesiones():
+def limpiar_lesiones_antiguas():
     """
     Elimina de la tabla Lesiones_Jugador aquellas lesiones que tengan
     una fecha_recuperacion_estimada definida (no nula) y que sea anterior a la fecha de hoy.

@@ -28,16 +28,19 @@ export async function createLesion(data) {
   return response.data;
 }
 
-// Función para actualizar una lesión (se espera que en 'data' se incluya el id de la lesión)
-// Ahora apunta a la ruta de "administrar" la lesión
-export async function updateLesion(data) {
-  const response = await axios.put(`${API_URL}/api/lesiones_jugador/administrar`, data);
+// Eliminar una lesión individual
+export async function deleteLesion(lesionId, token) {
+  const response = await axios.delete(`${API_URL}/api/lesiones_jugador/${lesionId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
   return response.data;
 }
 
-// Función para eliminar una lesión a partir de su id, ahora incluyendo el token
-export async function deleteLesion(lesionId, token) {
-  const response = await axios.delete(`${API_URL}/api/lesiones_jugador/${lesionId}`, {
+// Limpiar lesiones antiguas automáticamente
+export async function limpiarLesiones(token) {
+  const response = await axios.delete(`${API_URL}/api/lesiones_jugador/limpiar`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -54,7 +57,7 @@ export async function getLesionById(lesionId) {
 // Función para editar una lesión a partir de su id
 export async function editarLesion(lesion_id, data, token) {
   console.log("Datos que se van a enviar a editarLesion:", data);
-  
+
   const response = await axios.put(`${API_URL}/api/lesiones_jugador/editar/${lesion_id}`, data, {
     headers: {
       "Content-Type": "application/json",

@@ -1,6 +1,6 @@
 from app import app
 from flask import request, jsonify
-from app.crud.lesiones_jugador_crud import actualizar_lesiones, crear_lesion, editar_lesion, eliminar_lesion, listar_lesiones, obtener_lesion_by_ID, obtener_posibles_lesiones
+from app.crud.lesiones_jugador_crud import crear_lesion, editar_lesion, eliminar_lesion, limpiar_lesiones_antiguas, listar_lesiones, obtener_lesion_by_ID, obtener_posibles_lesiones
 from .data_import import actualizar_historial, calcular_contexto_partido
 from app.auth import registrar_usuario, autenticar_usuario, cambiar_rol_usuario
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -147,16 +147,16 @@ def route_obtener_posibles_lesiones():
     respuesta, status = obtener_posibles_lesiones()
     return jsonify(respuesta), status
 
-# PUT: Actualizar (eliminar) lesiones antiguas (automatizado)
-@app.route('/api/lesiones_jugador/actualizar', methods=['PUT'])
+# DELETE: Eliminar lesiones antiguas automáticamente
+@app.route('/api/lesiones_jugador/limpiar', methods=['DELETE'])
 @jwt_required()
-def route_actualizar_lesiones():
-    # Verificar que el usuario autenticado es admin
+def route_limpiar_lesiones():
+    # Solo verificar que el usuario está autenticado
     usuario_actual = Usuario.query.get(get_jwt_identity())
-    if not usuario_actual or usuario_actual.rol != "admin":
-        return jsonify({"msg": "No tienes permisos para actualizar lesiones"}), 403
+    if not usuario_actual:
+        return jsonify({"msg": "No autorizado"}), 403
 
-    respuesta, status = actualizar_lesiones()
+    respuesta, status = limpiar_lesiones_antiguas()
     return jsonify(respuesta), status
 
 # POST: Crear una nueva lesión (por ejemplo, para agregar de primeras una lesión)
