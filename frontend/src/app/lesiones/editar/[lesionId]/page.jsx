@@ -74,7 +74,7 @@ export default function EditarLesion() {
 
   return (
     <>
-      {/* 🔴 Encabezado como en "Lista de Lesiones" */}
+      {/* Encabezado degradado */}
       <div
         style={{
           background: "linear-gradient(135deg, #000 0%, #f00 100%)",
@@ -83,9 +83,6 @@ export default function EditarLesion() {
           padding: "1rem",
           borderRadius: "8px",
           marginBottom: "1rem",
-          maxWidth: "800px",       // ⬅️ ancho máximo
-          marginInline: "auto",    // ⬅️ centrado horizontal
-          width: "90%",            // ⬅️ responsive en pantallas pequeñas
         }}
       >
         <h2 style={{ margin: 0, fontSize: "2rem" }}>Editar Lesión</h2>
@@ -98,9 +95,8 @@ export default function EditarLesion() {
       <div
         style={{
           padding: "1rem",
-          maxWidth: "700px",
-          width: "90%",
-          margin: "0 auto",
+          width: "50%",
+          marginLeft: "0",
           background: "#1a1a1a",
           borderRadius: "10px",
           color: "#fff",
