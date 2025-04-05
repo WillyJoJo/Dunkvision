@@ -13,3 +13,13 @@ export async function getEquipos(filters = {}) {
   const response = await axios.get(`${API_URL}/api/equipos`, { params });
   return response.data;
 }
+
+export async function getEquiposById(id) {
+  const response = await axios.get(`${API_URL}/api/equipos/${id}`);
+  return response.data; /*{
+    "id": equipo.id_equipo,
+    "nombre": equipo.nombre,
+    "conferencia": equipo.conferencia,
+    "division": equipo.division
+  }*/
+}
