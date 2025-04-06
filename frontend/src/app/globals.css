@@ -170,3 +170,20 @@ body {
   }
 }
 
+/* Aplica estilo claro al calendario */
+.rdp {
+  --rdp-accent-color: #f00;
+  --rdp-background-color: #fff;
+  --rdp-cell-size: 40px;
+  --rdp-text-color: #000;
+  --rdp-selected-color: #fff;
+  --rdp-selected-bg: #f00;
+  --rdp-hover-bg: #f9f9f9;
+  font-family: sans-serif;
+  font-size: 14px;
+  background-color: #fff;
+  color: #000;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
