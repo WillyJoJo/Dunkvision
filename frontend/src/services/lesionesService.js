@@ -23,8 +23,12 @@ export async function getNombreJugador(id_jugador) {
 }
 
 // Función para crear una nueva lesión
-export async function createLesion(data) {
-  const response = await axios.post(`${API_URL}/api/lesiones_jugador`, data);
+export async function createLesion(data, token) {
+  const response = await axios.post(`${API_URL}/api/lesiones_jugador`, data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
   return response.data;
 }
 
@@ -67,4 +71,7 @@ export async function editarLesion(lesion_id, data, token) {
   return response.data;
 }
 
-
+export async function getLesionActiva(jugadorId) {
+  const response = await axios.get(`${API_URL}/api/lesiones_jugador/activa/${jugadorId}`);
+  return response.data;
+}

@@ -154,13 +154,6 @@ def limpiar_lesiones_antiguas():
     return {"message": mensaje}, 200
 
 def crear_lesion(data):
-    """
-    Crea una nueva lesión en la tabla Lesiones_Jugador.
-    Se espera un diccionario con:
-      - "jugador_id": (int) ID del jugador
-      - "fecha_recuperacion_estimada": (str, opcional) Fecha en formato "YYYY-MM-DD"
-      - "tipo_lesion": (str, opcional) Tipo de lesión (por defecto "Por confirmar")
-    """
     if "jugador_id" not in data:
         return {"error": "Falta el campo 'jugador_id'."}, 400
 
@@ -169,6 +162,17 @@ def crear_lesion(data):
     except ValueError:
         return {"error": "'jugador_id' debe ser un entero."}, 400
 
+    # Comprobar si ya tiene una lesión activa
+    lesion_activa = Lesiones_Jugador.query.filter(
+        Lesiones_Jugador.jugador_id == jugador_id,
+        (Lesiones_Jugador.fecha_recuperacion_estimada == None) |
+        (Lesiones_Jugador.fecha_recuperacion_estimada >= date.today())
+    ).first()
+
+    if lesion_activa:
+        return {"error": "El jugador ya tiene una lesión activa."}, 409
+
+    # Continuar con la creación si no hay lesión activa
     fecha_str = data.get("fecha_recuperacion_estimada")
     fecha_recuperacion = None
     if fecha_str:
@@ -236,3 +240,27 @@ def editar_lesion(lesion_id, data):
     mensaje = f"Lesión con id {lesion_id} actualizada correctamente."
     print(mensaje)
     return {"message": mensaje}, 200
+
+def get_lesion_activa(jugador_id):
+    """
+    Devuelve si un jugador tiene una lesión activa.
+    Se considera activa si no tiene fecha de recuperación o si la fecha es futura.
+    """
+    lesion = db.session.query(Lesiones_Jugador).filter(
+        Lesiones_Jugador.jugador_id == jugador_id,
+        (Lesiones_Jugador.fecha_recuperacion_estimada == None) |
+        (Lesiones_Jugador.fecha_recuperacion_estimada >= date.today())
+    ).first()
+
+    if lesion:
+        return {
+            "tiene_lesion": True,
+            "tipo_lesion": lesion.tipo_lesion,
+            "fecha_recuperacion_estimada": lesion.fecha_recuperacion_estimada.isoformat() if lesion.fecha_recuperacion_estimada else None
+        }, 200
+
+    return {
+        "tiene_lesion": False,
+        "tipo_lesion": None,
+        "fecha_recuperacion_estimada": None
+    }, 200

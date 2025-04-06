@@ -1,6 +1,6 @@
 import { getJugadoresById } from "@/services/jugadoresService";
 import { getEquiposById } from "@/services/equiposService";
-import BotonLesion from "@/components/ui/botonLesion";
+import BotonLesionConEstado from "@/components/ui/BotonLesionConEstado"; // ✅ import nuevo
 
 // Función para transformar abreviaciones a etiquetas con nombre completo
 const transformarPosiciones = (abreviacion) => {
@@ -78,7 +78,8 @@ export default async function JugadorPage({ params }) {
           <strong>Equipo:</strong> {equipo.nombre}
         </p>
 
-        <BotonLesion jugadorId={params.jugadorId} />
+        {/* ✅ Botón con control de estado de lesión */}
+        <BotonLesionConEstado jugadorId={params.jugadorId} />
       </div>
     </main>
   );

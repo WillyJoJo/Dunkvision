@@ -1,52 +1,168 @@
 "use client";
 
-import React from "react";
-import ButtonAuth from "@/components/ButtonAuth";
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { createLesion } from "@/services/lesionesService";
+import { getJugadoresById } from "@/services/jugadoresService";
 
-export default function HomePage() {
+export default function NuevaLesionPage() {
+  const { jugadorId } = useParams();
+  const router = useRouter();
+  const { data: session } = useSession();
+
+  const [tipoLesion, setTipoLesion] = useState("");
+  const [fechaRecuperacion, setFechaRecuperacion] = useState("");
+  const [error, setError] = useState(null);
+  const [jugador, setJugador] = useState(null);
+
+  useEffect(() => {
+    async function fetchJugador() {
+      try {
+        const data = await getJugadoresById(jugadorId);
+        setJugador(data);
+      } catch (err) {
+        console.error("Error cargando el jugador", err);
+        setJugador(null);
+      }
+    }
+    fetchJugador();
+  }, [jugadorId]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+
+    try {
+      const data = {
+        jugador_id: jugadorId,
+        tipo_lesion: tipoLesion || undefined,
+        fecha_recuperacion_estimada: fechaRecuperacion || undefined,
+      };
+
+      console.log("Token actual:", session?.user?.token);
+
+      await createLesion(data, session?.user?.token);
+      router.push(`/jugadores/${jugadorId}`);
+    } catch (err) {
+      console.error("Error creando lesión:", err);
+
+      if (err.response?.status === 409) {
+        setError("Este jugador ya tiene una lesión activa.");
+      } else if (err.response?.status === 401) {
+        setError("No tienes permisos para crear lesiones. Inicia sesión.");
+      } else {
+        setError("No se pudo registrar la lesión. Intenta de nuevo.");
+      }
+    }
+  };
+
   return (
-    <main style={{ fontFamily: "Arial, sans-serif" }}>
-      {/* Hero Section */}
-      <section
+    <main style={{ padding: "2rem", color: "#fff" }}>
+      {/* Encabezado degradado */}
+      <div
         style={{
-          background: "linear-gradient(135deg,rgb(0, 0, 0),rgb(255, 0, 0))",
+          background: "linear-gradient(135deg, #000 0%, #f00 100%)",
           color: "#fff",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "60vh",
-          textAlign: "center",
-          padding: "2rem",
+          textAlign: "left",
+          padding: "1.5rem 2rem",
+          borderRadius: "8px",
+          marginBottom: "1.5rem",
+          maxWidth: "600px",
         }}
       >
-        <h1 style={{ fontSize: "3rem", marginBottom: "1rem" }}>
-          ¡Bienvenido a DUNKVISION!
-        </h1>
-        <p style={{ fontSize: "1.25rem", maxWidth: "600px" }}>
-          Descubre un proyecto innovador para predecir resultados y estadísticas de la NBA.
-        </p>
-      </section>
+        <h2 style={{ margin: 0, fontSize: "2rem" }}>Añadir Lesión</h2>
+      </div>
 
-      {/* Acerca del Proyecto */}
-      <section
+      {/* Formulario oscuro */}
+      <form
+        onSubmit={handleSubmit}
         style={{
-          padding: "2rem",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          textAlign: "center",
+          backgroundColor: "#1a1a1a",
+          padding: "1.5rem 2rem",
+          borderRadius: "10px",
+          maxWidth: "600px",
+          color: "#fff",
         }}
       >
-        <h2 style={{ fontSize: "2rem", marginBottom: "1rem", color: "rgb(255, 0, 0)" }}>
-          Acerca del Proyecto
-        </h2>
-        <p style={{ fontSize: "1rem", maxWidth: "800px" }}>
-          Este proyecto es el resultado de una investigación y aplicación de
-          nuevas tecnologías, enfocado en brindar una experiencia única y
-          atractiva.
-        </p>
-      </section>
+        {/* Nombre del jugador como encabezado del formulario */}
+        {jugador && (
+          <h1
+            style={{
+              margin: 0,
+              marginBottom: "1.5rem",
+              fontSize: "2rem",
+              fontWeight: "bold",
+              color: "#fff",
+            }}
+          >
+            {jugador.nombre}
+          </h1>
+        )}
+
+        <div style={{ marginBottom: "1rem" }}>
+          <label style={{ display: "block", marginBottom: "0.5rem" }}>
+            Tipo de lesión:
+          </label>
+          <input
+            type="text"
+            value={tipoLesion}
+            onChange={(e) => setTipoLesion(e.target.value)}
+            placeholder="Ej: Esguince, rotura..."
+            style={{
+              width: "100%",
+              padding: "0.5rem",
+              borderRadius: "5px",
+              backgroundColor: "#222",
+              color: "#fff",
+              border: "1px solid #ff4444",
+            }}
+          />
+        </div>
+
+        <div style={{ marginBottom: "1rem" }}>
+          <label style={{ display: "block", marginBottom: "0.5rem" }}>
+            Fecha de recuperación estimada:
+          </label>
+          <input
+            type="date"
+            value={fechaRecuperacion}
+            onChange={(e) => setFechaRecuperacion(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "0.5rem",
+              borderRadius: "5px",
+              backgroundColor: "#222",
+              color: "#fff",
+              border: "1px solid #ff4444",
+            }}
+          />
+        </div>
+
+        {error && (
+          <p style={{ color: "#ff4444", marginBottom: "1rem", fontWeight: "bold" }}>
+            ⚠️ {error}
+          </p>
+        )}
+
+        <button
+          type="submit"
+          style={{
+            padding: "0.6rem 1.2rem",
+            backgroundColor: "#ff4444",
+            color: "#fff",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+            fontWeight: "bold",
+            transition: "background-color 0.3s",
+          }}
+          onMouseOver={(e) => (e.target.style.backgroundColor = "#cc0000")}
+          onMouseOut={(e) => (e.target.style.backgroundColor = "#ff4444")}
+        >
+          Crear lesión
+        </button>
+      </form>
     </main>
   );
 }
