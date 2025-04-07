@@ -10,8 +10,9 @@ from app.crud.jugador_crud import listar_jugadores, obtener_jugador, filtrar_jug
 from app.crud.enfrentamiento_crud import (obtener_enfrentamiento, listar_enfrentamientos, 
 listar_enfrentamientos_equipo, listar_enfrentamientos_equipo_local, listar_enfrentamientos_equipo_visitante, listar_enfrentamientos_fecha)
 from app.crud.jugador_partido_crud import listar_jugador_partido,filtrar_jugador_partido_logica
-from app.crud.estadisticas_avanzadas_jugador_crud import (obtener_estadisticas_avanzadas,listar_estadisticas_avanzadas,
+from app.crud.estadisticas_avanzadas_jugador_crud import (estadisticas_avanzadas_jugador_existente, obtener_estadisticas_avanzadas,listar_estadisticas_avanzadas,
 filtrar_estadisticas_avanzadas_logica, crear_estadisticas_avanzadas, actualizar_estadisticas_avanzadas)
+from app.models import Temporada  # Asegúrate de importar el modelo Temporada
 
 # ------------------ Rutas para importar datos ------------------ #
 # Ruta por defecto que devuelve 'Hello World'
@@ -293,3 +294,53 @@ def route_actualizar_estadisticas(id_estadisticas):
     data = request.get_json()
     respuesta, status = actualizar_estadisticas_avanzadas(id_estadisticas, data)
     return jsonify(respuesta), status
+
+@app.route('/api/estadisticas_avanzadas/<int:jugador_id>/<int:temporada_id>', methods=['GET'])
+def route_estadisticas_avanzadas_jugadorId_temporadaId(jugador_id, temporada_id):
+    estadisticas = estadisticas_avanzadas_jugador_existente(jugador_id, temporada_id)
+    if estadisticas:
+        return jsonify({
+            "partidos_jugados": estadisticas.partidos_jugados,
+            "minutos_jugados": estadisticas.minutos_jugados,
+            "puntos": estadisticas.puntos,
+            "asistencias": estadisticas.asistencias,
+            "rebotes_ofensivos": estadisticas.rebotes_ofensivos,
+            "rebotes_defensivos": estadisticas.rebotes_defensivos,
+            "rebotes_totales": estadisticas.rebotes_totales,
+            "robos": estadisticas.robos,
+            "tapones": estadisticas.tapones,
+            "perdidas_balon": estadisticas.perdidas_balon,
+            "faltas_cometidas": estadisticas.faltas_cometidas,
+            "tiros_de_campo_intentados": estadisticas.tiros_de_campo_intentados,
+            "porcentaje_tiros_de_campo": estadisticas.porcentaje_tiros_de_campo,
+            "triples_intentados": estadisticas.triples_intentados,
+            "porcentaje_triples": estadisticas.porcentaje_triples,
+            "tiros_de_dos_intentados": estadisticas.tiros_de_dos_intentados,
+            "porcentaje_tiros_de_dos": estadisticas.porcentaje_tiros_de_dos,
+            "porcentaje_efectivo_tiros_de_campo": estadisticas.porcentaje_efectivo_tiros_de_campo,
+            "tiros_libres_intentados": estadisticas.tiros_libres_intentados,
+            "porcentaje_tiros_libres": estadisticas.porcentaje_tiros_libres,
+            "rating_ofensivo": estadisticas.rating_ofensivo,
+            "rating_defensivo": estadisticas.rating_defensivo,
+            "player_efficiency_rating": estadisticas.player_efficiency_rating,
+            "usage_porcentage": estadisticas.usage_porcentage,
+            "win_share_ofensivo": estadisticas.win_share_ofensivo,
+            "win_share_defensivo": estadisticas.win_share_defensivo,
+            "win_share_total": estadisticas.win_share_total,
+            "box_plus_minus": estadisticas.box_plus_minus
+        }), 200
+    else:
+        return jsonify({"msg": "No se encontraron estadísticas avanzadas para el jugador y temporada especificados"}), 404
+    
+
+##Ruta para obtener Temporadas
+@app.route('/api/temporadas', methods=['GET'])
+def route_obtener_temporadas():
+    try:
+        # Consulta todas las temporadas desde la base de datos
+        temporadas = Temporada.query.all()
+        # Serializa los resultados en una lista de diccionarios
+        temporadas_serializadas = [{"id": t.id_temporada, "nombre": t.nombre_temporada} for t in temporadas]
+        return jsonify(temporadas_serializadas), 200
+    except Exception as e:
+        return jsonify({"msg": "Error al obtener las temporadas", "error": str(e)}), 500

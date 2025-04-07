@@ -234,3 +234,11 @@ def actualizar_estadisticas_avanzadas(id_estadisticas, data):
 
     db.session.commit()
     return obtener_estadisticas_avanzadas(registro.id_estadisticas)
+
+def estadisticas_avanzadas_jugador_existente(jugador_id, temporada_id):
+    """
+    Devuelve todas las estadísticas avanzadas de un jugador en una temporada específica.
+    Si no existe, devuelve None.
+    """
+    estadisticas = Estadisticas_Avanzadas_Jugador.query.filter_by(jugador_id=jugador_id, temporada_id=temporada_id).first()
+    return estadisticas if estadisticas else None
