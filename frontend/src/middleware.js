@@ -1,9 +1,7 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
-// Exporta UN SOLO middleware por defecto
 export default withAuth(
-  // Esta función se ejecuta en cada request a las rutas definidas en `matcher`.
   function middleware(req) {
     const token = req.nextauth.token;
     const { pathname } = req.nextUrl;
@@ -15,8 +13,13 @@ export default withAuth(
       return NextResponse.redirect(signInUrl);
     }
 
-    // 2) Si la ruta comienza con "/dashboard", requerimos rol "admin"
-    if (pathname.startsWith("/dashboard") && token.rol !== "admin") {
+    // 2) Requiere rol admin si:
+    const esRutaAdmin =
+      pathname.startsWith("/dashboard") ||
+      pathname.match(/^\/jugadores\/\d+\/nuevalesion$/) ||
+      pathname.match(/^\/lesiones\/editar\/\d+$/);
+
+    if (esRutaAdmin && token.rol !== "admin") {
       return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
 
@@ -25,12 +28,6 @@ export default withAuth(
   },
   {
     callbacks: {
-      /**
-       * Este callback se ejecuta ANTES de `middleware()`.
-       * Por defecto, if you return true, significa que cualquiera puede entrar.
-       * Aquí, con la lógica en `middleware()`, basta con devolver true para que
-       * NextAuth no bloquee nada antes de tiempo.
-       */
       authorized: () => true,
     },
   }

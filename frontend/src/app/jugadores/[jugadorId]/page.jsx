@@ -1,8 +1,11 @@
+"use client";
+
+import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 import { getJugadoresById } from "@/services/jugadoresService";
 import { getEquiposById } from "@/services/equiposService";
-import BotonLesionConEstado from "@/components/ui/BotonLesionConEstado"; // ✅ import nuevo
+import BotonLesionConEstado from "@/components/ui/BotonLesionConEstado";
 
-// Función para transformar abreviaciones a etiquetas con nombre completo
 const transformarPosiciones = (abreviacion) => {
   const mapping = {
     G: "Base, Escolta",
@@ -18,13 +21,28 @@ const transformarPosiciones = (abreviacion) => {
     .filter((p) => p !== "");
 };
 
-export default async function JugadorPage({ params }) {
-  const jugador = await getJugadoresById(params.jugadorId);
-  const equipo = await getEquiposById(jugador.equipo_id);
+export default function JugadorPage({ params }) {
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.rol === "admin";
+
+  const [jugador, setJugador] = useState(null);
+  const [equipo, setEquipo] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const jugadorData = await getJugadoresById(params.jugadorId);
+      const equipoData = await getEquiposById(jugadorData.equipo_id);
+      setJugador(jugadorData);
+      setEquipo(equipoData);
+    };
+
+    fetchData();
+  }, [params.jugadorId]);
+
+  if (!jugador || !equipo) return <div style={{ color: "#fff" }}>Cargando...</div>;
 
   return (
     <main style={{ padding: "2rem", color: "#fff" }}>
-      {/* Encabezado degradado con el nombre del jugador */}
       <div
         style={{
           background: "linear-gradient(135deg, #000 0%, #f00 100%)",
@@ -43,7 +61,6 @@ export default async function JugadorPage({ params }) {
         </h1>
       </div>
 
-      {/* Caja con info del jugador */}
       <div
         style={{
           backgroundColor: "#1a1a1a",
@@ -78,8 +95,8 @@ export default async function JugadorPage({ params }) {
           <strong>Equipo:</strong> {equipo.nombre}
         </p>
 
-        {/* ✅ Botón con control de estado de lesión */}
-        <BotonLesionConEstado jugadorId={params.jugadorId} />
+        {/* ✅ Solo mostrar el botón si es admin */}
+        {isAdmin && <BotonLesionConEstado jugadorId={params.jugadorId} />}
       </div>
     </main>
   );

@@ -79,7 +79,20 @@ export default function Lesiones() {
             return { ...lesion, jugador: "Desconocido" };
           }
         })
-      ).then(setLesionesConNombre);
+      ).then((lesionesConNombre) => {
+        let visibles = lesionesConNombre;
+      
+        // Si no es admin, filtrar solo lesiones con fecha
+        if (!isAdmin) {
+          visibles = visibles.filter((l) => l.fecha_recuperacion_estimada);
+        }
+      
+        const ordenadas = visibles.sort(
+          (a, b) => new Date(a.fecha_recuperacion_estimada) - new Date(b.fecha_recuperacion_estimada)
+        );
+      
+        setLesionesConNombre(ordenadas);
+      });
     } else {
       setLesionesConNombre([]);
     }
