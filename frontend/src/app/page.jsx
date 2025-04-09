@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import ButtonAuth from "@/components/ButtonAuth";
 
 export default function HomePage() {
   return (
