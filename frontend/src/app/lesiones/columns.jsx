@@ -1,9 +1,8 @@
-"use client";
+import { format } from "date-fns";
 
-// Array con las definiciones de columnas para lesiones
 export const columns = [
   {
-    accessorKey: "jugador", // Ahora se mostrará el nombre del jugador
+    accessorKey: "jugador",
     header: "Jugador",
   },
   {
@@ -12,6 +11,12 @@ export const columns = [
   },
   {
     accessorKey: "fecha_recuperacion_estimada",
-    header: "Fecha de Recuperación",
+    header: "Fecha Recuperación",
+    cell: ({ row }) => {
+      const raw = row.original.fecha_recuperacion_estimada;
+      if (!raw) return "";
+      const fecha = new Date(raw);
+      return format(fecha, "dd/MM/yyyy");
+    },
   },
 ];

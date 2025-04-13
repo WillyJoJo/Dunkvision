@@ -10,6 +10,7 @@ const items = [
   { label: "Equipos", href: "/equipos" },
   { label: "Jugadores", href: "/jugadores" },
   { label: "Lesiones", href: "/lesiones" },
+  { label: "Partidos", href: "/enfrentamientos" }
 ];
 
 const geistSans = Geist({
@@ -32,16 +33,16 @@ export default function RootLayout({ children }) {
     <html lang="es">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <SessionAuthProvider>
-        <ReactQueryProvider>
-          <header className="header" />
-          <div className="main-container">
-            <NavBar items={items} />
-            <main className="main-content">{children}</main>
-          </div>
-          <footer className="footer">
-            Hecho por Guillermo Pichaco Panal 👑🏀
-          </footer>
-        </ReactQueryProvider>
+          <ReactQueryProvider>
+            <header className="header" />
+            <div className="main-container">
+              <NavBar items={items} />
+              <main className="main-content">{children}</main>
+            </div>
+            <footer className="footer">
+              Hecho por Guillermo Pichaco Panal 👑🏀
+            </footer>
+          </ReactQueryProvider>
         </SessionAuthProvider>
       </body>
     </html>

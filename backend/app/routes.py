@@ -198,6 +198,7 @@ def route_editar_lesion(lesion_id):
     respuesta, status = editar_lesion(lesion_id, data)
     return jsonify(respuesta), status
 
+# GET: Obtener lesión activa de un jugador por ID
 @app.route('/api/lesiones_jugador/activa/<int:jugador_id>', methods=['GET'])
 def api_get_lesion_activa(jugador_id):
     resultado, status = get_lesion_activa(jugador_id)

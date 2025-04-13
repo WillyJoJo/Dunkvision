@@ -11,11 +11,10 @@ import {
 import { DataTable } from "./data-table";
 import { useSession } from "next-auth/react";
 import { format } from "date-fns";
-import { DayPicker } from "react-day-picker";
-import "react-day-picker/dist/style.css";
+import SimpleDateRangePicker from "@/components/ui/simple-date-range-picker";
 
 export default function LesionesCliente() {
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     const isAdmin = session?.user?.rol === "admin";
     const queryClient = useQueryClient();
 
@@ -23,21 +22,12 @@ export default function LesionesCliente() {
     const [tipoLesion, setTipoLesion] = useState("");
 
     const [range, setRange] = useState(undefined);
-    const [showCalendar, setShowCalendar] = useState(false);
-
     const [filtrosAplicados, setFiltrosAplicados] = useState({
         nombreJugador: "",
         tipoLesion: "",
         fechaDesde: "",
         fechaHasta: "",
     });
-
-    // 🔧 Sumar días a una fecha
-    const sumarDias = (fecha, dias) => {
-        const nuevaFecha = new Date(fecha);
-        nuevaFecha.setDate(nuevaFecha.getDate() + dias);
-        return nuevaFecha.toISOString().split("T")[0];
-    };
 
     useEffect(() => {
         if (session?.user?.token) {
@@ -56,6 +46,7 @@ export default function LesionesCliente() {
         queryKey: ["lesiones"],
         queryFn: getLesiones,
         staleTime: 1000 * 60 * 5,
+        enabled: !!session,
     });
 
     const deleteLesionMutation = useMutation({
@@ -68,11 +59,7 @@ export default function LesionesCliente() {
     const [lesionesConNombre, setLesionesConNombre] = useState([]);
 
     useEffect(() => {
-        if (!session || session.status === "loading") return; // Esperamos a que la sesión esté lista
-        if (!lesiones || lesiones.length === 0) {
-            setLesionesConNombre([]);
-            return;
-        }
+        if (!session?.user || !lesiones.length) return;
 
         Promise.all(
             lesiones.map(async (lesion) => {
@@ -84,22 +71,15 @@ export default function LesionesCliente() {
                     return { ...lesion, jugador: "Desconocido" };
                 }
             })
-        ).then((lesionesConNombre) => {
-            let visibles = lesionesConNombre;
-
-            // 🔍 Esta parte se ejecuta correctamente ahora que session está disponible
-            if (!session?.user?.rol === "admin") {
-                visibles = visibles.filter((l) => l.fecha_recuperacion_estimada);
-            }
-
-            const ordenadas = visibles.sort(
-                (a, b) => new Date(a.fecha_recuperacion_estimada) - new Date(b.fecha_recuperacion_estimada)
+        ).then((lesionesEnriquecidas) => {
+            const ordenadas = lesionesEnriquecidas.sort(
+                (a, b) =>
+                    new Date(a.fecha_recuperacion_estimada || 0) -
+                    new Date(b.fecha_recuperacion_estimada || 0)
             );
-
             setLesionesConNombre(ordenadas);
         });
     }, [JSON.stringify(lesiones), session]);
-
 
     const handleDelete = (lesionId) => {
         if (confirm("¿Estás seguro de eliminar esta lesión?")) {
@@ -108,15 +88,29 @@ export default function LesionesCliente() {
     };
 
     const lesionesFiltradas = lesionesConNombre.filter((l) => {
-        const nombreMatch = l.jugador.toLowerCase().includes(filtrosAplicados.nombreJugador);
+        if (!isAdmin && !l.fecha_recuperacion_estimada) return false;
+
+        const nombreMatch = l.jugador?.toLowerCase().includes(filtrosAplicados.nombreJugador);
         const tipoMatch = l.tipo_lesion?.toLowerCase().includes(filtrosAplicados.tipoLesion);
-        const fecha = l.fecha_recuperacion_estimada;
-        const desdeOk = !filtrosAplicados.fechaDesde || (fecha && fecha >= filtrosAplicados.fechaDesde);
-        const hastaOk = !filtrosAplicados.fechaHasta || (fecha && fecha <= filtrosAplicados.fechaHasta);
+
+        const fechaRecuperacion = l.fecha_recuperacion_estimada
+            ? new Date(`${l.fecha_recuperacion_estimada}T00:00:00`)
+            : null;
+
+        const desde = filtrosAplicados.fechaDesde
+            ? new Date(`${filtrosAplicados.fechaDesde}T00:00:00`)
+            : null;
+        const hasta = filtrosAplicados.fechaHasta
+            ? new Date(`${filtrosAplicados.fechaHasta}T00:00:00`)
+            : null;
+
+        const desdeOk = !desde || (fechaRecuperacion && fechaRecuperacion >= desde);
+        const hastaOk = !hasta || (fechaRecuperacion && fechaRecuperacion <= hasta);
+
         return nombreMatch && tipoMatch && desdeOk && hastaOk;
     });
 
-    if (isLoading) return <div>Loading...</div>;
+    if (status === "loading" || isLoading) return <div>Loading...</div>;
     if (error) return <div>Error: {error.message}</div>;
 
     return (
@@ -145,8 +139,8 @@ export default function LesionesCliente() {
                     setFiltrosAplicados({
                         nombreJugador: nombreJugador.trim().toLowerCase(),
                         tipoLesion: tipoLesion.trim().toLowerCase(),
-                        fechaDesde: range?.from?.toISOString().split("T")[0] || "",
-                        fechaHasta: range?.to ? sumarDias(range.to, 1) : "",
+                        fechaDesde: range?.from ? format(range.from, "yyyy-MM-dd") : "",
+                        fechaHasta: range?.to ? format(range.to, "yyyy-MM-dd") : "",
                     });
                 }}
                 style={{
@@ -196,50 +190,7 @@ export default function LesionesCliente() {
                     />
                 </label>
 
-                {/* Calendario */}
-                <div style={{ position: "relative" }}>
-                    <button
-                        type="button"
-                        onClick={() => setShowCalendar((prev) => !prev)}
-                        style={{
-                            backgroundColor: "#000",
-                            color: "#fff",
-                            border: "1px solid #fff",
-                            padding: "0.5rem 1rem",
-                            borderRadius: "4px",
-                            cursor: "pointer",
-                            width: "250px",
-                        }}
-                    >
-                        {range?.from && range?.to
-                            ? `Del ${format(range.from, "dd/MM/yyyy")} al ${format(range.to, "dd/MM/yyyy")} (incluido)`
-                            : "Seleccionar rango"}
-                    </button>
-
-                    {showCalendar && (
-                        <div
-                            style={{
-                                position: "absolute",
-                                zIndex: 10,
-                                top: "110%",
-                                backgroundColor: "#fff",
-                                color: "#000",
-                                padding: "1rem",
-                                borderRadius: "8px",
-                                border: "1px solid #ccc",
-                                boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-                            }}
-                        >
-                            <DayPicker
-                                mode="range"
-                                selected={range}
-                                onSelect={setRange}
-                                numberOfMonths={2}
-                                defaultMonth={new Date()}
-                            />
-                        </div>
-                    )}
-                </div>
+                <SimpleDateRangePicker range={range} setRange={setRange} />
 
                 <button
                     type="submit"
@@ -256,6 +207,7 @@ export default function LesionesCliente() {
                 >
                     Filtrar
                 </button>
+
                 <button
                     type="button"
                     onClick={() => {

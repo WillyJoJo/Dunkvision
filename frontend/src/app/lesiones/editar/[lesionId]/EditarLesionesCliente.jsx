@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter, useParams } from "next/navigation";
 import { getLesionById, editarLesion, getNombreJugador } from "@/services/lesionesService";
 import { useSession } from "next-auth/react";
+import SimpleDatePicker from "@/components/ui/simple-date-picker"; // El inline con botón
 
 export default function EditarLesionesCliente() {
   const { lesionId } = useParams();
@@ -23,14 +24,18 @@ export default function EditarLesionesCliente() {
 
   const [nombreJugador, setNombreJugador] = useState("Cargando...");
   const [tipoLesion, setTipoLesion] = useState("");
-  const [fechaRecuperacion, setFechaRecuperacion] = useState("");
+  const [fechaRecuperacion, setFechaRecuperacion] = useState(null);
   const [fechaInvalida, setFechaInvalida] = useState(false);
 
   useEffect(() => {
     if (lesionData?.lesion) {
       const lesion = lesionData.lesion;
       setTipoLesion(lesion.tipo_lesion || "");
-      setFechaRecuperacion(lesion.fecha_recuperacion_estimada || "");
+
+      if (lesion.fecha_recuperacion_estimada) {
+        const fecha = new Date(lesion.fecha_recuperacion_estimada);
+        setFechaRecuperacion(fecha);
+      }
 
       if (!lesion.jugador_id) {
         console.warn("La lesión no tiene jugador_id definido.", lesion);
@@ -57,12 +62,24 @@ export default function EditarLesionesCliente() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const dataToSend = {};
-    if (tipoLesion.trim()) dataToSend.tipo_lesion = tipoLesion.trim();
-    if (fechaRecuperacion) dataToSend.fecha_recuperacion_estimada = fechaRecuperacion;
 
-    // Validar fecha antes de enviar
-    const hoy = new Date().toISOString().split("T")[0];
+    const dataToSend = {};
+
+    if (tipoLesion.trim()) dataToSend.tipo_lesion = tipoLesion.trim();
+
+    if (fechaRecuperacion instanceof Date && !isNaN(fechaRecuperacion)) {
+      // ✅ Arreglo para evitar que se reste un día por zona horaria
+      const fechaISO = [
+        fechaRecuperacion.getFullYear(),
+        String(fechaRecuperacion.getMonth() + 1).padStart(2, "0"),
+        String(fechaRecuperacion.getDate()).padStart(2, "0"),
+      ].join("-");
+      dataToSend.fecha_recuperacion_estimada = fechaISO;
+    }
+
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+
     if (fechaRecuperacion && fechaRecuperacion < hoy) {
       setFechaInvalida(true);
       return;
@@ -82,7 +99,6 @@ export default function EditarLesionesCliente() {
 
   return (
     <>
-      {/* Encabezado degradado */}
       <div
         style={{
           background: "linear-gradient(135deg, #000 0%, #f00 100%)",
@@ -99,7 +115,6 @@ export default function EditarLesionesCliente() {
         </p>
       </div>
 
-      {/* Formulario */}
       <div
         style={{
           padding: "1rem",
@@ -147,23 +162,12 @@ export default function EditarLesionesCliente() {
             />
           </div>
 
-          <div style={{ marginBottom: "1rem" }}>
-            <label>
-              Fecha de Recuperación Estimada:
-              <input
-                type="date"
-                value={fechaRecuperacion}
-                onChange={(e) => setFechaRecuperacion(e.target.value)}
-                style={{
-                  marginLeft: "0.5rem",
-                  padding: "0.5rem",
-                  borderRadius: "5px",
-                  backgroundColor: "#222",
-                  color: "#fff",
-                  border: fechaInvalida ? "2px solid #ff0000" : "1px solid #ff4444",
-                }}
-              />
-            </label>
+          <div style={{ marginBottom: "1rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+            <SimpleDatePicker
+              date={fechaRecuperacion}
+              setDate={setFechaRecuperacion}
+              label="Fecha de Recuperación Estimada:"
+            />
             {fechaInvalida && (
               <p style={{ color: "#ff4444", marginTop: "0.5rem" }}>
                 ⚠️ La fecha no puede ser anterior a hoy.
