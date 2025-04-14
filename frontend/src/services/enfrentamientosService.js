@@ -13,3 +13,8 @@ export async function getEnfrentamientos(filters = {}) {
   const response = await axios.get(`${API_URL}/api/enfrentamientos`, { params });
   return response.data;
 }
+
+export async function getEnfrentamientoByEnfrentamientoId (enfrentamiento_id) {
+  const response = await axios.get(`${API_URL}/api/enfrentamientos/${enfrentamiento_id}`);
+  return response.data;
+}

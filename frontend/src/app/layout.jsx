@@ -10,7 +10,7 @@ const items = [
   { label: "Equipos", href: "/equipos" },
   { label: "Jugadores", href: "/jugadores" },
   { label: "Lesiones", href: "/lesiones" },
-  { label: "Partidos", href: "/enfrentamientos" }
+  { label: "Partidos", href: "/enfrentamiento" }
 ];
 
 const geistSans = Geist({

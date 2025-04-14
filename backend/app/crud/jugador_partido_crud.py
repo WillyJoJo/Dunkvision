@@ -83,3 +83,51 @@ def filtrar_jugador_partido_logica(enfrentamiento_id=None, jugador_id=None, orde
             "porcentaje_tiros_libres": reg.porcentaje_tiros_libres
         })
     return lista, 200
+
+def get_jugador_partido_por_jugador_id(jugador_id):
+    registros = Jugador_Partido.query.filter_by(jugador_id=jugador_id).all()
+    lista = []
+    for reg in registros:
+        lista.append({
+            "id_jugador_partido": reg.id_jugador_partido,
+            "jugador_id": reg.jugador_id,
+            "enfrentamiento_id": reg.enfrentamiento_id,
+            "minutos_jugados": reg.minutos_jugados,
+            "puntos": reg.puntos,
+            "asistencias": reg.asistencias,
+            "rebotes_ofensivos": reg.rebotes_ofensivos,
+            "rebotes_defensivos": reg.rebotes_defensivos,
+            "robos": reg.robos,
+            "tapones": reg.tapones,
+            "perdidas_balon": reg.perdidas_balon,
+            "faltas_cometidas": reg.faltas_cometidas,
+            "faltas_recibidas": reg.faltas_recibidas,
+            "porcentaje_tiros_de_campo": reg.porcentaje_tiros_de_campo,
+            "porcentaje_triples": reg.porcentaje_triples,
+            "porcentaje_tiros_libres": reg.porcentaje_tiros_libres
+        })
+    return lista, 200
+
+def get_jugador_partido_por_enfrentamiento_id(enfrentamiento_id):
+    registros = Jugador_Partido.query.filter_by(enfrentamiento_id=enfrentamiento_id).all()
+    lista = []
+    for reg in registros:
+        lista.append({
+            "id_jugador_partido": reg.id_jugador_partido,
+            "jugador_id": reg.jugador_id,
+            "enfrentamiento_id": reg.enfrentamiento_id,
+            "minutos_jugados": reg.minutos_jugados,
+            "puntos": reg.puntos,
+            "asistencias": reg.asistencias,
+            "rebotes_ofensivos": reg.rebotes_ofensivos,
+            "rebotes_defensivos": reg.rebotes_defensivos,
+            "robos": reg.robos,
+            "tapones": reg.tapones,
+            "perdidas_balon": reg.perdidas_balon,
+            "faltas_cometidas": reg.faltas_cometidas,
+            "faltas_recibidas": reg.faltas_recibidas,
+            "porcentaje_tiros_de_campo": reg.porcentaje_tiros_de_campo,
+            "porcentaje_triples": reg.porcentaje_triples,
+            "porcentaje_tiros_libres": reg.porcentaje_tiros_libres
+        })
+    return lista, 200

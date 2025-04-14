@@ -9,7 +9,7 @@ from app.crud.equipo_crud import obtener_equipo, listar_equipos, filtrar_equipos
 from app.crud.jugador_crud import listar_jugadores, obtener_jugador, filtrar_jugadores_logica
 from app.crud.enfrentamiento_crud import (obtener_enfrentamiento, listar_enfrentamientos, 
 listar_enfrentamientos_equipo, listar_enfrentamientos_equipo_local, listar_enfrentamientos_equipo_visitante, listar_enfrentamientos_fecha)
-from app.crud.jugador_partido_crud import listar_jugador_partido,filtrar_jugador_partido_logica
+from app.crud.jugador_partido_crud import get_jugador_partido_por_enfrentamiento_id, get_jugador_partido_por_jugador_id, listar_jugador_partido,filtrar_jugador_partido_logica
 from app.crud.estadisticas_avanzadas_jugador_crud import (estadisticas_avanzadas_jugador_existente, obtener_estadisticas_avanzadas,listar_estadisticas_avanzadas,
 filtrar_estadisticas_avanzadas_logica, crear_estadisticas_avanzadas, actualizar_estadisticas_avanzadas)
 from app.models import Temporada  # Asegúrate de importar el modelo Temporada
@@ -257,6 +257,16 @@ def route_jugador_partido():
     else:
         respuesta, status = listar_jugador_partido()
     
+    return jsonify(respuesta), status
+
+@app.route('/api/jugador_partido/jugador/<int:jugador_id>', methods=['GET'])
+def obtener_jugador_partido_por_jugador_id(jugador_id):
+    respuesta, status = get_jugador_partido_por_jugador_id(jugador_id)
+    return jsonify(respuesta), status
+
+@app.route('/api/jugador_partido/enfrentamiento/<int:enfrentamiento_id>', methods=['GET'])
+def obtener_jugador_partido_por_enfrentamiento_id(enfrentamiento_id):
+    respuesta, status = get_jugador_partido_por_enfrentamiento_id(enfrentamiento_id)
     return jsonify(respuesta), status
 
 # ------------------ Rutas para Estadisticas_Avanzadas_Jugador ------------------ #
