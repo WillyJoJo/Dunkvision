@@ -44,7 +44,7 @@ def convertir_minutos(minutos_str):
 
 # Abrir el archivo para escribir las sentencias SQL
 with open(output_sql_file, "w", encoding="utf-8") as file:
-    file.write("INSERT INTO Jugador_Partido (jugador_id, enfrentamiento_id, minutos_jugados, puntos, asistencias, "
+    file.write("INSERT INTO Jugador_Partido (jugador_id, equipo_id, enfrentamiento_id, minutos_jugados, puntos, asistencias, "
                "rebotes_ofensivos, rebotes_defensivos, robos, tapones, perdidas_balon, faltas_cometidas, faltas_recibidas, "
                "porcentaje_tiros_de_campo, porcentaje_triples, porcentaje_tiros_libres) VALUES\n")
 
@@ -66,9 +66,10 @@ with open(output_sql_file, "w", encoding="utf-8") as file:
         estadisticas_jugadores = data["resultSets"][0]["rowSet"]
 
         for stats in estadisticas_jugadores:
-            game_id_api = stats[0]  # GAME_ID
-            jugador_id = stats[4]  # PLAYER_ID
-            minutos = stats[9]  # MIN (Formato "MM:SS")
+            game_id_api = stats[0]          # GAME_ID
+            equipo_id = stats[1]            # TEAM_ID ✅
+            jugador_id = stats[4]           # PLAYER_ID
+            minutos = stats[9]              # MIN (Formato "MM:SS")
             puntos = stats[27] or 0
             asistencias = stats[22] or 0
             rebotes_ofensivos = stats[19] or 0
@@ -79,19 +80,17 @@ with open(output_sql_file, "w", encoding="utf-8") as file:
             faltas_cometidas = stats[26] or 0
             faltas_recibidas = 0  # No está en los datos, lo dejamos en 0
             porcentaje_tiros_de_campo = stats[12] or 0  # FG_PCT
-            porcentaje_triples = stats[15] or 0  # FG3_PCT
-            porcentaje_tiros_libres = stats[18] or 0  # FT_PCT
+            porcentaje_triples = stats[15] or 0         # FG3_PCT
+            porcentaje_tiros_libres = stats[18] or 0    # FT_PCT
 
-            # Convertir minutos "MM:SS" a enteros en minutos jugados
             minutos_jugados = convertir_minutos(minutos)
 
-            # **Filtro: NO incluir jugadores que NO JUGARON (0 minutos)**
             if minutos_jugados == 0:
                 print(f"Jugador {jugador_id} estuvo convocado pero no jugó en {game_id_str}, omitiendo...")
-                continue  
+                continue
 
-            # Crear la línea SQL para este jugador en este partido
-            valores.append(f"({jugador_id}, {game_id_str}, {minutos_jugados}, {puntos}, {asistencias}, "
+            # Agregar valores SQL con equipo_id incluido
+            valores.append(f"({jugador_id}, {equipo_id}, {game_id_str}, {minutos_jugados}, {puntos}, {asistencias}, "
                            f"{rebotes_ofensivos}, {rebotes_defensivos}, {robos}, {tapones}, {perdidas_balon}, "
                            f"{faltas_cometidas}, {faltas_recibidas}, {porcentaje_tiros_de_campo}, {porcentaje_triples}, "
                            f"{porcentaje_tiros_libres})")

@@ -12,14 +12,14 @@ export const columns = [
     tooltip: "Equipo del Jugador",
   },
   {
-    accessorKey: "puntos",
-    header: "PTS",
-    tooltip: "Puntos",
-  },
-  {
     accessorKey: "minutos_jugados",
     header: "MIN",
     tooltip: "Minutos Jugados",
+  },
+  {
+    accessorKey: "puntos",
+    header: "PTS",
+    tooltip: "Puntos",
   },
   {
     accessorKey: "asistencias",

@@ -43,6 +43,7 @@ class Jugador_Partido(db.Model):
     __tablename__ = 'Jugador_Partido'
     id_jugador_partido = db.Column(db.Integer, primary_key=True, autoincrement=True)
     jugador_id = db.Column(db.Integer, db.ForeignKey('Jugador.id_jugador'))
+    equipo_id = db.Column(db.Integer, db.ForeignKey('Equipo.id_equipo'))
     enfrentamiento_id = db.Column(db.Integer, db.ForeignKey('Enfrentamiento.id_enfrentamiento'))
     minutos_jugados = db.Column(db.Integer)
     puntos = db.Column(db.Integer)

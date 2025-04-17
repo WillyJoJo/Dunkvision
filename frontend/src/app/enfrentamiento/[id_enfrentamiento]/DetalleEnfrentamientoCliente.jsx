@@ -13,6 +13,8 @@ import { DataTable } from "./data-table";
 export default function DetalleEnfrentamientoCliente() {
   const { id_enfrentamiento } = useParams();
   const [enfrentamiento, setEnfrentamiento] = useState(null);
+  const [nombreEquipoLocal, setNombreEquipoLocal] = useState("");
+  const [nombreEquipoVisitante, setNombreEquipoVisitante] = useState("");
   const [jugadoresPartido, setJugadoresPartido] = useState([]);
 
   useEffect(() => {
@@ -20,6 +22,14 @@ export default function DetalleEnfrentamientoCliente() {
       try {
         const enfr = await getEnfrentamientoByEnfrentamientoId(id_enfrentamiento);
         setEnfrentamiento(enfr);
+
+        const [equipoLocal, equipoVisitante] = await Promise.all([
+          getEquiposById(enfr.equipo_local),
+          getEquiposById(enfr.equipo_visitante),
+        ]);
+
+        setNombreEquipoLocal(equipoLocal?.nombre ?? `Equipo ${enfr.equipo_local}`);
+        setNombreEquipoVisitante(equipoVisitante?.nombre ?? `Equipo ${enfr.equipo_visitante}`);
       } catch (error) {
         console.error("Error cargando el enfrentamiento:", error);
       }
@@ -35,7 +45,6 @@ export default function DetalleEnfrentamientoCliente() {
       try {
         const datos = await getJugadoresPartidoByEnfrentamientoId(id_enfrentamiento);
 
-        // Cache para no pedir el mismo equipo varias veces
         const equipoCache = {};
 
         const jugadoresConNombre = await Promise.all(
@@ -44,11 +53,11 @@ export default function DetalleEnfrentamientoCliente() {
 
             let equipoNombre = "Desconocido";
 
-            if (infoJugador.equipo_id) {
-              if (!equipoCache[infoJugador.equipo_id]) {
-                equipoCache[infoJugador.equipo_id] = await getEquiposById(infoJugador.equipo_id);
+            if (jugador.equipo_id) {
+              if (!equipoCache[jugador.equipo_id]) {
+                equipoCache[jugador.equipo_id] = await getEquiposById(jugador.equipo_id);
               }
-              equipoNombre = equipoCache[infoJugador.equipo_id]?.nombre ?? "Desconocido";
+              equipoNombre = equipoCache[jugador.equipo_id]?.nombre ?? "Desconocido";
             }
 
             return {
@@ -68,29 +77,60 @@ export default function DetalleEnfrentamientoCliente() {
     fetchJugadoresPartido();
   }, [id_enfrentamiento]);
 
-  if (!enfrentamiento) return <div className="p-4">Cargando enfrentamiento...</div>;
+  if (!enfrentamiento) {
+    return (
+      <div style={{ color: "#fff", padding: "2rem" }}>
+        <p>Cargando detalles del enfrentamiento...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <div className="bg-black text-white p-4 rounded-lg mb-6">
-        <h1 className="text-2xl font-bold mb-1">Detalle del Enfrentamiento</h1>
-        <p className="text-sm text-gray-300">ID: {id_enfrentamiento}</p>
+    <main style={{ padding: "2rem", color: "#fff" }}>
+      <div
+        style={{
+          background: "linear-gradient(135deg, #000 0%, #f00 100%)",
+          color: "#fff",
+          padding: "2rem",
+          borderRadius: "8px",
+          marginBottom: "1.5rem",
+          maxWidth: "800px",
+        }}
+      >
+        <h1 style={{ margin: 0, fontSize: "2.5rem", fontWeight: "bold" }}>
+          {nombreEquipoLocal} vs {nombreEquipoVisitante}
+        </h1>
+        <p style={{ marginTop: "0.5rem" }}>
+          <strong>Fecha:</strong> {format(new Date(enfrentamiento.fecha), "dd/MM/yyyy")}
+        </p>
       </div>
 
-      <div className="bg-white shadow-md rounded-lg p-6 space-y-4 mb-8">
-        <p><strong>Fecha:</strong> {format(new Date(enfrentamiento.fecha), "dd/MM/yyyy")}</p>
-        <p><strong>Equipo Local:</strong> {enfrentamiento.equipo_local}</p>
-        <p><strong>Equipo Visitante:</strong> {enfrentamiento.equipo_visitante}</p>
-        <p><strong>Puntos Local:</strong> {enfrentamiento.puntos_local}</p>
-        <p><strong>Puntos Visitante:</strong> {enfrentamiento.puntos_visitante}</p>
+      <div
+        style={{
+          backgroundColor: "#1a1a1a",
+          padding: "1.5rem 2rem",
+          borderRadius: "10px",
+          maxWidth: "800px",
+          marginBottom: "2rem",
+        }}
+      >
+        <p>
+          <strong>Equipo Local:</strong> {nombreEquipoLocal}
+        </p>
+        <p>
+          <strong>Equipo Visitante:</strong> {nombreEquipoVisitante}
+        </p>
+        <p>
+          <strong>Puntos Local:</strong> {enfrentamiento.puntos_local}
+        </p>
+        <p>
+          <strong>Puntos Visitante:</strong> {enfrentamiento.puntos_visitante}
+        </p>
       </div>
 
       {jugadoresPartido.length > 0 && (
-        <div className="bg-white shadow-md rounded-lg p-6">
-          <h2 className="text-xl font-bold mb-4">Estadísticas de los Jugadores</h2>
-          <DataTable columns={columns} data={jugadoresPartido} />
-        </div>
+        <DataTable data={jugadoresPartido} />
       )}
-    </div>
+    </main>
   );
 }

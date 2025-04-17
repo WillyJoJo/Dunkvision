@@ -8,6 +8,9 @@ import { getEstadisticasAvanzadasJugadorByJugadorIdTemporadaId } from "@/service
 import { getTemporadas } from "@/services/temporadasService";
 import BotonLesionConEstado from "@/components/ui/BotonLesionConEstado";
 import { DataTableJugador } from "./data-table";
+import { DataTablePartido } from "./data-table-partido";
+import { getJugadorPartidoByJugadorId } from "@/services/jugadorPartidoService";
+import { getEnfrentamientoByEnfrentamientoId } from "@/services/enfrentamientosService";
 
 const transformarPosiciones = (abreviacion) => {
   const mapping = {
@@ -33,6 +36,7 @@ export default function JugadorCliente({ jugadorId }) {
   const [temporadas, setTemporadas] = useState([]);
   const [temporadaId, setTemporadaId] = useState(24);
   const [estadisticas, setEstadisticas] = useState(null);
+  const [partidos, setPartidos] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -63,6 +67,39 @@ export default function JugadorCliente({ jugadorId }) {
 
     if (jugadorId) fetchEstadisticas();
   }, [jugadorId, temporadaId]);
+
+  useEffect(() => {
+    const fetchPartidos = async () => {
+      try {
+        const registros = await getJugadorPartidoByJugadorId(jugadorId);
+
+        const partidosEnriquecidos = await Promise.all(
+          registros.map(async (partido) => {
+            const enfrentamiento = await getEnfrentamientoByEnfrentamientoId(partido.enfrentamiento_id);
+            const equipoLocal = await getEquiposById(enfrentamiento.equipo_local);
+            const equipoVisitante = await getEquiposById(enfrentamiento.equipo_visitante);
+
+            return {
+              ...partido,
+              fecha: enfrentamiento.fecha,
+              equipoLocal: equipoLocal.nombre,
+              equipoVisitante: equipoVisitante.nombre,
+              puntosLocal: enfrentamiento.puntos_local,
+              puntosVisitante: enfrentamiento.puntos_visitante,
+              equipoLocalId: enfrentamiento.equipo_local,
+              equipoVisitanteId: enfrentamiento.equipo_visitante,
+            };
+          })
+        );
+
+        setPartidos(partidosEnriquecidos);
+      } catch (err) {
+        console.error("Error cargando partidos del jugador:", err);
+      }
+    };
+
+    if (jugadorId) fetchPartidos();
+  }, [jugadorId]);
 
   if (!jugador || !equipo) {
     return (
@@ -156,6 +193,7 @@ export default function JugadorCliente({ jugadorId }) {
       </div>
 
       <DataTableJugador data={estadisticas ? [estadisticas] : []} />
+      <DataTablePartido data={partidos} />
     </main>
   );
 }

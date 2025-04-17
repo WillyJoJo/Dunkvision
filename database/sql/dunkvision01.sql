@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS Enfrentamiento (
 CREATE TABLE IF NOT EXISTS Jugador_Partido (
     id_jugador_partido INT AUTO_INCREMENT PRIMARY KEY,
     jugador_id INT,
+    equipo_id INT,
 	enfrentamiento_id INT(10) UNSIGNED ZEROFILL NOT NULL,
     minutos_jugados INT,
     puntos INT,
@@ -59,6 +60,7 @@ CREATE TABLE IF NOT EXISTS Jugador_Partido (
     porcentaje_triples FLOAT,
     porcentaje_tiros_libres FLOAT,
     FOREIGN KEY (jugador_id) REFERENCES Jugador(id_jugador),
+    FOREIGN KEY (equipo_id) REFERENCES Equipo(id_equipo),
     FOREIGN KEY (enfrentamiento_id) REFERENCES Enfrentamiento(id_enfrentamiento)
 );
 

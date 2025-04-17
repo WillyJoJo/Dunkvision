@@ -569,5 +569,5 @@ INSERT INTO Jugador (id_jugador,nombre,equipo_id,posicion) VALUES
 (1630647, 'Eugene Omoruyi', 1610612761, 'F'),
 (1631123, 'Jamaree Bouyea', 1610612749, 'G'),
 (1641936, 'Miles Norris', 1610612738, 'F'),
-(1642379, 'Taran Armstrong', 1610612744, 'G');
-
+(1642379, 'Taran Armstrong', 1610612744, 'G'),
+(1630585, 'Marcus Garrett', 1610612766, 'G');

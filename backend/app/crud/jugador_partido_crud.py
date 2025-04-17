@@ -11,6 +11,7 @@ def listar_jugador_partido():
         lista.append({
             "id_jugador_partido": reg.id_jugador_partido,
             "jugador_id": reg.jugador_id,
+            "equipo_id": reg.equipo_id,
             "enfrentamiento_id": reg.enfrentamiento_id,
             "minutos_jugados": reg.minutos_jugados,
             "puntos": reg.puntos,
@@ -67,6 +68,7 @@ def filtrar_jugador_partido_logica(enfrentamiento_id=None, jugador_id=None, orde
         lista.append({
             "id_jugador_partido": reg.id_jugador_partido,
             "jugador_id": reg.jugador_id,
+            "equipo_id": reg.equipo_id,
             "enfrentamiento_id": reg.enfrentamiento_id,
             "minutos_jugados": reg.minutos_jugados,
             "puntos": reg.puntos,
@@ -91,6 +93,7 @@ def get_jugador_partido_por_jugador_id(jugador_id):
         lista.append({
             "id_jugador_partido": reg.id_jugador_partido,
             "jugador_id": reg.jugador_id,
+            "equipo_id": reg.equipo_id,
             "enfrentamiento_id": reg.enfrentamiento_id,
             "minutos_jugados": reg.minutos_jugados,
             "puntos": reg.puntos,
@@ -115,6 +118,7 @@ def get_jugador_partido_por_enfrentamiento_id(enfrentamiento_id):
         lista.append({
             "id_jugador_partido": reg.id_jugador_partido,
             "jugador_id": reg.jugador_id,
+            "equipo_id": reg.equipo_id,
             "enfrentamiento_id": reg.enfrentamiento_id,
             "minutos_jugados": reg.minutos_jugados,
             "puntos": reg.puntos,
