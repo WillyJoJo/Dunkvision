@@ -57,8 +57,16 @@ export default function EnfrentamientosCliente() {
     const match = (local + visitante).includes(filtros.nombreEquipo);
 
     const fecha = new Date(e.fecha);
-    const desdeOk = !filtros.fechaDesde || fecha >= new Date(filtros.fechaDesde);
-    const hastaOk = !filtros.fechaHasta || fecha <= new Date(filtros.fechaHasta);
+    const desde = filtros.fechaDesde ? new Date(filtros.fechaDesde) : null;
+    const hasta = filtros.fechaHasta ? new Date(filtros.fechaHasta) : null;
+
+    const hastaIncluyendoDia = hasta ? new Date(hasta) : null;
+    if (hastaIncluyendoDia) {
+      hastaIncluyendoDia.setDate(hastaIncluyendoDia.getDate() + 1);
+    }
+
+    const desdeOk = !desde || fecha >= desde;
+    const hastaOk = !hastaIncluyendoDia || fecha < hastaIncluyendoDia;
 
     return match && desdeOk && hastaOk;
   });
@@ -103,8 +111,8 @@ export default function EnfrentamientosCliente() {
           e.preventDefault();
           setFiltros({
             nombreEquipo: nombreEquipo.trim().toLowerCase(),
-            fechaDesde: range?.from?.toISOString().split("T")[0] || "",
-            fechaHasta: range?.to ? sumarDias(range.to, 1) : "",
+            fechaDesde: range?.from ? format(range.from, "yyyy-MM-dd") : "",
+            fechaHasta: range?.to ? format(range.to, "yyyy-MM-dd") : "",
           });
         }}
         style={{

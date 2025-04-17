@@ -47,12 +47,13 @@ export function DataTableJugador({ data }) {
 
   return (
     <section style={{ border: "1px solid #444", padding: "1rem", borderRadius: "10px", backgroundColor: "#0d0d0d" }}>
+      <h2 className="text-xl font-bold mb-4 text-white">Estadísticas Avanzadas-Promedio</h2>
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHead key={header.id}>
+                <TableHead key={header.id} style={{ color: "#fff" }}>
                   {flexRender(header.column.columnDef.header, header.getContext())}
                 </TableHead>
               ))}

@@ -25,26 +25,33 @@ export function DataTable({ columns, data, onRowClick }) {
   });
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows.map((row) => (
+    <section
+      style={{
+        border: "1px solid #ccc",
+        padding: "1rem",
+        marginTop: "1rem",
+      }}
+    >
+      <Table>
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <TableHead key={header.id}>
+                  {flexRender(header.column.columnDef.header, header.getContext())}
+                </TableHead>
+              ))}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows.length ? (
+            table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
                 onClick={() => onRowClick?.(row)}
-                className="cursor-pointer hover:bg-red-100 transition-colors"
+                style={{ cursor: "pointer" }}
+                className="hover:bg-red-100 transition-colors"
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
@@ -52,26 +59,47 @@ export function DataTable({ columns, data, onRowClick }) {
                   </TableCell>
                 ))}
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-      <div className="flex justify-between">
-        <Button
-          variant="outline"
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={columns.length} style={{ textAlign: "center" }}>
+                No hay enfrentamientos.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+
+      {/* Controles de paginación */}
+      <div
+        style={{
+          marginTop: "1rem",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <button
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
+          style={{ padding: "0.5rem 1rem", cursor: "pointer" }}
         >
           Anterior
-        </Button>
-        <Button
-          variant="outline"
+        </button>
+        <span>
+          Página{" "}
+          <strong>
+            {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
+          </strong>
+        </span>
+        <button
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
+          style={{ padding: "0.5rem 1rem", cursor: "pointer" }}
         >
           Siguiente
-        </Button>
+        </button>
       </div>
-    </div>
+    </section>
   );
 }
