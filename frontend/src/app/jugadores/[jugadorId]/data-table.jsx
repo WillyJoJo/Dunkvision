@@ -16,9 +16,34 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { columns as baseColumns } from "./columns";
 import React from "react";
+
+const columnasPorcentaje = [
+  "porcentaje_tiros_de_campo",
+  "porcentaje_efectivo_tiros_de_campo",
+  "porcentaje_triples",
+  "porcentaje_tiros_de_dos",
+  "porcentaje_tiros_libres",
+  "usage_porcentage"
+];
+
+const formatearCelda = (cell) => {
+  const { column, getValue } = cell;
+  const valor = getValue();
+
+  if (columnasPorcentaje.includes(column.id)) {
+    return valor !== null && valor !== undefined ? `${(valor * 100).toFixed(1)}%` : "-";
+  }
+
+  return valor;
+};
 
 export function DataTableJugador({ data }) {
   const columns = React.useMemo(() => {
@@ -66,7 +91,7 @@ export function DataTableJugador({ data }) {
               <TableRow key={row.id}>
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    {formatearCelda(cell)}
                   </TableCell>
                 ))}
               </TableRow>
