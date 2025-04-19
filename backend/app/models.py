@@ -61,7 +61,7 @@ class Jugador_Partido(db.Model):
 
 
 class Contexto_Partido(db.Model):
-    __tablename__ = 'Contexto_Partido'  # Nombre de la tabla en la base de datos
+    __tablename__ = 'Contexto_Partido'
     id_contexto = db.Column(db.Integer, primary_key=True)
     enfrentamiento_id = db.Column(db.Integer, db.ForeignKey('Enfrentamiento.id_enfrentamiento'))
     dias_descanso_equipo1 = db.Column(db.Integer)
@@ -69,7 +69,8 @@ class Contexto_Partido(db.Model):
     racha_equipo1 = db.Column(db.String(50))
     racha_equipo2 = db.Column(db.String(50))
     
-
+    enfrentamiento = db.relationship("Enfrentamiento", backref=db.backref("contexto", uselist=False))
+    
 class Lesiones_Jugador(db.Model):
     __tablename__ = 'Lesiones_Jugador'
     id_lesion = db.Column(db.Integer, primary_key=True, autoincrement=True)
