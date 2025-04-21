@@ -48,3 +48,8 @@ export async function getJugadoresById(id) {
     "posicion": jugador.posicion
 }*/
 }
+
+export async function getJugadoresByEquipoId(id) {
+  const response = await axios.get(`${API_URL}/api/jugadores/equipo/${id}`);
+  return response.data;
+}

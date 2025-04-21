@@ -6,7 +6,7 @@ from app.auth import registrar_usuario, autenticar_usuario, cambiar_rol_usuario
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models import Usuario
 from app.crud.equipo_crud import obtener_equipo, listar_equipos, filtrar_equipos_logica
-from app.crud.jugador_crud import listar_jugadores, obtener_jugador, filtrar_jugadores_logica
+from app.crud.jugador_crud import jugador_by_equipo, listar_jugadores, obtener_jugador, filtrar_jugadores_logica
 from app.crud.enfrentamiento_crud import (obtener_enfrentamiento, listar_enfrentamientos, 
 listar_enfrentamientos_equipo, listar_enfrentamientos_equipo_local, listar_enfrentamientos_equipo_visitante, listar_enfrentamientos_fecha)
 from app.crud.jugador_partido_crud import get_jugador_partido_por_enfrentamiento_id, get_jugador_partido_por_jugador_id, listar_jugador_partido,filtrar_jugador_partido_logica
@@ -134,6 +134,11 @@ def route_obtener_jugador(id_jugador):
     respuesta, status = obtener_jugador(id_jugador)
     return jsonify(respuesta), status
 
+## GET: Jugador by equipo_id
+@app.route('/api/jugadores/equipo/<int:id_equipo>', methods=['GET'])
+def route_jugadores_por_equipo(id_equipo):
+    respuesta, status = jugador_by_equipo(id_equipo)
+    return jsonify(respuesta), status
 
 # ------------------ Rutas para Lesiones_Jugador ------------------ #
 # GET: Listar todas las lesiones de jugadores

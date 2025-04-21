@@ -90,3 +90,22 @@ def eliminar_jugador(id_jugador):
     db.session.delete(jugador)
     db.session.commit()
     return {"mensaje": "Jugador eliminado exitosamente"}, 200
+
+def jugador_by_equipo(equipo_id):
+    """
+    Lógica para obtener jugadores por equipo.
+    """
+    jugadores = Jugador.query.filter_by(equipo_id=equipo_id).all()
+    if not jugadores:
+        return {"error": "No se encontraron jugadores para este equipo"}, 404
+    
+    lista = [
+        {
+            "id": j.id_jugador,
+            "nombre": j.nombre,
+            "equipo_id": j.equipo_id,
+            "posicion": j.posicion
+        }
+        for j in jugadores
+    ]
+    return lista, 200
