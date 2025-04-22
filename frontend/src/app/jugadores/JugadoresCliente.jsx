@@ -63,6 +63,22 @@ export default function JugadoresCliente() {
     return "";
   };
 
+  const convertirPosicion = (pos) => {
+    if (!pos) return "Desconocida";
+
+    const mapaPosiciones = {
+      G: "Base / Escolta",
+      F: "Alero / Ala-Pívot",
+      C: "Pívot",
+    };
+
+    const posicionesTraducidas = pos
+      .split("-")
+      .map((letra) => mapaPosiciones[letra] || "Desconocida");
+
+    return posicionesTraducidas.join(" - ");
+  };
+
   // useQuery usa los filtros enviados para hacer la consulta.
   // Con keepPreviousData se mantiene la data previa mientras se carga la nueva consulta.
   const { data: jugadores, error, isLoading, refetch } = useQuery({
@@ -219,8 +235,12 @@ export default function JugadoresCliente() {
         </button>
       </form>
 
-      {/* Se usa el componente DataTable para renderizar la tabla con paginación */}
-      <DataTable jugadores={jugadores || []} />
+      <DataTable
+        jugadores={(jugadores || []).map((jugador) => ({
+          ...jugador,
+          posicionCompleta: convertirPosicion(jugador.posicion),
+        }))}
+      />
     </div>
   );
 }

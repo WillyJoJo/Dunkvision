@@ -19,10 +19,6 @@ def obtener_valor_racha(racha):
         if '-' in racha:
             partes = racha.split('-')
             return int(partes[0]) - int(partes[1])
-        # Caso tipo 'WWLLW'
-        victorias = sum(1 for c in racha.upper() if c == 'W')
-        derrotas = sum(1 for c in racha.upper() if c == 'L')
-        return victorias - derrotas
     except Exception:
         return 0
 
@@ -42,7 +38,7 @@ def obtener_dataset_entrenamiento():
             if not contexto:
                 continue
 
-            # Historial de enfrentamientos
+            # Historial de enfrentamientos de ambos Equipos
             historial = db.session.query(Historial_Enfrentamientos).filter(
                 or_(
                     and_(Historial_Enfrentamientos.equipo1_id == enf.equipo1_id,
@@ -55,7 +51,7 @@ def obtener_dataset_entrenamiento():
             victorias1 = historial.victorias_equipo1 if historial and historial.equipo1_id == enf.equipo1_id else historial.victorias_equipo2 if historial else 0
             victorias2 = historial.victorias_equipo2 if historial and historial.equipo2_id == enf.equipo2_id else historial.victorias_equipo1 if historial else 0
 
-            # Lesiones
+            # Lesiones de jugadores
             lesiones_eq1 = db.session.query(Lesiones_Jugador).join(Jugador).filter(
                 Jugador.equipo_id == enf.equipo1_id,
                 Lesiones_Jugador.fecha_recuperacion_estimada >= enf.fecha

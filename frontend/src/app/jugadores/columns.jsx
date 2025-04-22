@@ -24,7 +24,8 @@ export const columns = [
     header: "Equipo",
   },
   {
-    accessorKey: "posicion",
+    accessorKey: "posicionCompleta",
     header: "Posición",
+    cell: ({ row }) => <div>{row.getValue("posicionCompleta")}</div>,
   },
 ];

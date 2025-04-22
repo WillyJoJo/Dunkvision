@@ -33,10 +33,18 @@ export default function EquipoCliente({ equipoId }) {
 
   const convertirPosicion = (pos) => {
     if (!pos) return "Desconocida";
-    if (pos.includes("G")) return "Base / Escolta";
-    if (pos.includes("F")) return "Alero / Ala-Pívot";
-    if (pos.includes("C")) return "Pívot";
-    return "Desconocida";
+
+    const mapaPosiciones = {
+      G: "Base / Escolta",
+      F: "Alero / Ala-Pívot",
+      C: "Pívot",
+    };
+
+    const posicionesTraducidas = pos
+      .split("-")
+      .map((letra) => mapaPosiciones[letra] || "Desconocida");
+
+    return posicionesTraducidas.join(" - ");
   };
 
   const handleRowClick = (row) => {
