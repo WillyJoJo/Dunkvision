@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import Link from "next/link"; // Se importa para la navegación
+import Link from "next/link";
+import { useRouter } from "next/navigation"; // 🆕 Importar router
 import {
   flexRender,
   getCoreRowModel,
@@ -21,8 +22,8 @@ import {
 import { columns as baseColumns } from "./columns";
 
 export function DataTable({ lesiones = [], isAdmin = false, onDelete }) {
-  // Se crea una copia de las columnas base y, si el usuario es admin,
-  // se agrega una columna de acciones al final, incluyendo botones para editar y eliminar.
+  const router = useRouter(); // 🆕 Instanciar router
+
   const columns = React.useMemo(() => {
     if (isAdmin) {
       return [
@@ -32,7 +33,6 @@ export function DataTable({ lesiones = [], isAdmin = false, onDelete }) {
           header: "Acciones",
           cell: ({ row }) => (
             <div style={{ display: "flex", gap: "0.5rem" }}>
-              {/* Botón Editar */}
               <Link href={`/lesiones/editar/${row.original.id}`}>
                 <button
                   onMouseEnter={(e) => (e.target.style.backgroundColor = "#000088")}
@@ -50,7 +50,6 @@ export function DataTable({ lesiones = [], isAdmin = false, onDelete }) {
                   Editar
                 </button>
               </Link>
-              {/* Botón Eliminar */}
               <button
                 onClick={() => onDelete(row.original.id)}
                 style={{
@@ -97,9 +96,9 @@ export function DataTable({ lesiones = [], isAdmin = false, onDelete }) {
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                 </TableHead>
               ))}
             </TableRow>
@@ -110,6 +109,7 @@ export function DataTable({ lesiones = [], isAdmin = false, onDelete }) {
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
+                onClick={() => router.push(`/jugadores/${row.original.jugador_id}`)} // 🆕 Acción al hacer clic
                 className="hover:bg-red-100 transition cursor-pointer"
               >
                 {row.getVisibleCells().map((cell) => (
@@ -132,7 +132,6 @@ export function DataTable({ lesiones = [], isAdmin = false, onDelete }) {
         </TableBody>
       </Table>
 
-      {/* Controles de paginación */}
       <div
         style={{
           marginTop: "1rem",

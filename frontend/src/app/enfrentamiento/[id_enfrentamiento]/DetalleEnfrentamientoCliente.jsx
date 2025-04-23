@@ -7,7 +7,6 @@ import { getEquiposById } from "@/services/equiposService";
 import { getJugadoresPartidoByEnfrentamientoId } from "@/services/jugadorPartidoService";
 import { getJugadoresById } from "@/services/jugadoresService";
 import { format } from "date-fns";
-import { columns } from "./columns";
 import { DataTable } from "./data-table";
 
 export default function DetalleEnfrentamientoCliente() {

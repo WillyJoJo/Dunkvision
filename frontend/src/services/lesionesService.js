@@ -12,16 +12,6 @@
   return data;
 }
 
-/**
- * Obtiene el nombre del jugador por su ID.
- * Se asume que el endpoint /api/jugadores/<id_jugador> devuelve un objeto con { nombre, ... }
- */
-export async function getNombreJugador(id_jugador) {
-  const response = await axios.get(`${API_URL}/api/jugadores/${id_jugador}`);
-  console.log("getNombreJugador response", response);
-  return response.data.nombre;
-}
-
 // Función para crear una nueva lesión
 export async function createLesion(data, token) {
   const response = await axios.post(`${API_URL}/api/lesiones_jugador`, data, {

@@ -2,12 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-    getLesiones,
-    getNombreJugador,
-    deleteLesion,
-    limpiarLesiones,
-} from "@/services/lesionesService";
+import { getLesiones, deleteLesion, limpiarLesiones } from "@/services/lesionesService";
+import { getNombreJugador } from "@/services/jugadoresService";
 import { DataTable } from "./data-table";
 import { useSession } from "next-auth/react";
 import { format } from "date-fns";
@@ -61,8 +57,12 @@ export default function LesionesCliente() {
     useEffect(() => {
         if (!session?.user || !lesiones.length) return;
 
+        const visibles = isAdmin
+            ? lesiones
+            : lesiones.filter((l) => l.fecha_recuperacion_estimada); // 🔐 filtro antes de cargar
+
         Promise.all(
-            lesiones.map(async (lesion) => {
+            visibles.map(async (lesion) => {
                 try {
                     const nombre = await getNombreJugador(lesion.jugador_id);
                     return { ...lesion, jugador: nombre };
@@ -79,7 +79,7 @@ export default function LesionesCliente() {
             );
             setLesionesConNombre(ordenadas);
         });
-    }, [JSON.stringify(lesiones), session]);
+    }, [JSON.stringify(lesiones), session, isAdmin]);
 
     const handleDelete = (lesionId) => {
         if (confirm("¿Estás seguro de eliminar esta lesión?")) {

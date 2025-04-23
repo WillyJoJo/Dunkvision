@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter, useParams } from "next/navigation";
-import { getLesionById, editarLesion, getNombreJugador } from "@/services/lesionesService";
+import { getLesionById, editarLesion} from "@/services/lesionesService";
+import {getNombreJugador} from "@/services/jugadoresService";
 import { useSession } from "next-auth/react";
 import SimpleDatePicker from "@/components/ui/simple-date-picker"; // El inline con botón
 

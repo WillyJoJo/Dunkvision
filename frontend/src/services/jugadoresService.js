@@ -53,3 +53,10 @@ export async function getJugadoresByEquipoId(id) {
   const response = await axios.get(`${API_URL}/api/jugadores/equipo/${id}`);
   return response.data;
 }
+
+//Obtiene el nombre del jugador por su ID.
+export async function getNombreJugador(id_jugador) {
+  const response = await axios.get(`${API_URL}/api/jugadores/${id_jugador}`);
+  console.log("getNombreJugador response", response);
+  return response.data.nombre;
+}
