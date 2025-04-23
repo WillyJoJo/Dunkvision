@@ -163,6 +163,7 @@ export default function EditarLesionesCliente() {
           </div>
 
           <div style={{ marginBottom: "1rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+            <label style={{ marginRight: "0.5rem" }}>Fecha de Recuperación Estimada:</label>
             <SimpleDatePicker
               date={fechaRecuperacion}
               setDate={setFechaRecuperacion}

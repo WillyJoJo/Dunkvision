@@ -35,6 +35,8 @@ export function DataTable({ lesiones = [], isAdmin = false, onDelete }) {
               {/* Botón Editar */}
               <Link href={`/lesiones/editar/${row.original.id}`}>
                 <button
+                  onMouseEnter={(e) => (e.target.style.backgroundColor = "#000088")}
+                  onMouseLeave={(e) => (e.target.style.backgroundColor = "#00f")}
                   style={{
                     padding: "0.3rem 0.6rem",
                     backgroundColor: "#00f",
@@ -42,6 +44,7 @@ export function DataTable({ lesiones = [], isAdmin = false, onDelete }) {
                     border: "none",
                     borderRadius: "4px",
                     cursor: "pointer",
+                    transition: "background-color 0.3s ease",
                   }}
                 >
                   Editar
@@ -94,9 +97,9 @@ export function DataTable({ lesiones = [], isAdmin = false, onDelete }) {
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
                 </TableHead>
               ))}
             </TableRow>
@@ -105,7 +108,10 @@ export function DataTable({ lesiones = [], isAdmin = false, onDelete }) {
         <TableBody>
           {table.getRowModel().rows.length ? (
             table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
+              <TableRow
+                key={row.id}
+                className="hover:bg-red-100 transition cursor-pointer"
+              >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
                     {flexRender(
