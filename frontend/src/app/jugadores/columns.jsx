@@ -2,8 +2,6 @@
 
 import Link from "next/link";
 
-// columns.jsx
-// Array con las definiciones de columnas para jugadores
 export const columns = [
   {
     accessorKey: "nombre",
@@ -12,7 +10,20 @@ export const columns = [
       const jugador = row.original;
       return (
         <Link href={`/jugadores/${jugador.id}`}>
-          <span style={{ color: "#2563eb", cursor: "pointer" }}>
+          <span
+            style={{
+              color: "#2563eb",
+              cursor: "pointer",
+              textDecoration: "underline",
+              fontWeight: "normal",
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.fontWeight = "bold";
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.fontWeight = "normal";
+            }}
+          >
             {jugador.nombre}
           </span>
         </Link>

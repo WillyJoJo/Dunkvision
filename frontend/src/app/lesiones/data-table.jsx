@@ -96,9 +96,9 @@ export function DataTable({ lesiones = [], isAdmin = false, onDelete }) {
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
                 </TableHead>
               ))}
             </TableRow>
@@ -109,8 +109,7 @@ export function DataTable({ lesiones = [], isAdmin = false, onDelete }) {
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
-                onClick={() => router.push(`/jugadores/${row.original.jugador_id}`)} // 🆕 Acción al hacer clic
-                className="hover:bg-red-100 transition cursor-pointer"
+                className="hover:bg-red-100 transition"
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
