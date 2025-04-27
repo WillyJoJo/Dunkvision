@@ -1,65 +1,84 @@
-/* Sidebar en pantallas grandes */
 .navbar-container {
-    width: 200px;
-    background-color: #000; /* Fondo negro */
-    color: #fff;           /* Texto en blanco */
+  width: 200px;
+  background-color: #000;
+  color: #fff;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  box-sizing: border-box;
+}
+
+.button-container {
+  margin-bottom: 1rem;
+}
+
+.navbar-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.navbar-link {
+  display: block;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  color: #fff;
+}
+
+.active {
+  background-color: red;
+}
+
+/* ---- MOBILE ---- */
+@media (max-width: 768px) {
+  .navbar-container.mobile {
+    width: 100%;
+    background-color: #000;
     padding: 0.5rem;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
   }
-  
-  .navbar-list {
+
+  .navbar-mobile-top {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .hamburger-button {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 2rem;
+    cursor: pointer;
+  }
+
+  .navbar-mobile-menu {
     list-style: none;
-    margin: 0;
+    margin: 1rem 0 0 0;
     padding: 0;
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
   }
-  
-  .navbar-list li {
-    background-color: transparent;
-    border-radius: 4px;
-    margin-bottom: 0.25rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+
+  .navbar-mobile-menu li {
+    width: 100%;
   }
-  
-  .navbar-list li a {
+
+  .navbar-link {
     display: block;
-    padding: 0.5rem 1rem;
+    padding: 0.75rem 1rem;
     text-decoration: none;
     color: #fff;
+    background-color: #111;
+    border-radius: 5px;
   }
-  
-  /* Ítem activo: fondo rojo */
-  .navbar-list li.active {
+
+  .active {
     background-color: red;
   }
-  
-  /* Responsive: en pantallas menores o iguales a 768px */
-  @media (max-width: 768px) {
-    /* El contenedor se hace horizontal */
-    .navbar-container {
-      width: 100%;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-around;
-    }
-  
-    .navbar-list {
-      display: flex;
-      flex-direction: row;
-      width: 100%;
-      justify-content: space-around;
-    }
-  
-    .navbar-list li {
-      margin-bottom: 0;
-    }
-  
-    .navbar-list li a {
-      padding: 0.5rem;
-    }
-  }
-  
+}

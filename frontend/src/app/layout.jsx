@@ -1,8 +1,9 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "./layout.css"; // Importamos el nuevo CSS que vamos a crear
 import "bootstrap/dist/css/bootstrap.css";
 import NavBar from "@/components/ui/NavBar";
-import { ReactQueryProvider } from "@/context/ReactQueryProvider"; // Ajusta la ruta según tu estructura
+import { ReactQueryProvider } from "@/context/ReactQueryProvider";
 import SessionAuthProvider from "@/context/SessionAuthProvider";
 
 const items = [
@@ -34,13 +35,19 @@ export default function RootLayout({ children }) {
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <SessionAuthProvider>
           <ReactQueryProvider>
-            <header className="header" />
+            {/* Banner (Header) */}
+            <header className="header">
+            </header>
+
+            {/* Contenido principal */}
             <div className="main-container">
               <NavBar items={items} />
               <main className="main-content">{children}</main>
             </div>
+
+            {/* Footer */}
             <footer className="footer">
-              Hecho por Guillermo Pichaco Panal 👑🏀
+              Hecho por Guillermo Pichaco Panal 👑🔥
             </footer>
           </ReactQueryProvider>
         </SessionAuthProvider>
