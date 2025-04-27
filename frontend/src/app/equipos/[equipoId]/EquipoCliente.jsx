@@ -55,25 +55,52 @@ export default function EquipoCliente({ equipoId }) {
   return (
     <div>
       {/* Encabezado del equipo */}
-      <div
+<div
+  style={{
+    background: "linear-gradient(135deg, #000 0%, #f00 100%)",
+    color: "#fff",
+    padding: "1.5rem 2rem",
+    borderRadius: "12px",
+    marginBottom: "2rem",
+    maxWidth: "800px", // Mantenemos el mismo ancho
+    marginLeft: "0", // <-- Pegado a la izquierda
+    marginRight: "auto", // <-- Solo "auto" a la derecha para que no se centre
+    display: "flex",
+    alignItems: "center",
+    gap: "2rem",
+  }}
+>
+  {equipo && (
+    <div style={{ flexShrink: 0 }}>
+      <img
+        src={`https://cdn.nba.com/logos/nba/${equipo.id}/global/L/logo.svg`}
+        alt="Logo Equipo"
         style={{
-          background: "linear-gradient(135deg, #000 0%, #f00 100%)",
-          color: "#fff",
-          textAlign: "center",
-          padding: "1rem",
-          borderRadius: "8px",
-          marginBottom: "1rem",
+          width: "90px",
+          height: "90px",
+          objectFit: "contain",
+          backgroundColor: "#fff",
+          borderRadius: "12px",
+          padding: "0.5rem",
         }}
-      >
-        <h2 style={{ margin: 0, fontSize: "2rem" }}>
-          {equipo ? equipo.nombre : "Cargando equipo..."}
-        </h2>
-        {equipo && (
-          <p style={{ margin: 0, fontSize: "1rem", marginTop: "0.5rem" }}>
-            {equipo.conferencia} | División {equipo.division}
-          </p>
-        )}
-      </div>
+        onError={(e) => {
+          e.target.src = "/placeholder-logo.svg"; // fallback si falla
+        }}
+      />
+    </div>
+  )}
+  <div style={{ textAlign: "left" }}>
+    <h2 style={{ margin: 0, fontSize: "2.2rem" }}>
+      {equipo ? equipo.nombre : "Cargando equipo..."}
+    </h2>
+    {equipo && (
+      <p style={{ margin: "0.5rem 0 0 0", fontSize: "1.2rem" }}>
+        {equipo.conferencia} | División {equipo.division}
+      </p>
+    )}
+  </div>
+</div>
+
 
       <DataTable columns={columns} data={jugadores} onRowClick={handleRowClick} />
     </div>
