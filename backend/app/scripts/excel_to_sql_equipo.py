@@ -1,6 +1,7 @@
 import os
 import configparser
 import pandas as pd
+from pathlib import Path
 
 def sql_value(val):
     """
@@ -108,7 +109,8 @@ def excel_to_sql_equipos(
     print(f"Archivo SQL generado correctamente en: {output_sql_file}")
 
 if __name__ == "__main__":
-    # Ajusta las rutas a tu gusto
-    input_excel = r"C:\Dunkvision\docs\estadisticas_equipo.xlsx"
-    output_sql = r"C:\Dunkvision\backend\app\sql\lista_estadisticas_avanzadas_equipo.sql"
+    base_dir = Path(__file__).resolve().parent  # scripts/
+    input_excel = (base_dir / "../../../docs/estadisticas_equipo.xlsx").resolve()
+    output_sql = (base_dir / "../sql/lista_estadisticas_avanzadas_equipo.sql").resolve()
+
     excel_to_sql_equipos(input_excel, output_sql)
