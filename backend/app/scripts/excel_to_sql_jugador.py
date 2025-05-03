@@ -3,6 +3,8 @@ import configparser
 import pandas as pd
 from app import app, db
 from app.models import Jugador
+from pathlib import Path
+import difflib
 
 # Cargar la configuración desde config.ini
 config = configparser.ConfigParser()
@@ -41,9 +43,10 @@ def excel_to_sql(
     temporada_id definido en config.ini. Se sustituyen los valores vacíos por null.
     """
     with app.app_context():
-        # Crea el diccionario nombre -> id_jugador
+        # Obtener lista de jugadores [(nombre_normalizado, id_jugador, nombre_original)]
         jugadores = Jugador.query.all()
-        nombre_id_map = {jugador.nombre.strip().lower(): jugador.id_jugador for jugador in jugadores}
+        jugador_nombres = [(jugador.nombre.strip().lower(), jugador.id_jugador, jugador.nombre.strip()) for jugador in jugadores]
+        nombres_db = [nombre for nombre, _, _ in jugador_nombres]
 
         # Lee el Excel
         df = pd.read_excel(input_excel_file, sheet_name=sheet_name)
@@ -60,10 +63,20 @@ def excel_to_sql(
             nombre_excel = str(row["nombre"]).strip()
             nombre_normalizado = nombre_excel.replace("'", "''").lower()
 
-            # Busca el id_jugador
-            id_jugador = nombre_id_map.get(nombre_normalizado)
-            if id_jugador is None:
-                raise ValueError(f"No se encontró en la tabla Jugador el registro con nombre = '{nombre_excel}'")
+            # Busca coincidencias aproximadas
+            coincidencias = difflib.get_close_matches(nombre_normalizado, nombres_db, n=1, cutoff=0.8)
+
+            if not coincidencias:
+                raise ValueError(f"No se encontró en la tabla Jugador ningún nombre similar a: '{nombre_excel}'")
+
+            # Obtener el id_jugador correspondiente a la coincidencia más cercana
+            nombre_encontrado = coincidencias[0]
+            id_jugador = next(id for nombre, id, _ in jugador_nombres if nombre == nombre_encontrado)
+
+            # Si no es una coincidencia exacta, imprimirla
+            if nombre_encontrado != nombre_normalizado:
+                nombre_original = next(nom for nombre, _, nom in jugador_nombres if nombre == nombre_encontrado)
+                print(f"[Asignación no exacta] '{nombre_excel}' → '{nombre_original}' (id: {id_jugador})")
 
             # Obtiene el valor de temporada_id desde el config
             temporada_id = config["GAME_CONFIG"]["temporada"]
@@ -128,6 +141,8 @@ def excel_to_sql(
     print(f"Archivo SQL generado correctamente en: {output_sql_file}")
 
 if __name__ == "__main__":
-    input_excel = r"C:\Dunkvision\docs\estadisticas_jugador.xlsx"
-    output_sql = r"C:\Dunkvision\backend\app\sql\lista_estadisticas_avanzadas_jugador.sql"
+    base_dir = Path(__file__).resolve().parent  # scripts/
+    input_excel = (base_dir / "../../../docs/estadisticas_jugador.xlsx").resolve()
+    output_sql = (base_dir / "../sql/lista_estadisticas_avanzadas_jugador.sql").resolve()
+
     excel_to_sql(input_excel, output_sql)
