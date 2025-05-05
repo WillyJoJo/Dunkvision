@@ -36,8 +36,13 @@ export function DataTable({ columns, data, onRowClick }) {
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHead key={header.id}>
-                  {flexRender(header.column.columnDef.header, header.getContext())}
+                <TableHead
+                  key={header.id}
+                  className={header.column.columnDef.numeric ? "text-right" : ""}
+                >
+                  <div className={header.column.columnDef.numeric ? "w-full text-right" : "w-full"}>
+                    {flexRender(header.column.columnDef.header, header.getContext())}
+                  </div>
                 </TableHead>
               ))}
             </TableRow>
@@ -53,7 +58,10 @@ export function DataTable({ columns, data, onRowClick }) {
                 className="hover:bg-red-100 transition-colors"
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                  <TableCell
+                    key={cell.id}
+                    className={cell.column.columnDef.numeric ? "text-right" : ""}
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
@@ -69,7 +77,6 @@ export function DataTable({ columns, data, onRowClick }) {
         </TableBody>
       </Table>
 
-      {/* Controles de paginación */}
       <div
         style={{
           marginTop: "1rem",

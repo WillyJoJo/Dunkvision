@@ -34,9 +34,11 @@ export const columns = [
   {
     accessorKey: "puntos_local",
     header: "Puntos Local",
+    numeric: true
   },
   {
     accessorKey: "puntos_visitante",
     header: "Puntos Visitante",
+    numeric: true
   },
 ];

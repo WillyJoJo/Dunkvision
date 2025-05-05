@@ -53,12 +53,18 @@ export function DataTableJugador({ data }) {
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <span style={{ cursor: "help" }}>{col.header}</span>
+              <span
+                className={col.numeric ? "text-right block w-full" : ""}
+                style={{ cursor: "help" }}
+              >
+                {col.header}
+              </span>
             </TooltipTrigger>
             <TooltipContent>{col.tooltip}</TooltipContent>
           </Tooltip>
         </TooltipProvider>
       ),
+      meta: { numeric: col.numeric }, // guardamos info adicional
     }));
   }, []);
 
@@ -78,7 +84,11 @@ export function DataTableJugador({ data }) {
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHead key={header.id} style={{ color: "#fff" }}>
+                <TableHead
+                  key={header.id}
+                  style={{ color: "#fff" }}
+                  className={header.column.columnDef.meta?.numeric ? "text-right" : ""}
+                >
                   {flexRender(header.column.columnDef.header, header.getContext())}
                 </TableHead>
               ))}
@@ -90,7 +100,10 @@ export function DataTableJugador({ data }) {
             table.getRowModel().rows.map((row) => (
               <TableRow key={row.id}>
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                  <TableCell
+                    key={cell.id}
+                    className={cell.column.columnDef.meta?.numeric ? "text-right" : ""}
+                  >
                     {formatearCelda(cell)}
                   </TableCell>
                 ))}

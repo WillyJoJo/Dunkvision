@@ -64,8 +64,14 @@ export function DataTable({ data }) {
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="text-white border-zinc-700 text-sm">
-                    {flexRender(header.column.columnDef.header, header.getContext())}
+                  <TableHead
+                    key={header.id}
+                    className={`text-white border-zinc-700 text-sm ${header.column.columnDef.numeric ? "text-right" : ""
+                      }`}
+                  >
+                    <div className={header.column.columnDef.numeric ? "w-full text-right" : "w-full"}>
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                    </div>
                   </TableHead>
                 ))}
               </TableRow>
@@ -82,7 +88,8 @@ export function DataTable({ data }) {
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
-                      className="text-white text-sm border-zinc-700"
+                      className={`text-white text-sm border-zinc-700 ${cell.column.columnDef.numeric ? "text-right" : ""
+                        }`}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
