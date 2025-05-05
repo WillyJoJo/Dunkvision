@@ -4,6 +4,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
+import { PasswordInput } from "@/components/ui/password-input"; // asegúrate de que la ruta es correcta
 
 export default function LoginCliente() {
   const [errors, setErrors] = useState([]);
@@ -68,20 +69,15 @@ export default function LoginCliente() {
         <label htmlFor="password" style={{ fontSize: "1.1rem", fontWeight: "bold" }}>
           Contraseña
         </label>
-        <input
-          type="password"
-          id="password"
-          name="password"
-          className="form-control mb-2"
-          placeholder="8caracteres"
-          style={{ fontSize: "1.1rem" }}
+        <PasswordInput
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          placeholder="8caracteres"
         />
 
         <button
           type="submit"
-          className="btn btn-primary w-100"
+          className="btn btn-primary w-100 mt-3"
           style={{ fontSize: "1.1rem" }}
         >
           Iniciar sesión
@@ -100,13 +96,33 @@ export default function LoginCliente() {
       )}
 
       {/* Enlace registro */}
-      <div className="mt-3" style={{ fontSize: "1rem", maxWidth: "400px" }}>
-        <p style={{ marginLeft: 0 }}>
-          ¿No tienes cuenta?{" "}
-          <Link href="/register" className="text-primary">
-            Regístrate aquí
-          </Link>
+      <div
+        className="mt-4 text-center"
+        style={{
+          maxWidth: "400px",
+          background: "#f8f9fa",
+          padding: "1rem",
+          borderRadius: "8px",
+          border: "1px solid #dee2e6",
+          marginTop: "2rem",
+        }}
+      >
+        <p style={{ fontSize: "1.2rem", margin: 0, fontWeight: "bold" }}>
+          ¿No tienes cuenta?
         </p>
+        <Link
+          href="/register"
+          className="btn btn-outline-primary mt-2"
+          style={{
+            fontSize: "1.1rem",
+            textDecoration: "none",
+            padding: "0.5rem 1rem",
+            borderRadius: "6px",
+            fontWeight: "500",
+          }}
+        >
+          Regístrate aquí
+        </Link>
       </div>
     </div>
   );

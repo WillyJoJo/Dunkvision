@@ -9,11 +9,25 @@ export default function RegisterCliente() {
   const [name, setName] = useState("test");
   const [email, setEmail] = useState("test@test.com");
   const [password, setPassword] = useState("123123");
+  const [repeatPassword, setRepeatPassword] = useState("123123");
   const router = useRouter();
+
+  const isPasswordTooShort = password.length > 0 && password.length < 8;
+  const doPasswordsMatch = password === repeatPassword;
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setErrors([]);
+
+    if (isPasswordTooShort) {
+      setErrors(["La contraseña debe tener al menos 8 caracteres."]);
+      return;
+    }
+
+    if (!doPasswordsMatch) {
+      setErrors(["Las contraseñas no coinciden."]);
+      return;
+    }
 
     try {
       const res = await fetch(
@@ -123,13 +137,45 @@ export default function RegisterCliente() {
           <input
             type="password"
             id="password"
-            placeholder="8caracteres"
+            placeholder="Mínimo 8 caracteres"
             name="password"
             className="form-control"
-            style={{ fontSize: "1.1rem" }}
+            style={{
+              fontSize: "1.1rem",
+              borderColor: isPasswordTooShort ? "red" : undefined,
+            }}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+          {isPasswordTooShort && (
+            <small style={{ color: "red" }}>
+              La contraseña debe tener al menos 8 caracteres.
+            </small>
+          )}
+        </div>
+
+        <div className="form-group mb-2">
+          <label htmlFor="repeatPassword" style={{ fontSize: "1.1rem", fontWeight: "bold" }}>
+            Repetir Contraseña
+          </label>
+          <input
+            type="password"
+            id="repeatPassword"
+            placeholder="Repite la contraseña"
+            name="repeatPassword"
+            className="form-control"
+            style={{
+              fontSize: "1.1rem",
+              borderColor: repeatPassword && !doPasswordsMatch ? "red" : undefined,
+            }}
+            value={repeatPassword}
+            onChange={(e) => setRepeatPassword(e.target.value)}
+          />
+          {repeatPassword && !doPasswordsMatch && (
+            <small style={{ color: "red" }}>
+              Las contraseñas no coinciden.
+            </small>
+          )}
         </div>
 
         <button
