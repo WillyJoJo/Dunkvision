@@ -1,24 +1,49 @@
-from app import app
 from flask import request, jsonify
-from app.crud.lesiones_jugador_crud import crear_lesion, editar_lesion, eliminar_lesion, get_lesion_activa, limpiar_lesiones_antiguas, listar_lesiones, obtener_lesion_by_ID, obtener_posibles_lesiones
-from .data_import import actualizar_historial, calcular_contexto_partido
-from app.auth import registrar_usuario, autenticar_usuario, cambiar_rol_usuario
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app.models import Usuario
-from app.crud.equipo_crud import obtener_equipo, listar_equipos, filtrar_equipos_logica
-from app.crud.jugador_crud import jugador_by_equipo, listar_jugadores, obtener_jugador, filtrar_jugadores_logica
-from app.crud.enfrentamiento_crud import (obtener_enfrentamiento, listar_enfrentamientos, 
-listar_enfrentamientos_equipo, listar_enfrentamientos_equipo_local, listar_enfrentamientos_equipo_visitante, listar_enfrentamientos_fecha)
-from app.crud.jugador_partido_crud import get_jugador_partido_por_enfrentamiento_id, get_jugador_partido_por_jugador_id, listar_jugador_partido,filtrar_jugador_partido_logica
-from app.crud.estadisticas_avanzadas_jugador_crud import (estadisticas_avanzadas_jugador_existente, obtener_estadisticas_avanzadas,listar_estadisticas_avanzadas,
-filtrar_estadisticas_avanzadas_logica, crear_estadisticas_avanzadas, actualizar_estadisticas_avanzadas)
-from app.models import Temporada  # Asegúrate de importar el modelo Temporada
-import joblib
-import pandas as pd
-import os
-from app import db
+from flask_mail import Message
+from itsdangerous import URLSafeTimedSerializer
+from werkzeug.security import generate_password_hash
 from sqlalchemy import or_, and_
 from datetime import date
+import os
+import joblib
+import pandas as pd
+
+from app import app
+from app.extensions import db, mail
+from app.models import Usuario, Temporada
+from app.crud.lesiones_jugador_crud import (
+    crear_lesion, editar_lesion, eliminar_lesion,
+    get_lesion_activa, limpiar_lesiones_antiguas, listar_lesiones,
+    obtener_lesion_by_ID, obtener_posibles_lesiones
+)
+from app.crud.equipo_crud import (
+    obtener_equipo, listar_equipos, filtrar_equipos_logica
+)
+from app.crud.jugador_crud import (
+    jugador_by_equipo, listar_jugadores, obtener_jugador, filtrar_jugadores_logica
+)
+from app.crud.enfrentamiento_crud import (
+    obtener_enfrentamiento, listar_enfrentamientos,
+    listar_enfrentamientos_equipo, listar_enfrentamientos_equipo_local,
+    listar_enfrentamientos_equipo_visitante, listar_enfrentamientos_fecha
+)
+from app.crud.jugador_partido_crud import (
+    get_jugador_partido_por_enfrentamiento_id,
+    get_jugador_partido_por_jugador_id,
+    listar_jugador_partido, filtrar_jugador_partido_logica
+)
+from app.crud.estadisticas_avanzadas_jugador_crud import (
+    estadisticas_avanzadas_jugador_existente, obtener_estadisticas_avanzadas,
+    listar_estadisticas_avanzadas, filtrar_estadisticas_avanzadas_logica,
+    crear_estadisticas_avanzadas, actualizar_estadisticas_avanzadas
+)
+from app.auth import registrar_usuario, autenticar_usuario, cambiar_rol_usuario
+from .data_import import actualizar_historial, calcular_contexto_partido
+
+
+serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+
 
 # ------------------ Rutas para importar datos ------------------ #
 # Ruta por defecto que devuelve 'Hello World'
@@ -84,6 +109,70 @@ def cambiar_rol():
     if error:
         return jsonify(error), 400
     return jsonify({"msg": f"Rol de usuario {user_id} actualizado a {nuevo_rol}"}), 200
+
+@app.route('/api/recuperar-contrasena', methods=['POST'])
+def recuperar_contrasena():
+    data = request.get_json()
+    email = data.get('email')
+    if not email:
+        return jsonify({'mensaje': 'Email requerido'}), 400
+
+    usuario = Usuario.query.filter_by(email=email).first()
+    if not usuario:
+        return jsonify({'mensaje': 'No existe una cuenta con ese email'}), 404
+
+    # Generar token con vencimiento (30 min)
+    token = serializer.dumps(email, salt='recuperar-contrasena')
+    enlace = f"{app.config['FRONTEND_URL']}/restablecer-contrasena/{token}"
+
+    # Enviar correo
+    msg = Message(
+    subject='Recuperación de contraseña',
+    sender=app.config['MAIL_USERNAME'],
+    recipients=[email],
+    reply_to='soporte@dunkvision.com'
+)
+
+    msg.html = f"""
+        <p>Hola <strong>{usuario.nombre_usuario}</strong>,</p>
+
+        <p>Recibimos una solicitud para restablecer tu contraseña en <strong>DunkVision</strong>. Si fuiste tú, haz clic en el siguiente enlace:</p>
+
+        <p><a href="{enlace}" target="_blank" style="color: #1a73e8; font-weight: bold;">¡Haz clic aquí para restablecer tu contraseña!</a></p>
+
+        <p>Este enlace expirará en <strong>15 minutos</strong>.</p>
+
+        <p>Si no solicitaste esto, puedes ignorar este correo.</p>
+
+        <p>Gracias,<br>El equipo de <strong>DunkVision</strong></p>
+    """
+
+
+    mail.send(msg)
+    return jsonify({'mensaje': 'Correo enviado con instrucciones'}), 200
+
+
+@app.route('/api/restablecer-contrasena/<token>', methods=['POST'])
+def restablecer_contrasena(token):
+    data = request.get_json()
+    nueva_contrasena = data.get('password')
+
+    if not nueva_contrasena:
+        return jsonify({'mensaje': 'Contraseña requerida'}), 400
+
+    try:
+        email = serializer.loads(token, salt='recuperar-contrasena', max_age=900)  # 15 minutos
+    except:
+        return jsonify({'mensaje': 'Token inválido o caducado'}), 400
+
+    usuario = Usuario.query.filter_by(email=email).first()
+    if not usuario:
+        return jsonify({'mensaje': 'Usuario no encontrado'}), 404
+
+    usuario.password_hash = generate_password_hash(nueva_contrasena)
+    db.session.commit()
+
+    return jsonify({'mensaje': 'Contraseña actualizada con éxito'}), 200
 
 
 # ------------------ Rutas para Equipos ------------------ #

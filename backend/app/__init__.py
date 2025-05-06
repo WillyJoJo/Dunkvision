@@ -1,17 +1,15 @@
-# __init__.py
 from flask import Flask
 from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
-from flask_jwt_extended import JWTManager
-from config import Config  # Importa la configuración desde config.py
+from config import Config
+from app.extensions import db, jwt, mail
 
 app = Flask(__name__)
-app.config.from_object(Config)  # Carga la configuración
+app.config.from_object(Config)
 
-# Habilitar CORS en todas las rutas de la aplicación
 CORS(app)
 
-jwt = JWTManager(app)
-db = SQLAlchemy(app)
+db.init_app(app)
+jwt.init_app(app)
+mail.init_app(app)
 
-from app import routes  # NO TOCAR, MUY IMPORTANTE
+from app import routes  # IMPORTAR AL FINAL SIEMPRE
