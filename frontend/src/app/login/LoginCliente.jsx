@@ -74,6 +74,12 @@ export default function LoginCliente() {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="8caracteres"
         />
+        
+        <div style={{ textAlign: "right", marginTop: "0.5rem" }}>
+          <Link href="/recuperar-contrasena" style={{ fontSize: "0.95rem", textDecoration: "underline", color: "#007bff" }}>
+            ¿Olvidaste tu contraseña?
+          </Link>
+        </div>
 
         <button
           type="submit"
