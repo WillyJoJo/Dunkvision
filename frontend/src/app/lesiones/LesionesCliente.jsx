@@ -178,7 +178,7 @@ export default function LesionesCliente() {
                         type="text"
                         value={tipoLesion}
                         onChange={(e) => setTipoLesion(e.target.value)}
-                        placeholder="Ej: esguince"
+                        placeholder="Ej: Esguince"
                         style={{
                             marginLeft: "0.5rem",
                             backgroundColor: "#000",
