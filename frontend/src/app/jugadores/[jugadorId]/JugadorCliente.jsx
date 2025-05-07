@@ -121,25 +121,43 @@ export default function JugadorCliente({ jugadorId }) {
             color: "#fff",
             padding: "2rem",
             borderRadius: "8px",
-            maxWidth: "400px", // puedes ajustar el ancho máximo aquí
+            maxWidth: "400px",
             flex: "1",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
-          <h1 style={{ margin: 0, fontSize: "2.5rem", fontWeight: "bold" }}>
+          <h1
+            style={{
+              margin: 0,
+              fontSize: "2.5rem",
+              fontWeight: "bold",
+              lineHeight: "1.2",
+              textAlign: "center",
+            }}
+          >
             {jugador.nombre}
           </h1>
 
-          <div style={{ marginTop: "1.5rem", textAlign: "center" }}>
+          <div
+            style={{
+              marginTop: "1.5rem",
+              width: "100%",
+              maxWidth: "300px",
+            }}
+          >
             <img
               src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${jugador.id}.png`}
               alt={jugador.nombre}
               style={{
                 width: "100%",
-                maxWidth: "300px",
                 height: "auto",
                 borderRadius: "12px",
                 objectFit: "cover",
                 border: "2px solid #fff",
+                display: "block",
               }}
               onError={(e) => {
                 e.target.src = "/placeholder-player.png";

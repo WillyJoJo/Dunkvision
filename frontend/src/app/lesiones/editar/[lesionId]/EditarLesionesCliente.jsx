@@ -145,22 +145,55 @@ export default function EditarLesionesCliente() {
         }}
       >
         {jugadorId && (
-          <div style={{ textAlign: "center", maxWidth: "300px" }}>
-            <img
-              src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${jugadorId}.png`}
-              alt={nombreJugador}
+          <div
+            style={{
+              background: "linear-gradient(135deg, #000 0%, #f00 100%)",
+              color: "#fff",
+              padding: "2rem",
+              borderRadius: "8px",
+              maxWidth: "400px",
+              flex: "1",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <h1
               style={{
+                margin: 0,
+                fontSize: "2.5rem",
+                fontWeight: "bold",
+                lineHeight: "1.2",
+                textAlign: "center",
+              }}
+            >
+              {nombreJugador}
+            </h1>
+
+            <div
+              style={{
+                marginTop: "1.5rem",
                 width: "100%",
                 maxWidth: "300px",
-                height: "auto",
-                borderRadius: "12px",
-                objectFit: "cover",
-                border: "2px solid #fff",
               }}
-              onError={(e) => {
-                e.target.src = "/placeholder-player.png";
-              }}
-            />
+            >
+              <img
+                src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${jugadorId}.png`}
+                alt={nombreJugador}
+                style={{
+                  width: "100%",
+                  height: "auto",
+                  borderRadius: "12px",
+                  objectFit: "cover",
+                  border: "2px solid #fff",
+                  display: "block",
+                }}
+                onError={(e) => {
+                  e.target.src = "/placeholder-player.png";
+                }}
+              />
+            </div>
           </div>
         )}
 
