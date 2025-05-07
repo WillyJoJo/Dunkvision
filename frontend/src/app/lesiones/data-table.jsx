@@ -19,6 +19,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+
 import { columns as baseColumns } from "./columns";
 
 export function DataTable({ lesiones = [], isAdmin = false, onDelete }) {
@@ -50,19 +62,36 @@ export function DataTable({ lesiones = [], isAdmin = false, onDelete }) {
                   Editar
                 </button>
               </Link>
-              <button
-                onClick={() => onDelete(row.original.id)}
-                style={{
-                  padding: "0.3rem 0.6rem",
-                  backgroundColor: "#f00",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                }}
-              >
-                Eliminar
-              </button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <button
+                    style={{
+                      padding: "0.3rem 0.6rem",
+                      backgroundColor: "#f00",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Eliminar
+                  </button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Esta acción eliminará permanentemente la lesión de <strong>{row.original.jugador}</strong>. No se puede deshacer.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => onDelete(row.original.id)}>
+                      Confirmar eliminación
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           ),
         },

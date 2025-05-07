@@ -1,51 +1,54 @@
 "use client";
 
 import React from "react";
+import {
+  Card,
+  CardContent,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button"; // Tu botón personalizado
 
 export default function HomePage() {
   return (
-    <main style={{ fontFamily: "Arial, sans-serif" }}>
-      {/* Hero Section */}
-      <section
-        style={{
-          background: "linear-gradient(135deg,rgb(0, 0, 0),rgb(255, 0, 0))",
-          color: "#fff",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "60vh",
-          textAlign: "center",
-          padding: "2rem",
-        }}
-      >
-        <h1 style={{ fontSize: "3rem", marginBottom: "1rem" }}>
-          ¡Bienvenido a DUNKVISION!
-        </h1>
-        <p style={{ fontSize: "1.25rem", maxWidth: "600px" }}>
-          Descubre un proyecto innovador para predecir resultados y estadísticas de la NBA.
-        </p>
-      </section>
+    <main className="flex justify-center items-center min-h-[calc(100vh-4rem)] px-4 bg-muted">
+      <Card className="w-full max-w-4xl shadow-lg p-10">
+        <CardContent className="flex flex-col items-center text-center space-y-8">
+          <img
+            src="/logo.png"
+            alt="Logo Dunkvision"
+            className="w-28 h-28"
+          />
 
-      {/* Acerca del Proyecto */}
-      <section
-        style={{
-          padding: "2rem",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          textAlign: "center",
-        }}
-      >
-        <h2 style={{ fontSize: "2rem", marginBottom: "1rem", color: "rgb(255, 0, 0)" }}>
-          Acerca del Proyecto
-        </h2>
-        <p style={{ fontSize: "1rem", maxWidth: "800px" }}>
-          Este proyecto es el resultado de una investigación y aplicación de
-          nuevas tecnologías, enfocado en brindar una experiencia única y
-          atractiva.
-        </p>
-      </section>
+          <div>
+            <CardTitle className="text-4xl font-bold text-red-600 mb-2">
+              Bienvenido a <span className="text-black">DUNKVISION</span>
+            </CardTitle>
+            <CardDescription className="text-base text-muted-foreground max-w-2xl mx-auto">
+              Plataforma inteligente para explorar estadísticas avanzadas,
+              consultar lesiones y predecir resultados de la NBA mediante
+              modelos de inteligencia artificial.
+            </CardDescription>
+          </div>
+
+          <hr className="w-full border-t border-gray-200" />
+
+          <div>
+            <h2 className="text-2xl font-semibold text-red-600 mb-2">
+              ¿Qué puedes encontrar aquí?
+            </h2>
+            <p className="text-base text-muted-foreground max-w-2xl mx-auto">
+              Explora información detallada de equipos y jugadores, consulta estadísticas avanzadas partido a partido,
+              revisa el historial de lesiones y accede a predicciones generadas por modelos estadísticos
+              diseñados especialmente para la NBA.
+            </p>
+          </div>
+
+          <Button asChild size="lg" className="mt-4">
+            <a href="/equipos" className="text-white">Explora Equipos</a>
+          </Button>
+        </CardContent>
+      </Card>
     </main>
   );
 }

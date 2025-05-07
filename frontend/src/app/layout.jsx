@@ -5,6 +5,7 @@ import "bootstrap/dist/css/bootstrap.css";
 import NavBar from "@/components/ui/NavBar";
 import { ReactQueryProvider } from "@/context/ReactQueryProvider";
 import SessionAuthProvider from "@/context/SessionAuthProvider";
+import { Toaster } from "@/components/ui/sonner"
 
 const items = [
   { label: "Inicio", href: "/" },
@@ -43,6 +44,7 @@ export default function RootLayout({ children }) {
             <div className="main-container">
               <NavBar items={items} />
               <main className="main-content">{children}</main>
+              <Toaster />
             </div>
 
             {/* Footer */}
