@@ -21,26 +21,26 @@ def validate_email(email):
 def registrar_usuario():
     data = request.get_json()
     if not data:
-        return {"msg": "No se enviaron datos en formato JSON"}
+        return {"message": "No se enviaron datos en formato JSON"}
 
     nombre_usuario = data.get("nombre_usuario")
     email = data.get("email")
     password = data.get("password")
 
     if not nombre_usuario or not password or not email:
-        return {"msg": "Faltan credenciales (usuario, email o contraseña)"}
+        return {"message": "Faltan credenciales (usuario, email o contraseña)"}
 
     if not validate_password(password):
-        return {"msg": "La contraseña debe tener al menos 8 caracteres, incluir letras y números"}
+        return {"message": "La contraseña debe tener al menos 8 caracteres, incluir letras y números"}
 
     if not validate_email(email):
-        return {"msg": "El email no tiene un formato válido"}
+        return {"message": "El email no tiene un formato válido"}
 
     if Usuario.query.filter_by(nombre_usuario=nombre_usuario).first():
-        return {"msg": "El nombre de usuario ya existe"}
+        return {"message": "El nombre de usuario ya existe"}
 
     if Usuario.query.filter_by(email=email).first():
-        return {"msg": "El email ya está registrado"}
+        return {"message": "El email ya está registrado"}
 
     try:
         password_hash = generate_password_hash(password)
@@ -54,20 +54,20 @@ def registrar_usuario():
         db.session.commit()
     except Exception as e:
         db.session.rollback()
-        return {"msg": "Error al registrar el usuario", "error": str(e)}
+        return {"message": "Error al registrar el usuario", "error": str(e)}
 
     return None
 
 def autenticar_usuario():
     data = request.get_json()
     if not data:
-        return None, None, {"msg": "No se enviaron datos en formato JSON"}
+        return None, None, {"message": "No se enviaron datos en formato JSON"}
 
     identifier = data.get("nombre_usuario") or data.get("email")
     password = data.get("password")
 
     if not identifier or not password:
-        return None, None, {"msg": "Faltan credenciales (identificador o contraseña)"}
+        return None, None, {"message": "Faltan credenciales (identificador o contraseña)"}
 
     if "@" in identifier:
         usuario = Usuario.query.filter_by(email=identifier).first()
@@ -77,32 +77,32 @@ def autenticar_usuario():
         credencial = "nombre de usuario"
 
     if not usuario:
-        return None, None, {"msg": f"El {credencial} no está registrado"}
+        return None, None, {"message": f"El {credencial} no está registrado"}
 
     if not check_password_hash(usuario.password_hash, password):
-        return None, None, {"msg": "La contraseña es incorrecta"}
+        return None, None, {"message": "La contraseña es incorrecta"}
 
     try:
         token = create_access_token(identity=str(usuario.id), expires_delta=datetime.timedelta(days=1))
     except Exception as e:
-        return None, None, {"msg": "Error al generar token", "error": str(e)}
+        return None, None, {"message": "Error al generar token", "error": str(e)}
 
     return token, usuario, None
 
 def cambiar_rol_usuario(user_id, nuevo_rol):
     if nuevo_rol not in ALLOWED_ROLES:
-        return {"msg": f"El rol '{nuevo_rol}' no es válido. Roles permitidos: {ALLOWED_ROLES}"}
+        return {"message": f"El rol '{nuevo_rol}' no es válido. Roles permitidos: {ALLOWED_ROLES}"}
 
     usuario = Usuario.query.get(user_id)
     if not usuario:
-        return {"msg": "Usuario no encontrado"}
+        return {"message": "Usuario no encontrado"}
 
     try:
         usuario.rol = nuevo_rol
         db.session.commit()
     except Exception as e:
         db.session.rollback()
-        return {"msg": "Error al cambiar el rol del usuario", "error": str(e)}
+        return {"message": "Error al cambiar el rol del usuario", "error": str(e)}
 
     return None
 
@@ -110,11 +110,11 @@ def recuperar_contrasena():
     data = request.get_json()
     email = data.get('email')
     if not email:
-        return {'mensaje': 'Email requerido'}, 400
+        return {'message': 'Email requerido'}, 400
 
     usuario = Usuario.query.filter_by(email=email).first()
     if not usuario:
-        return {'mensaje': 'No existe una cuenta con ese email'}, 404
+        return {'message': 'No existe una cuenta con ese email'}, 404
 
     token = serializer.dumps(email, salt='recuperar-contrasena')
     enlace = f"{app.config['FRONTEND_URL']}/restablecer-contrasena/{token}"
@@ -135,25 +135,25 @@ def recuperar_contrasena():
         <p>Gracias,<br>El equipo de <strong>DunkVision</strong></p>
     """
     mail.send(msg)
-    return {'mensaje': 'Correo enviado con instrucciones'}, 200
+    return {'message': 'Correo enviado con instrucciones'}, 200
 
 def restablecer_contrasena(token):
     data = request.get_json()
     nueva_contrasena = data.get('password')
 
     if not nueva_contrasena:
-        return {'mensaje': 'Contraseña requerida'}, 400
+        return {'message': 'Contraseña requerida'}, 400
 
     try:
         email = serializer.loads(token, salt='recuperar-contrasena', max_age=900)
     except:
-        return {'mensaje': 'Token inválido o caducado'}, 400
+        return {'message': 'Token inválido o caducado'}, 400
 
     usuario = Usuario.query.filter_by(email=email).first()
     if not usuario:
-        return {'mensaje': 'Usuario no encontrado'}, 404
+        return {'message': 'Usuario no encontrado'}, 404
 
     usuario.password_hash = generate_password_hash(nueva_contrasena)
     db.session.commit()
 
-    return {'mensaje': 'Contraseña actualizada con éxito'}, 200
+    return {'message': 'Contraseña actualizada con éxito'}, 200
