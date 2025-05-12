@@ -2,7 +2,7 @@ from flask import jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import app
 from app.models import Temporada
-from .data_import import actualizar_historial, calcular_contexto_partido
+from .data_import import actualizar_historial, calcular_contexto_partido, obtener_historial_formateado, obtener_historial_por_equipo
 
 # ------------------ Rutas para importar datos ------------------ #
 # Ruta por defecto que devuelve 'Hello World'
@@ -16,6 +16,24 @@ def hello_world():
 def actualizar_historial_endpoint():
     actualizar_historial()
     return jsonify({"message": "Historial actualizado correctamente"}), 200
+
+# Listar historial_enfrentamientos
+@app.route('/api/nba/historial_enfrentamientos', methods=['GET'])
+def route_historial_enfrentamientos():
+    try:
+        historial = obtener_historial_formateado()
+        return jsonify(historial), 200
+    except Exception as e:
+        return jsonify({"msg": "Error al obtener el historial de enfrentamientos", "error": str(e)}), 500
+
+# Listar historial_enfrentamientos por equipo1
+@app.route('/api/nba/historial_enfrentamientos/<int:equipo1_id>', methods=['GET'])
+def route_historial_por_equipo(equipo1_id):
+    try:
+        historial = obtener_historial_por_equipo(equipo1_id)
+        return jsonify(historial), 200
+    except Exception as e:
+        return jsonify({"msg": "Error al obtener el historial del equipo", "error": str(e)}), 500
 
 # Calcular contexto_partido
 @app.route('/api/nba/contexto_partido', methods=['POST'])

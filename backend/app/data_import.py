@@ -55,6 +55,38 @@ def actualizar_historial():
     db.session.commit()
     print("Historial de enfrentamientos actualizado correctamente.")
 
+# LISTA DE HISTORIAL DE ENFRENTAMIENTOS
+def obtener_historial_formateado():
+    """Devuelve el historial de enfrentamientos en formato 'equipo1_id', 'equipo2_id', 'resultado'."""
+    historial = db.session.query(Historial_Enfrentamientos).all()
+    
+    resultado = []
+    for h in historial:
+        resultado.append({
+            "equipo1_id": h.equipo1_id,
+            "equipo2_id": h.equipo2_id,
+            "historial_equipo1_equipo2": f"{h.victorias_equipo1}-{h.victorias_equipo2}"
+        })
+    
+    return resultado
+
+# LISTA DE HISTORIAL DE ENFRENTAMIENTOS POR EQUIPO1
+def obtener_historial_por_equipo(equipo1_id):
+    """
+    Devuelve el historial de enfrentamientos de equipo1_id contra equipos de mayor ID.
+    Se usa para construir el dataframe comparando equipo1 con todos los demás superiores.
+    """
+    historial = db.session.query(Historial_Enfrentamientos).filter_by(equipo1_id=equipo1_id).order_by(Historial_Enfrentamientos.equipo2_id.asc()).all()
+
+    resultado = []
+    for h in historial:
+        resultado.append({
+            "equipo1_id": h.equipo1_id,
+            "equipo2_id": h.equipo2_id,
+            "resultado": f"{h.victorias_equipo1}-{h.victorias_equipo2}"
+        })
+
+    return resultado
 
 # CALCULAR CONTEXTO PARTIDO DE ENFRENTAMIENTOS
 def calcular_contexto_partido():
