@@ -1,15 +1,60 @@
 "use client";
 
+import Link from "next/link";
+
 export const columns = [
   {
     accessorKey: "nombre",
     header: "Nombre",
     tooltip: "Nombre del Jugador",
+    cell: ({ row }) => {
+      const jugador = row.original;
+      return (
+        <div className="flex items-center gap-2">
+          <img
+            src={`https://cdn.nba.com/headshots/nba/latest/260x190/${jugador.jugador_id}.png`}
+            alt={jugador.nombre}
+            className="w-10 h-10 object-cover rounded bg-white"
+            onError={(e) => {
+              e.target.src = "/placeholder-player.png";
+            }}
+          />
+          <Link href={`/jugadores/${jugador.jugador_id}`}>
+            <span className="text-blue-500 underline hover:font-bold">
+              {jugador.nombre}
+            </span>
+          </Link>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "equipo",
     header: "Equipo",
     tooltip: "Equipo del Jugador",
+    cell: ({ row }) => {
+      const { equipo, equipo_id } = row.original;
+
+      return (
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <img
+            src={`https://cdn.nba.com/logos/nba/${equipo_id}/global/L/logo.svg`}
+            alt="Logo Equipo"
+            style={{
+              width: "28px",
+              height: "28px",
+              objectFit: "contain",
+              borderRadius: "6px",
+              backgroundColor: "#fff",
+            }}
+            onError={(e) => {
+              e.target.src = "/placeholder-logo.svg";
+            }}
+          />
+          <span>{equipo}</span>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "minutos_jugados",

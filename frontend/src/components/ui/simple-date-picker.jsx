@@ -1,19 +1,42 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { DayPicker } from "react-day-picker";
 import { format } from "date-fns";
 import "react-day-picker/dist/style.css";
 
 export default function SimpleDatePicker({ date, setDate }) {
   const [showCalendar, setShowCalendar] = useState(false);
+  const calendarRef = useRef(null);
 
   const textoBoton = date
     ? `Día ${format(date, "dd/MM/yyyy")}`
     : "Seleccionar día";
 
+  // ⛔️ Cierra el calendario al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        calendarRef.current &&
+        !calendarRef.current.contains(event.target)
+      ) {
+        setShowCalendar(false);
+      }
+    };
+
+    if (showCalendar) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showCalendar]);
+
   return (
-    <div style={{ position: "relative", marginBottom: "1rem" }}>
+    <div style={{ position: "relative", marginBottom: "1rem" }} ref={calendarRef}>
       <button
         type="button"
         onClick={() => setShowCalendar((prev) => !prev)}
@@ -34,8 +57,9 @@ export default function SimpleDatePicker({ date, setDate }) {
         <div
           style={{
             position: "absolute",
-            zIndex: 10,
-            top: "110%",
+            bottom: "110%", // ✅ aparece encima del botón
+            left: 0,
+            zIndex: 20,
             backgroundColor: "#fff",
             color: "#000",
             padding: "1rem",
@@ -47,14 +71,25 @@ export default function SimpleDatePicker({ date, setDate }) {
           <DayPicker
             mode="single"
             selected={date}
-            onSelect={setDate}
+            onSelect={(selectedDate) => {
+              setDate(selectedDate);
+              setShowCalendar(false); // ✅ auto-cierre
+            }}
             defaultMonth={new Date()}
           />
         </div>
       )}
 
       {date && (
-        <span style={{ color: "#ccc", fontSize: "0.9rem", marginTop: "0.5rem", marginLeft: "0.5rem", display: "inline-block" }}>
+        <span
+          style={{
+            color: "#ccc",
+            fontSize: "0.9rem",
+            marginTop: "0.5rem",
+            marginLeft: "0.5rem",
+            display: "inline-block",
+          }}
+        >
           Día seleccionado: {format(date, "dd/MM/yyyy")}
         </span>
       )}

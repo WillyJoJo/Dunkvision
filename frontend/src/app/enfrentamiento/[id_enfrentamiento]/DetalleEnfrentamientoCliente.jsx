@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getEnfrentamientoByEnfrentamientoId } from "@/services/enfrentamientosService";
@@ -8,6 +9,7 @@ import { getJugadoresPartidoByEnfrentamientoId } from "@/services/jugadorPartido
 import { getJugadoresById } from "@/services/jugadoresService";
 import { format } from "date-fns";
 import { DataTable } from "./data-table";
+import Marcador from "@/components/ui/Marcador";
 
 export default function DetalleEnfrentamientoCliente() {
   const { id_enfrentamiento } = useParams();
@@ -43,7 +45,6 @@ export default function DetalleEnfrentamientoCliente() {
 
       try {
         const datos = await getJugadoresPartidoByEnfrentamientoId(id_enfrentamiento);
-
         const equipoCache = {};
 
         const jugadoresConNombre = await Promise.all(
@@ -51,7 +52,6 @@ export default function DetalleEnfrentamientoCliente() {
             const infoJugador = await getJugadoresById(jugador.jugador_id);
 
             let equipoNombre = "Desconocido";
-
             if (jugador.equipo_id) {
               if (!equipoCache[jugador.equipo_id]) {
                 equipoCache[jugador.equipo_id] = await getEquiposById(jugador.equipo_id);
@@ -63,6 +63,7 @@ export default function DetalleEnfrentamientoCliente() {
               ...jugador,
               nombre: infoJugador.nombre,
               equipo: equipoNombre,
+              equipo_id: jugador.equipo_id,
             };
           })
         );
@@ -84,48 +85,19 @@ export default function DetalleEnfrentamientoCliente() {
     );
   }
 
+  const { puntos_local, puntos_visitante, equipo_local, equipo_visitante, fecha } = enfrentamiento;
+
   return (
     <main style={{ padding: "2rem", color: "#fff" }}>
-      <div
-        style={{
-          background: "linear-gradient(135deg, #000 0%, #f00 100%)",
-          color: "#fff",
-          padding: "2rem",
-          borderRadius: "8px",
-          marginBottom: "1.5rem",
-          maxWidth: "800px",
-        }}
-      >
-        <h1 style={{ margin: 0, fontSize: "2.5rem", fontWeight: "bold" }}>
-          {nombreEquipoLocal} vs {nombreEquipoVisitante}
-        </h1>
-        <p style={{ marginTop: "0.5rem" }}>
-          <strong>Fecha:</strong> {format(new Date(enfrentamiento.fecha), "dd/MM/yyyy")}
-        </p>
-      </div>
-
-      <div
-        style={{
-          backgroundColor: "#1a1a1a",
-          padding: "1.5rem 2rem",
-          borderRadius: "10px",
-          maxWidth: "800px",
-          marginBottom: "2rem",
-        }}
-      >
-        <p>
-          <strong>Equipo Local:</strong> {nombreEquipoLocal}
-        </p>
-        <p>
-          <strong>Equipo Visitante:</strong> {nombreEquipoVisitante}
-        </p>
-        <p>
-          <strong>Puntos Local:</strong> {enfrentamiento.puntos_local}
-        </p>
-        <p>
-          <strong>Puntos Visitante:</strong> {enfrentamiento.puntos_visitante}
-        </p>
-      </div>
+      <Marcador
+        equipoLocal={equipo_local}
+        equipoVisitante={equipo_visitante}
+        nombreEquipoLocal={nombreEquipoLocal}
+        nombreEquipoVisitante={nombreEquipoVisitante}
+        puntosLocal={puntos_local}
+        puntosVisitante={puntos_visitante}
+        fecha={format(new Date(fecha), "dd/MM/yyyy")}
+      />
 
       {jugadoresPartido.length > 0 && (
         <DataTable data={jugadoresPartido} />

@@ -1,7 +1,6 @@
 "use client";
 
 import { format } from "date-fns";
-import { Trophy } from "lucide-react";
 
 export const columnsPartido = [
   {
@@ -16,16 +15,32 @@ export const columnsPartido = [
     tooltip: "Equipo Local",
     cell: ({ row }) => {
       const esMiEquipo = row.original.equipo_id === row.original.equipoLocalId;
-      const ganador = row.original.puntosLocal > row.original.puntosVisitante;
+      const ganoMiEquipo = esMiEquipo && row.original.puntosLocal > row.original.puntosVisitante;
+      const perdioMiEquipo = esMiEquipo && row.original.puntosLocal < row.original.puntosVisitante;
+      const color = ganoMiEquipo ? "#00e676" : perdioMiEquipo ? "#ff5252" : "inherit";
+      const tooltip = ganoMiEquipo ? "Ganó" : perdioMiEquipo ? "Perdió" : "";
+
       return (
-        <span
+        <div
           style={{
-            color: esMiEquipo ? "#00e676" : "inherit",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            color,
             fontWeight: esMiEquipo ? "bold" : "normal",
           }}
+          title={tooltip}
         >
-          {row.original.equipoLocal} {ganador && <Trophy size={14} style={{ marginLeft: 4 }} />}
-        </span>
+          <img
+            src={`https://cdn.nba.com/logos/nba/${row.original.equipoLocalId}/global/L/logo.svg`}
+            alt="logo"
+            style={{ width: 24, height: 24, objectFit: "contain", backgroundColor: "#fff", borderRadius: 4 }}
+            onError={(e) => {
+              e.target.src = "/placeholder-logo.svg";
+            }}
+          />
+          <span>{row.original.equipoLocal}</span>
+        </div>
       );
     },
   },
@@ -35,16 +50,32 @@ export const columnsPartido = [
     tooltip: "Equipo Visitante",
     cell: ({ row }) => {
       const esMiEquipo = row.original.equipo_id === row.original.equipoVisitanteId;
-      const ganador = row.original.puntosVisitante > row.original.puntosLocal;
+      const ganoMiEquipo = esMiEquipo && row.original.puntosVisitante > row.original.puntosLocal;
+      const perdioMiEquipo = esMiEquipo && row.original.puntosVisitante < row.original.puntosLocal;
+      const color = ganoMiEquipo ? "#00e676" : perdioMiEquipo ? "#ff5252" : "inherit";
+      const tooltip = ganoMiEquipo ? "Ganó" : perdioMiEquipo ? "Perdió" : "";
+
       return (
-        <span
+        <div
           style={{
-            color: esMiEquipo ? "#00e676" : "inherit",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            color,
             fontWeight: esMiEquipo ? "bold" : "normal",
           }}
+          title={tooltip}
         >
-          {row.original.equipoVisitante} {ganador && <Trophy size={14} style={{ marginLeft: 4 }} />}
-        </span>
+          <img
+            src={`https://cdn.nba.com/logos/nba/${row.original.equipoVisitanteId}/global/L/logo.svg`}
+            alt="logo"
+            style={{ width: 24, height: 24, objectFit: "contain", backgroundColor: "#fff", borderRadius: 4 }}
+            onError={(e) => {
+              e.target.src = "/placeholder-logo.svg";
+            }}
+          />
+          <span>{row.original.equipoVisitante}</span>
+        </div>
       );
     },
   },

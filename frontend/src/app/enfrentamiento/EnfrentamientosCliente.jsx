@@ -41,9 +41,12 @@ export default function EnfrentamientosCliente() {
 
       const enfrentamientosConNombres = enfrentamientosData.map((e) => ({
         ...e,
+        equipo_local_id: e.equipo_local,
+        equipo_visitante_id: e.equipo_visitante,
         equipo_local: equiposMap[e.equipo_local] || `ID ${e.equipo_local}`,
         equipo_visitante: equiposMap[e.equipo_visitante] || `ID ${e.equipo_visitante}`,
       }));
+
 
       setEnfrentamientos(enfrentamientosConNombres);
     }

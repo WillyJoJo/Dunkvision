@@ -13,32 +13,80 @@ export const columns = [
     id: "equipo_local",
     header: "Equipo Local",
     cell: ({ row }) => {
-      const { equipo_local, puntos_local, puntos_visitante } = row.original;
-      const esEmpate = puntos_local === puntos_visitante;
+      const {
+        equipo_local,
+        equipo_local_id,
+        puntos_local,
+        puntos_visitante,
+      } = row.original;
+
       const esGanador = puntos_local > puntos_visitante;
-      const color = esEmpate ? "#888" : esGanador ? "green" : "red";
-      return <span style={{ color }}>{equipo_local}</span>;
+      const color = esGanador ? "green" : "red";
+
+      return (
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <img
+            src={`https://cdn.nba.com/logos/nba/${equipo_local_id}/global/L/logo.svg`}
+            alt={equipo_local}
+            style={{
+              width: "28px",
+              height: "28px",
+              objectFit: "contain",
+              backgroundColor: "#fff",
+              borderRadius: "6px",
+            }}
+            onError={(e) => {
+              e.target.src = "/placeholder-logo.svg";
+            }}
+          />
+          <span style={{ color }}>{equipo_local}</span>
+        </div>
+      );
     },
   },
   {
     id: "equipo_visitante",
     header: "Equipo Visitante",
     cell: ({ row }) => {
-      const { equipo_visitante, puntos_local, puntos_visitante } = row.original;
-      const esEmpate = puntos_local === puntos_visitante;
+      const {
+        equipo_visitante,
+        equipo_visitante_id,
+        puntos_local,
+        puntos_visitante,
+      } = row.original;
+
       const esGanador = puntos_visitante > puntos_local;
-      const color = esEmpate ? "#888" : esGanador ? "green" : "red";
-      return <span style={{ color }}>{equipo_visitante}</span>;
+      const color = esGanador ? "green" : "red";
+
+      return (
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <img
+            src={`https://cdn.nba.com/logos/nba/${equipo_visitante_id}/global/L/logo.svg`}
+            alt={equipo_visitante}
+            style={{
+              width: "28px",
+              height: "28px",
+              objectFit: "contain",
+              backgroundColor: "#fff",
+              borderRadius: "6px",
+            }}
+            onError={(e) => {
+              e.target.src = "/placeholder-logo.svg";
+            }}
+          />
+          <span style={{ color }}>{equipo_visitante}</span>
+        </div>
+      );
     },
   },
   {
     accessorKey: "puntos_local",
     header: "Puntos Local",
-    numeric: true
+    numeric: true,
   },
   {
     accessorKey: "puntos_visitante",
     header: "Puntos Visitante",
-    numeric: true
+    numeric: true,
   },
 ];

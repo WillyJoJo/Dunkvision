@@ -82,8 +82,7 @@ export function DataTable({ data }) {
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  onClick={() => router.push(`/jugadores/${row.original.jugador_id}`)}
-                  className="hover:bg-zinc-800 transition cursor-pointer"
+                  className="hover:bg-zinc-800 transition"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
