@@ -20,14 +20,12 @@ def listar_enfrentamientos(temporada_id=None):
 
     if temporada_id is not None:
         temporada_str = str(temporada_id).zfill(2)
-        print("Filtrando por temporada:", temporada_str)
 
         query = query.filter(
             func.substr(cast(Enfrentamiento.id_enfrentamiento, String), 4, 2) == temporada_str
         )
 
     enfrentamientos = query.all()
-    print("Enfrentamientos encontrados:", [e.id_enfrentamiento for e in enfrentamientos])
 
     resultado = [
         {

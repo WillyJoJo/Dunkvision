@@ -81,6 +81,5 @@ def filtrar_jugador_partido_logica(enfrentamiento_id=None, jugador_id=None, temp
         consulta = consulta.order_by(columna.asc() if order_dir == "asc" else columna.desc())
 
     registros = consulta.all()
-    print("🟢 ENFRENTAMIENTOS encontrados:", [r.enfrentamiento_id for r in registros])
 
     return [_serializar_registro(reg) for reg in registros], 200
