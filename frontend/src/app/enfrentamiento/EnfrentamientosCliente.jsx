@@ -11,21 +11,18 @@ import { useRouter } from "next/navigation";
 
 export default function EnfrentamientosCliente() {
   const [enfrentamientos, setEnfrentamientos] = useState([]);
-  const [nombreEquipo, setNombreEquipo] = useState("");
+  const [equipos, setEquipos] = useState([]);
+  const [equipoSeleccionado, setEquipoSeleccionado] = useState("");
+  const [modoBusqueda, setModoBusqueda] = useState("todos"); // "todos" | "local" | "visitante"
   const [range, setRange] = useState(undefined);
   const [filtros, setFiltros] = useState({
-    nombreEquipo: "",
+    equipoId: "",
     fechaDesde: "",
     fechaHasta: "",
+    modoBusqueda: "todos",
   });
 
   const router = useRouter();
-
-  const sumarDias = (fecha, dias) => {
-    const nuevaFecha = new Date(fecha);
-    nuevaFecha.setDate(nuevaFecha.getDate() + dias);
-    return nuevaFecha.toISOString().split("T")[0];
-  };
 
   useEffect(() => {
     async function fetchData() {
@@ -33,6 +30,8 @@ export default function EnfrentamientosCliente() {
         getEnfrentamientos(),
         getEquipos(),
       ]);
+
+      setEquipos(equiposData);
 
       const equiposMap = {};
       equiposData.forEach((eq) => {
@@ -47,7 +46,6 @@ export default function EnfrentamientosCliente() {
         equipo_visitante: equiposMap[e.equipo_visitante] || `ID ${e.equipo_visitante}`,
       }));
 
-
       setEnfrentamientos(enfrentamientosConNombres);
     }
 
@@ -55,10 +53,6 @@ export default function EnfrentamientosCliente() {
   }, []);
 
   const enfrentamientosFiltrados = enfrentamientos.filter((e) => {
-    const local = String(e.equipo_local || "").toLowerCase();
-    const visitante = String(e.equipo_visitante || "").toLowerCase();
-    const match = (local + visitante).includes(filtros.nombreEquipo);
-
     const fecha = new Date(e.fecha);
     const desde = filtros.fechaDesde ? new Date(filtros.fechaDesde) : null;
     const hasta = filtros.fechaHasta ? new Date(filtros.fechaHasta) : null;
@@ -71,7 +65,21 @@ export default function EnfrentamientosCliente() {
     const desdeOk = !desde || fecha >= desde;
     const hastaOk = !hastaIncluyendoDia || fecha < hastaIncluyendoDia;
 
-    return match && desdeOk && hastaOk;
+    const equipoId = filtros.equipoId;
+
+    let matchEquipo = true;
+    if (equipoId) {
+      if (filtros.modoBusqueda === "local") {
+        matchEquipo = e.equipo_local_id === equipoId;
+      } else if (filtros.modoBusqueda === "visitante") {
+        matchEquipo = e.equipo_visitante_id === equipoId;
+      } else {
+        matchEquipo =
+          e.equipo_local_id === equipoId || e.equipo_visitante_id === equipoId;
+      }
+    }
+
+    return matchEquipo && desdeOk && hastaOk;
   });
 
   const columns = rawColumns.map((col) => {
@@ -89,9 +97,12 @@ export default function EnfrentamientosCliente() {
     router.push(`/enfrentamiento/${id_enfrentamiento}`);
   };
 
+  const handleCheckboxChange = (modo) => {
+    setModoBusqueda((prev) => (prev === modo ? "todos" : modo));
+  };
+
   return (
     <div>
-      {/* Encabezado */}
       <div
         style={{
           background: "linear-gradient(135deg, #000 0%, #f00 100%)",
@@ -108,14 +119,14 @@ export default function EnfrentamientosCliente() {
         </p>
       </div>
 
-      {/* Filtros */}
       <form
         onSubmit={(e) => {
           e.preventDefault();
           setFiltros({
-            nombreEquipo: nombreEquipo.trim().toLowerCase(),
+            equipoId: equipoSeleccionado ? parseInt(equipoSeleccionado) : "",
             fechaDesde: range?.from ? format(range.from, "yyyy-MM-dd") : "",
             fechaHasta: range?.to ? format(range.to, "yyyy-MM-dd") : "",
+            modoBusqueda,
           });
         }}
         style={{
@@ -131,11 +142,9 @@ export default function EnfrentamientosCliente() {
       >
         <label style={{ color: "#fff" }}>
           Equipo:
-          <input
-            type="text"
-            value={nombreEquipo}
-            onChange={(e) => setNombreEquipo(e.target.value)}
-            placeholder="Ej: Lakers"
+          <select
+            value={equipoSeleccionado}
+            onChange={(e) => setEquipoSeleccionado(e.target.value)}
             style={{
               marginLeft: "0.5rem",
               backgroundColor: "#000",
@@ -144,7 +153,34 @@ export default function EnfrentamientosCliente() {
               padding: "0.5rem",
               borderRadius: "4px",
             }}
+          >
+            <option value="">Todos</option>
+            {equipos.map((eq) => (
+              <option key={eq.id} value={eq.id}>
+                {eq.nombre}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label style={{ color: "#fff" }}>
+          <input
+            type="checkbox"
+            checked={modoBusqueda === "local"}
+            onChange={() => handleCheckboxChange("local")}
+            style={{ marginRight: "0.5rem" }}
           />
+          Local
+        </label>
+
+        <label style={{ color: "#fff" }}>
+          <input
+            type="checkbox"
+            checked={modoBusqueda === "visitante"}
+            onChange={() => handleCheckboxChange("visitante")}
+            style={{ marginRight: "0.5rem" }}
+          />
+          Visitante
         </label>
 
         <SimpleDateRangePicker range={range} setRange={setRange} />
@@ -168,12 +204,14 @@ export default function EnfrentamientosCliente() {
         <button
           type="button"
           onClick={() => {
-            setNombreEquipo("");
+            setEquipoSeleccionado("");
+            setModoBusqueda("todos");
             setRange(undefined);
             setFiltros({
-              nombreEquipo: "",
+              equipoId: "",
               fechaDesde: "",
               fechaHasta: "",
+              modoBusqueda: "todos",
             });
           }}
           style={{
@@ -191,7 +229,6 @@ export default function EnfrentamientosCliente() {
         </button>
       </form>
 
-      {/* Tabla */}
       <DataTable columns={columns} data={enfrentamientosFiltrados} onRowClick={handleRowClick} />
     </div>
   );

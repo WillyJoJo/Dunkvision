@@ -17,13 +17,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { columns } from "./columns";
+import { getColumns } from "./columns";
 
-export function DataTable({ equipos = [] }) {
+export function DataTable({ equipos = [], orden, onSortChange }) {
+  const columns = getColumns(orden, onSortChange);
+
   const table = useReactTable({
     data: equipos,
     columns,
-    initialState: { pagination: { pageSize: 15 } }, // Configura 15 filas por página
+    initialState: { pagination: { pageSize: 15 } },
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
@@ -45,9 +47,9 @@ export function DataTable({ equipos = [] }) {
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                 </TableHead>
               ))}
             </TableRow>
@@ -56,13 +58,15 @@ export function DataTable({ equipos = [] }) {
         <TableBody>
           {table.getRowModel().rows.length ? (
             table.getRowModel().rows.map((row) => {
-              const equipoId = row.original.id; // Asegúrate de que cada equipo tiene un campo 'id'
+              const equipoId = row.original.id;
               return (
                 <TableRow
                   key={row.id}
                   style={{ cursor: "pointer" }}
                   className="hover:bg-red-100 transition-colors"
-                  onClick={() => window.location.href = `/equipos/${equipoId}`}
+                  onClick={() =>
+                    (window.location.href = `/equipos/${equipoId}`)
+                  }
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

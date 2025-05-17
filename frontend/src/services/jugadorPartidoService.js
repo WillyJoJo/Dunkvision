@@ -7,7 +7,10 @@ export async function getJugadoresPartidoByEnfrentamientoId(enfrentamiento_id) {
     return response.data;
     }
 
-export async function getJugadorPartidoByJugadorId(jugador_id) {
-    const response = await axios.get(`${API_URL}/api/jugador_partido/jugador/${jugador_id}`);
-    return response.data;
+export async function getJugadorPartidoByJugadorId(jugadorId, temporadaId = null) {
+  const params = { jugador_id: jugadorId };
+  if (temporadaId) params.temporada_id = temporadaId;
+
+  const response = await axios.get(`${API_URL}/api/jugador_partido`, { params });
+  return response.data;
 }

@@ -6,25 +6,21 @@ import { getEquipos } from "@/services/equiposService";
 import { DataTable } from "./data-table";
 
 export default function EquiposCliente() {
-  // Estados para los filtros en el formulario
   const [conferencia, setConferencia] = useState("");
   const [division, setDivision] = useState("");
   const [orden, setOrden] = useState("asc");
 
-  // Estado para los filtros "enviados" (se usan en la query)
   const [submittedFilters, setSubmittedFilters] = useState({
     conferencia: "",
     division: "",
     orden: "asc",
   });
 
-  // Opciones de división según la conferencia seleccionada
   const divisionsByConference = {
     Este: ["Atlántico", "Central", "Sudeste"],
     Oeste: ["Sudoeste", "Noroeste", "Pacífico"],
   };
 
-  // Todas las divisiones disponibles
   const allDivisions = [
     "Atlántico",
     "Central",
@@ -34,13 +30,11 @@ export default function EquiposCliente() {
     "Pacífico",
   ];
 
-  // Si se selecciona conferencia, se muestran divisiones correspondientes; si no, se muestran todas.
   const divisionOptions =
     conferencia && divisionsByConference[conferencia]
       ? ["", ...divisionsByConference[conferencia]]
       : ["", ...allDivisions];
 
-  // Cargar filtros guardados en localStorage al inicio
   useEffect(() => {
     const savedConferencia = localStorage.getItem("conferencia") || "";
     const savedDivision = localStorage.getItem("division") || "";
@@ -48,7 +42,6 @@ export default function EquiposCliente() {
     setConferencia(savedConferencia);
     setDivision(savedDivision);
     setOrden(savedOrden);
-    // También actualizamos los filtros enviados
     setSubmittedFilters({
       conferencia: savedConferencia,
       division: savedDivision,
@@ -56,22 +49,19 @@ export default function EquiposCliente() {
     });
   }, []);
 
-  // Guardar filtros en localStorage cada vez que cambien
   useEffect(() => {
     localStorage.setItem("conferencia", conferencia);
     localStorage.setItem("division", division);
     localStorage.setItem("orden", orden);
   }, [conferencia, division, orden]);
 
-  // useQuery utiliza los filtros enviados; se mantiene la data previa con keepPreviousData
   const { data: equipos = [], error, isLoading, refetch } = useQuery({
     queryKey: ["equipos", submittedFilters],
     queryFn: () => getEquipos(submittedFilters),
-    staleTime: 1000 * 60 * 5, // Cachea la data durante 5 minutos
+    staleTime: 1000 * 60 * 5,
     keepPreviousData: true,
   });
 
-  // Manejo del envío del formulario: se actualizan los filtros enviados y se refetch la data
   const handleFilterSubmit = (e) => {
     e.preventDefault();
     setSubmittedFilters({
@@ -82,7 +72,6 @@ export default function EquiposCliente() {
     refetch();
   };
 
-  // Función para resetear filtros a su estado inicial
   const handleReset = () => {
     setConferencia("");
     setDivision("");
@@ -95,10 +84,19 @@ export default function EquiposCliente() {
     refetch();
   };
 
-  // Al cambiar la conferencia, resetea la división
   const handleConferenciaChange = (e) => {
     setConferencia(e.target.value);
     setDivision("");
+  };
+
+  const handleSortChange = () => {
+    const newOrden = orden === "asc" ? "desc" : "asc";
+    setOrden(newOrden);
+    setSubmittedFilters((prev) => ({
+      ...prev,
+      orden: newOrden,
+    }));
+    refetch();
   };
 
   if (isLoading) return <div>Loading...</div>;
@@ -106,7 +104,6 @@ export default function EquiposCliente() {
 
   return (
     <div>
-      {/* Encabezado degradado */}
       <div
         style={{
           background: "linear-gradient(135deg, #000 0%, #f00 100%)",
@@ -123,7 +120,6 @@ export default function EquiposCliente() {
         </p>
       </div>
 
-      {/* Formulario de filtros */}
       <form
         onSubmit={handleFilterSubmit}
         style={{
@@ -137,7 +133,6 @@ export default function EquiposCliente() {
           flexWrap: "wrap",
         }}
       >
-        {/* Filtro: Conferencia */}
         <label style={{ color: "#fff" }}>
           Conferencia:
           <select
@@ -158,7 +153,6 @@ export default function EquiposCliente() {
           </select>
         </label>
 
-        {/* Filtro: División */}
         <label style={{ color: "#fff" }}>
           División:
           <select
@@ -178,26 +172,6 @@ export default function EquiposCliente() {
                 {opt === "" ? "Todas" : opt}
               </option>
             ))}
-          </select>
-        </label>
-
-        {/* Filtro: Orden */}
-        <label style={{ color: "#fff" }}>
-          Orden:
-          <select
-            value={orden}
-            onChange={(e) => setOrden(e.target.value)}
-            style={{
-              backgroundColor: "#000",
-              color: "#fff",
-              border: "1px solid #fff",
-              padding: "0.5rem",
-              borderRadius: "4px",
-              marginLeft: "0.5rem",
-            }}
-          >
-            <option value="asc">Ascendente</option>
-            <option value="desc">Descendente</option>
           </select>
         </label>
 
@@ -236,8 +210,11 @@ export default function EquiposCliente() {
         </button>
       </form>
 
-      {/* Se usa el componente DataTable para renderizar la tabla con paginación */}
-      <DataTable equipos={equipos} />
+      <DataTable
+        equipos={equipos}
+        orden={orden}
+        onSortChange={handleSortChange}
+      />
     </div>
   );
 }

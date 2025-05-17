@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from app.enfrentamiento.crud import (
     listar_enfrentamientos,
     obtener_enfrentamiento,
@@ -13,7 +13,9 @@ enfrentamientos_bp = Blueprint("enfrentamientos_bp", __name__, url_prefix="/api/
 # GET : Listar todos los enfrentamientos
 @enfrentamientos_bp.route("", methods=["GET"])
 def route_listar_enfrentamientos():
-    respuesta, status = listar_enfrentamientos()
+    temporada_id = request.args.get("temporadaId", type=int)
+
+    respuesta, status = listar_enfrentamientos(temporada_id=temporada_id)
     return jsonify(respuesta), status
 
 # GET : Obtener enfrentamiento por ID

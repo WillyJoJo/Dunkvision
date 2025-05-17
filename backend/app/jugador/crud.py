@@ -34,25 +34,20 @@ def listar_jugadores():
     ]
     return lista, 200
 
-## Método GET Filtrar Jugadores
-def filtrar_jugadores_logica(letra_apellido=None, equipo=None, posicion=None):
+# Método GET Filtrar Jugadores
+def filtrar_jugadores_logica(busqueda=None, equipo=None, posicion=None):
     """
     Filtra jugadores según los siguientes criterios:
-      - 'letra_apellido': Filtra aquellos jugadores cuyo apellido (la parte del nombre después del primer espacio)
-         empiece por la letra dada (insensible a mayúsculas).
+      - 'busqueda': Cadena de texto que debe aparecer en cualquier parte del nombre (nombre o apellido).
       - 'equipo': Filtra jugadores por su 'equipo_id'.
       - 'posicion': Filtra jugadores que jueguen en la posición indicada. 
          Si el campo 'posicion' contiene dos valores (ej. 'G-F'), se considera válida la coincidencia si alguna de las dos posiciones coincide.
     """
     consulta = Jugador.query
 
-    # Filtro por la inicial del apellido extraído del nombre.
-    # Se asume que el apellido es la parte del nombre después del primer espacio.
-    if letra_apellido and letra_apellido.strip() != "":
-        # Aseguramos que el nombre contenga al menos un espacio para separar el apellido.
-        consulta = consulta.filter(Jugador.nombre.like('% %'))
-        apellido_expr = func.substr(Jugador.nombre, func.instr(Jugador.nombre, ' ') + 1)
-        consulta = consulta.filter(func.lower(apellido_expr).like(letra_apellido.lower() + '%'))
+    if busqueda and busqueda.strip() != "":
+        busqueda = f"%{busqueda.lower()}%"
+        consulta = consulta.filter(func.lower(Jugador.nombre).like(busqueda))
     
     if equipo:
         consulta = consulta.filter(Jugador.equipo_id == equipo)

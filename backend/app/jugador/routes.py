@@ -11,12 +11,12 @@ jugador_bp = Blueprint('jugador_bp', __name__, url_prefix='/api/jugadores')
 ## GET : Listar Jugadores
 @jugador_bp.route('', methods=['GET'])
 def route_jugadores():
-    letra_apellido = request.args.get('letra_apellido')
+    busqueda = request.args.get('busqueda')  # Nuevo parámetro
     equipo = request.args.get('equipo', type=int)
     posicion = request.args.get('posicion')
-    
-    if letra_apellido or equipo or posicion:
-        respuesta, status = filtrar_jugadores_logica(letra_apellido, equipo, posicion)
+
+    if busqueda or equipo or posicion:
+        respuesta, status = filtrar_jugadores_logica(busqueda, equipo, posicion)
     else:
         respuesta, status = listar_jugadores()
     

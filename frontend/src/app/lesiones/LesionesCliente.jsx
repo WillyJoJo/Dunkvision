@@ -2,7 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getLesiones, deleteLesion, limpiarLesiones } from "@/services/lesionesService";
+import {
+  getLesiones,
+  deleteLesion,
+  limpiarLesiones,
+  getPosiblesLesiones,
+} from "@/services/lesionesService";
 import { getNombreJugador } from "@/services/jugadoresService";
 import { DataTable } from "./data-table";
 import { useSession } from "next-auth/react";
@@ -36,6 +41,26 @@ export default function LesionesCliente() {
         });
     }
   }, [session?.user?.token]);
+
+  // NUEVO: Llamada a posibles lesiones si han pasado más de 5 minutos
+  useEffect(() => {
+    const fetchPosiblesLesionesSiEsNecesario = async () => {
+      const ultimaConsulta = localStorage.getItem("ultimaConsultaPosiblesLesiones");
+      const ahora = Date.now();
+      const cincoMinutos = 5 * 60 * 1000;
+
+      if (!ultimaConsulta || ahora - parseInt(ultimaConsulta) > cincoMinutos) {
+        try {
+          await getPosiblesLesiones();
+          localStorage.setItem("ultimaConsultaPosiblesLesiones", ahora.toString());
+        } catch (error) {
+          console.warn("No se pudieron obtener las posibles lesiones:", error);
+        }
+      }
+    };
+
+    fetchPosiblesLesionesSiEsNecesario();
+  }, []);
 
   const { data: lesiones = [], error, isLoading } = useQuery({
     queryKey: ["lesiones"],
@@ -151,7 +176,7 @@ export default function LesionesCliente() {
             type="text"
             value={nombreJugador}
             onChange={(e) => setNombreJugador(e.target.value)}
-            placeholder="Ej: Curry"
+            placeholder="Ej: Lebron James"
             style={{
               marginLeft: "0.5rem",
               backgroundColor: "#000",

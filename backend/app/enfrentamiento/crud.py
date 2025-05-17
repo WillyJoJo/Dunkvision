@@ -1,4 +1,5 @@
 from app.models import Enfrentamiento
+from sqlalchemy import func, cast, String
 
 def obtener_enfrentamiento(id_enfrentamiento):
     enfrentamiento = Enfrentamiento.query.get(id_enfrentamiento)
@@ -14,9 +15,21 @@ def obtener_enfrentamiento(id_enfrentamiento):
         "fecha": enfrentamiento.fecha
     }, 200
 
-def listar_enfrentamientos():
-    enfrentamientos = Enfrentamiento.query.all()
-    lista = [
+def listar_enfrentamientos(temporada_id=None):
+    query = Enfrentamiento.query
+
+    if temporada_id is not None:
+        temporada_str = str(temporada_id).zfill(2)
+        print("Filtrando por temporada:", temporada_str)
+
+        query = query.filter(
+            func.substr(cast(Enfrentamiento.id_enfrentamiento, String), 4, 2) == temporada_str
+        )
+
+    enfrentamientos = query.all()
+    print("Enfrentamientos encontrados:", [e.id_enfrentamiento for e in enfrentamientos])
+
+    resultado = [
         {
             "id": e.id_enfrentamiento,
             "equipo_local": e.equipo1_id,
@@ -27,7 +40,8 @@ def listar_enfrentamientos():
         }
         for e in enfrentamientos
     ]
-    return lista, 200
+
+    return resultado, 200
 
 def listar_enfrentamientos_equipo(id_equipo):
     enfrentamientos = Enfrentamiento.query.filter(

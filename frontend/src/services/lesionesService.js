@@ -1,8 +1,8 @@
-  import axios from "axios";
+import axios from "axios";
 
-  const API_URL = process.env.NEXT_PUBLIC_APP_API_URL;
+const API_URL = process.env.NEXT_PUBLIC_APP_API_URL;
 
-  export async function getLesiones() {
+export async function getLesiones() {
   const response = await axios.get(`${API_URL}/api/lesiones_jugador`);
   const data = response.data;
   // Si la respuesta es un array de dos elementos y el segundo es un número, extrae el primer elemento.
@@ -10,6 +10,17 @@
     return data[0];
   }
   return data;
+}
+
+// Función para obtener las posibles lesiones
+export async function getPosiblesLesiones() {
+  try {
+    const response = await axios.get(`${API_URL}/api/lesiones_jugador/posibles_lesiones_jugador`);
+    return response.data;
+  } catch (error) {
+    console.error("Error al obtener posibles lesiones:", error);
+    throw error;
+  }
 }
 
 // Función para crear una nueva lesión

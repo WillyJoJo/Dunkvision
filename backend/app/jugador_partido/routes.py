@@ -13,11 +13,18 @@ jugador_partido_bp = Blueprint("jugador_partido_bp", __name__, url_prefix="/api/
 def route_jugador_partido():
     enfrentamiento_id = request.args.get('enfrentamiento_id', type=int)
     jugador_id = request.args.get('jugador_id', type=int)
+    temporada_id = request.args.get('temporada_id', type=int)
     order_by = request.args.get('order_by')
     order_dir = request.args.get('order_dir', "desc")
 
-    if enfrentamiento_id or jugador_id or order_by:
-        respuesta, status = filtrar_jugador_partido_logica(enfrentamiento_id, jugador_id, order_by, order_dir)
+    if enfrentamiento_id or jugador_id or temporada_id or order_by:
+        respuesta, status = filtrar_jugador_partido_logica(
+            enfrentamiento_id=enfrentamiento_id,
+            jugador_id=jugador_id,
+            temporada_id=temporada_id,
+            order_by=order_by,
+            order_dir=order_dir
+        )
     else:
         respuesta, status = listar_jugador_partido()
 

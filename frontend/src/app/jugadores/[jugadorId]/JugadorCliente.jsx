@@ -58,11 +58,19 @@ export default function JugadorCliente({ jugadorId }) {
 
   useEffect(() => {
     const fetchEstadisticas = async () => {
-      const data = await getEstadisticasAvanzadasJugadorByJugadorIdTemporadaId(
-        jugadorId,
-        temporadaId
-      );
-      setEstadisticas(data);
+      try {
+        const data = await getEstadisticasAvanzadasJugadorByJugadorIdTemporadaId(
+          jugadorId,
+          temporadaId
+        );
+        setEstadisticas(data);
+      } catch (error) {
+        if (error.response?.status === 404) {
+          setEstadisticas(null);
+        } else {
+          console.error("Error al cargar estadísticas avanzadas:", error);
+        }
+      }
     };
 
     if (jugadorId) fetchEstadisticas();
@@ -71,7 +79,7 @@ export default function JugadorCliente({ jugadorId }) {
   useEffect(() => {
     const fetchPartidos = async () => {
       try {
-        const registros = await getJugadorPartidoByJugadorId(jugadorId);
+        const registros = await getJugadorPartidoByJugadorId(jugadorId, temporadaId);
 
         const partidosEnriquecidos = await Promise.all(
           registros.map(async (partido) => {
@@ -98,8 +106,8 @@ export default function JugadorCliente({ jugadorId }) {
       }
     };
 
-    if (jugadorId) fetchPartidos();
-  }, [jugadorId]);
+    if (jugadorId && temporadaId) fetchPartidos();
+  }, [jugadorId, temporadaId]);
 
   if (!jugador || !equipo) {
     return (
@@ -111,10 +119,8 @@ export default function JugadorCliente({ jugadorId }) {
 
   return (
     <main style={{ padding: "2rem", color: "#fff" }}>
-      {/* CONTENEDOR FLEXIBLE */}
       <div style={{ display: "flex", gap: "2rem", alignItems: "stretch", flexWrap: "wrap" }}>
-
-        {/* CUADRO DEGRADADO CON NOMBRE Y FOTO */}
+        {/* DATOS DEL JUGADOR */}
         <div
           style={{
             background: "linear-gradient(135deg, #000 0%, #f00 100%)",
@@ -129,25 +135,10 @@ export default function JugadorCliente({ jugadorId }) {
             justifyContent: "center",
           }}
         >
-          <h1
-            style={{
-              margin: 0,
-              fontSize: "2.5rem",
-              fontWeight: "bold",
-              lineHeight: "1.2",
-              textAlign: "center",
-            }}
-          >
+          <h1 style={{ margin: 0, fontSize: "2.5rem", fontWeight: "bold", lineHeight: "1.2", textAlign: "center" }}>
             {jugador.nombre}
           </h1>
-
-          <div
-            style={{
-              marginTop: "1.5rem",
-              width: "100%",
-              maxWidth: "300px",
-            }}
-          >
+          <div style={{ marginTop: "1.5rem", width: "100%", maxWidth: "300px" }}>
             <img
               src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${jugador.id}.png`}
               alt={jugador.nombre}
@@ -166,17 +157,16 @@ export default function JugadorCliente({ jugadorId }) {
           </div>
         </div>
 
-        {/* CUADRO CON INFORMACIÓN BÁSICA */}
+        {/* INFORMACIÓN */}
         <div
           style={{
             backgroundColor: "#1a1a1a",
             padding: "1.5rem 2rem",
             borderRadius: "10px",
-            maxWidth: "400px", // igual que el otro para que queden equilibrados
+            maxWidth: "400px",
             flex: "1",
           }}
         >
-          {/* Posición */}
           <div style={{ marginBottom: "1.5rem" }}>
             <strong style={{ display: "block", marginBottom: "0.5rem" }}>Posición:</strong>
             <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
@@ -196,12 +186,10 @@ export default function JugadorCliente({ jugadorId }) {
             </div>
           </div>
 
-          {/* Equipo */}
           <p style={{ marginBottom: "1.5rem" }}>
             <strong>Equipo:</strong> {equipo.nombre}
           </p>
 
-          {/* Temporada */}
           <div style={{ marginBottom: "1.5rem" }}>
             <label htmlFor="temporada-select"><strong>Temporada:</strong></label>
             <select
@@ -225,7 +213,6 @@ export default function JugadorCliente({ jugadorId }) {
             </select>
           </div>
 
-          {/* Botón añadir lesión */}
           {isAdmin && (
             <div style={{ marginTop: "1rem" }}>
               <BotonLesionConEstado jugadorId={jugadorId} />
@@ -234,10 +221,45 @@ export default function JugadorCliente({ jugadorId }) {
         </div>
       </div>
 
-      {/* TABLAS DE ESTADÍSTICAS */}
+      {/* ESTADÍSTICAS Y PARTIDOS */}
       <div style={{ marginTop: "3rem" }}>
-        <DataTableJugador data={estadisticas ? [estadisticas] : []} />
-        <DataTablePartido data={partidos} />
+        {estadisticas ? (
+          <DataTableJugador data={[estadisticas]} />
+        ) : (
+          <div
+            style={{
+              padding: "2rem",
+              backgroundColor: "#1a1a1a",
+              color: "#fff",
+              borderRadius: "10px",
+              textAlign: "center",
+              marginBottom: "2rem",
+            }}
+          >
+            <p style={{ fontSize: "1.1rem", margin: 0 }}>
+              No se encontraron estadísticas avanzadas para el jugador y temporada seleccionados.
+            </p>
+          </div>
+        )}
+
+        {partidos.length > 0 ? (
+          <DataTablePartido data={partidos} />
+        ) : (
+          <div
+            style={{
+              padding: "2rem",
+              backgroundColor: "#1a1a1a",
+              color: "#fff",
+              borderRadius: "10px",
+              textAlign: "center",
+              marginTop: "1rem",
+            }}
+          >
+            <p style={{ fontSize: "1.1rem", margin: 0 }}>
+              No se encontraron partidos para esta temporada.
+            </p>
+          </div>
+        )}
       </div>
     </main>
   );

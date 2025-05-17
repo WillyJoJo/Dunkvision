@@ -1,9 +1,22 @@
 "use client";
 
-export const columns = [
+export const getColumns = (orden, onSortChange) => [
   {
     accessorKey: "nombre",
-    header: "Equipo",
+    header: () => (
+      <div
+        onClick={onSortChange}
+        style={{
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          userSelect: "none",
+        }}
+      >
+        Equipo&nbsp;
+        <span>{orden === "asc" ? "↑" : "↓"}</span>
+      </div>
+    ),
     cell: ({ row }) => {
       const id = row.original.id;
       const nombre = row.original.nombre;
@@ -19,13 +32,11 @@ export const columns = [
                 objectFit: "contain",
               }}
               onError={(e) => {
-                e.target.src = "/placeholder-logo.svg"; // opcional
+                e.target.src = "/placeholder-logo.svg";
               }}
             />
           </div>
-          <div style={{ paddingLeft: "0.75rem" }}>
-            {nombre}
-          </div>
+          <div style={{ paddingLeft: "0.75rem" }}>{nombre}</div>
         </div>
       );
     },
