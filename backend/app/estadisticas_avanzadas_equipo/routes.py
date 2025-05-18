@@ -1,25 +1,23 @@
 from flask import Blueprint, request, jsonify
-from app.estadisticas_avanzadas_jugador.crud import (
-    listar_estadisticas_avanzadas,
-    estadisticas_avanzadas_jugador_existente
+from app.estadisticas_avanzadas_equipo.crud import (
+    listar_estadisticas_avanzadas_equipo,
+    estadisticas_avanzadas_equipo_existente
 )
 
-estadisticas_jugador_bp = Blueprint('estadisticas_jugador_bp', __name__, url_prefix='/api/estadisticas_avanzadas')
+estadisticas_equipo_bp = Blueprint('estadisticas_equipo_bp', __name__, url_prefix='/api/estadisticas_avanzadas_equipo')
 
-## GET : Listar Estadisticas Avanzadas de todos los jugadores
-@estadisticas_jugador_bp.route('', methods=['GET'])
-def route_estadisticas_avanzadas():
-    respuesta, status = listar_estadisticas_avanzadas()
+## GET: Listar estadísticas avanzadas de todos los equipos
+@estadisticas_equipo_bp.route('', methods=['GET'])
+def route_estadisticas_avanzadas_equipo():
+    respuesta, status = listar_estadisticas_avanzadas_equipo()
     return jsonify(respuesta), status
 
-## GET : Estadisticas Avanzadas by jugador_id y temporada_id
-@estadisticas_jugador_bp.route('/<int:jugador_id>/<int:temporada_id>', methods=['GET'])
-def route_estadisticas_avanzadas_jugadorId_temporadaId(jugador_id, temporada_id):
-    estadisticas = estadisticas_avanzadas_jugador_existente(jugador_id, temporada_id)
+## GET: Estadísticas avanzadas por equipo_id y temporada_id
+@estadisticas_equipo_bp.route('/<int:equipo_id>', methods=['GET'])
+def route_estadisticas_equipoId(equipo_id):
+    estadisticas = estadisticas_avanzadas_equipo_existente(equipo_id)
     if estadisticas:
         return jsonify({
-            "partidos_jugados": estadisticas.partidos_jugados,
-            "minutos_jugados": estadisticas.minutos_jugados,
             "puntos": estadisticas.puntos,
             "asistencias": estadisticas.asistencias,
             "rebotes_ofensivos": estadisticas.rebotes_ofensivos,
@@ -40,12 +38,12 @@ def route_estadisticas_avanzadas_jugadorId_temporadaId(jugador_id, temporada_id)
             "porcentaje_tiros_libres": estadisticas.porcentaje_tiros_libres,
             "rating_ofensivo": estadisticas.rating_ofensivo,
             "rating_defensivo": estadisticas.rating_defensivo,
-            "player_efficiency_rating": estadisticas.player_efficiency_rating,
-            "usage_porcentage": estadisticas.usage_porcentage,
-            "win_share_ofensivo": estadisticas.win_share_ofensivo,
-            "win_share_defensivo": estadisticas.win_share_defensivo,
-            "win_share_total": estadisticas.win_share_total,
-            "box_plus_minus": estadisticas.box_plus_minus
+            "strength_of_schedule": estadisticas.strength_of_schedule,
+            "simple_rating_system": estadisticas.simple_rating_system,
+            "ritmo": estadisticas.ritmo,
+            "margen_de_victoria": estadisticas.margen_de_victoria,
+            "victorias": estadisticas.victorias,
+            "derrotas": estadisticas.derrotas
         }), 200
     else:
-        return jsonify({"msg": "No se encontraron estadísticas avanzadas para el jugador y temporada especificados"}), 404
+        return jsonify({"msg": "No se encontraron estadísticas avanzadas para el equipo y temporada especificados"}), 404

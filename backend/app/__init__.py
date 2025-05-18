@@ -18,7 +18,8 @@ init_serializer(app)
 # Registro de Blueprints
 from app.jugador.routes import jugador_bp
 from app.equipo.routes import equipo_bp
-from app.estadisticas_avanzadas_jugador.routes import estadisticas_bp
+from app.estadisticas_avanzadas_jugador.routes import estadisticas_jugador_bp
+from app.estadisticas_avanzadas_equipo.routes import estadisticas_equipo_bp
 from app.auth.routes import auth_bp
 from app.lesiones_jugador.routes import lesiones_bp
 from app.enfrentamiento.routes import enfrentamientos_bp
@@ -26,7 +27,8 @@ from app.jugador_partido.routes import jugador_partido_bp
 
 app.register_blueprint(jugador_bp)
 app.register_blueprint(equipo_bp)
-app.register_blueprint(estadisticas_bp)
+app.register_blueprint(estadisticas_jugador_bp)
+app.register_blueprint(estadisticas_equipo_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(lesiones_bp)
 app.register_blueprint(enfrentamientos_bp)
