@@ -3,7 +3,6 @@
 import {
   useReactTable,
   getCoreRowModel,
-  getPaginationRowModel,
   flexRender,
 } from "@tanstack/react-table";
 
@@ -64,7 +63,7 @@ export function DataTableJugador({ data }) {
           </Tooltip>
         </TooltipProvider>
       ),
-      meta: { numeric: col.numeric }, // guardamos info adicional
+      meta: { numeric: col.numeric },
     }));
   }, []);
 
@@ -72,8 +71,6 @@ export function DataTableJugador({ data }) {
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    initialState: { pagination: { pageSize: 5 } },
   });
 
   return (
@@ -118,18 +115,6 @@ export function DataTableJugador({ data }) {
           )}
         </TableBody>
       </Table>
-
-      <div style={{ marginTop: "1rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <button onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
-          Anterior
-        </button>
-        <span>
-          Página <strong>{table.getState().pagination.pageIndex + 1}</strong> de {table.getPageCount()}
-        </span>
-        <button onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-          Siguiente
-        </button>
-      </div>
     </section>
   );
 }

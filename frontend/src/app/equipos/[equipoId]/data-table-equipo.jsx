@@ -3,7 +3,6 @@
 import {
     useReactTable,
     getCoreRowModel,
-    getPaginationRowModel,
     flexRender,
 } from "@tanstack/react-table";
 
@@ -71,8 +70,6 @@ export function DataTableEquipo({ data }) {
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        initialState: { pagination: { pageSize: 5 } },
     });
 
     return (
@@ -117,26 +114,6 @@ export function DataTableEquipo({ data }) {
                     )}
                 </TableBody>
             </Table>
-
-            <div style={{ marginTop: "1rem", display: "flex", justifyContent: "space-between", alignItems: "center", color: "#fff" }}>
-                <button
-                    onClick={() => table.previousPage()}
-                    disabled={!table.getCanPreviousPage()}
-                    style={{ color: "#fff", background: "transparent", border: "1px solid #fff", padding: "0.3rem 0.7rem", borderRadius: "6px" }}
-                >
-                    Anterior
-                </button>
-                <span style={{ color: "#fff" }}>
-                    Página <strong>{table.getState().pagination.pageIndex + 1}</strong> de {table.getPageCount()}
-                </span>
-                <button
-                    onClick={() => table.nextPage()}
-                    disabled={!table.getCanNextPage()}
-                    style={{ color: "#fff", background: "transparent", border: "1px solid #fff", padding: "0.3rem 0.7rem", borderRadius: "6px" }}
-                >
-                    Siguiente
-                </button>
-            </div>
         </section>
     );
 }

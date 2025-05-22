@@ -2,11 +2,13 @@
 
 import React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation"; // 🆕 Importar router
+import { useRouter } from "next/navigation";
+
 import {
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
+  getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 
@@ -34,7 +36,7 @@ import {
 import { columns as baseColumns } from "./columns";
 
 export function DataTable({ lesiones = [], isAdmin = false, onDelete }) {
-  const router = useRouter(); // 🆕 Instanciar router
+  const router = useRouter();
 
   const columns = React.useMemo(() => {
     if (isAdmin) {
@@ -103,9 +105,13 @@ export function DataTable({ lesiones = [], isAdmin = false, onDelete }) {
   const table = useReactTable({
     data: lesiones,
     columns,
-    initialState: { pagination: { pageSize: 20 } },
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(), // ✅ ordenación activada
+    initialState: {
+      pagination: { pageSize: 20 },
+      sorting: [],
+    },
   });
 
   return (
@@ -125,9 +131,9 @@ export function DataTable({ lesiones = [], isAdmin = false, onDelete }) {
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                 </TableHead>
               ))}
             </TableRow>
@@ -142,10 +148,7 @@ export function DataTable({ lesiones = [], isAdmin = false, onDelete }) {
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
-                    {flexRender(
-                      cell.column.columnDef.cell,
-                      cell.getContext()
-                    )}
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
               </TableRow>

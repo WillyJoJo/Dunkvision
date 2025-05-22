@@ -11,9 +11,9 @@ export const getEstadisticasAvanzadasEquipo = async () => {
   }
 };
 
-export const getEstadisticasAvanzadasEquipoByEquipoId = async (equipoId) => {
+export async function getEstadisticasAvanzadasEquipoByEquipoIdTemporadaId(equipoId, temporadaId) {
   try {
-    const response = await axios.get(`${API_URL}/api/estadisticas_avanzadas_equipo/${equipoId}`);
+    const response = await axios.get(`${API_URL}/api/estadisticas_avanzadas_equipo/${equipoId}/${temporadaId}`);
     return response.data;
   } catch (error) {
     if (error.response && error.response.status === 404) {
@@ -21,4 +21,4 @@ export const getEstadisticasAvanzadasEquipoByEquipoId = async (equipoId) => {
     }
     throw new Error('Error al obtener las estadísticas del equipo para la temporada');
   }
-};
+}

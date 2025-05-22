@@ -11,6 +11,7 @@ import { DataTableJugador } from "./data-table";
 import { DataTablePartido } from "./data-table-partido";
 import { getJugadorPartidoByJugadorId } from "@/services/jugadorPartidoService";
 import { getEnfrentamientoByEnfrentamientoId } from "@/services/enfrentamientosService";
+import Link from "next/link";
 
 const transformarPosiciones = (abreviacion) => {
   const mapping = {
@@ -167,6 +168,7 @@ export default function JugadorCliente({ jugadorId }) {
             flex: "1",
           }}
         >
+          {/* POSICIÓN */}
           <div style={{ marginBottom: "1.5rem" }}>
             <strong style={{ display: "block", marginBottom: "0.5rem" }}>Posición:</strong>
             <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
@@ -186,23 +188,73 @@ export default function JugadorCliente({ jugadorId }) {
             </div>
           </div>
 
-          <p style={{ marginBottom: "1.5rem" }}>
-            <strong>Equipo:</strong> {equipo.nombre}
-          </p>
-
+          {/* EQUIPO CON LOGO Y SELECT DE TEMPORADA */}
           <div style={{ marginBottom: "1.5rem" }}>
-            <label htmlFor="temporada-select"><strong>Temporada:</strong></label>
+            <label htmlFor="equipo-link" style={{ display: "block", marginBottom: "0.5rem" }}>
+              <strong>Equipo:</strong>
+            </label>
+            <div id="equipo-link" style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1rem" }}>
+              <Link
+                href={`/equipos/${equipo.id}`}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  textDecoration: "none",
+                  color: "white",
+                  gap: "0.75rem", // ✅ Aquí sí funciona
+                }}
+              >
+                <img
+                  src={`https://cdn.nba.com/logos/nba/${equipo.id}/global/L/logo.svg`}
+                  alt={`Logo de ${equipo.nombre}`}
+                  style={{
+                    width: "45px",
+                    height: "45px",
+                    objectFit: "contain",
+                    backgroundColor: "#fff",
+                    borderRadius: "6px",
+                    border: "1px solid #444",
+                  }}
+                  onError={(e) => {
+                    e.target.src = "/placeholder-team.png";
+                  }}
+                />
+                <span
+                  style={{
+                    fontSize: "1rem",
+                    fontWeight: "600",
+                    color: "#fff",
+                    transition: "color 0.3s",
+                  }}
+                >
+                  {equipo.nombre}
+                </span>
+              </Link>
+            </div>
+
+            <label htmlFor="temporada-select" style={{ display: "block", marginBottom: "0.5rem" }}>
+              <strong>Temporada:</strong>
+            </label>
             <select
               id="temporada-select"
               value={temporadaId}
               onChange={(e) => setTemporadaId(parseInt(e.target.value))}
               style={{
-                marginLeft: "1rem",
+                width: "150px",
                 backgroundColor: "#222",
                 color: "#fff",
-                padding: "0.5rem",
+                padding: "0.4rem 0.6rem",
                 borderRadius: "6px",
                 border: "1px solid #555",
+                fontSize: "0.95rem",
+                cursor: "pointer",
+                transition: "border 0.2s, box-shadow 0.2s",
+              }}
+              onMouseOver={(e) => {
+                e.target.style.border = "1px solid #888";
+              }}
+              onMouseOut={(e) => {
+                e.target.style.border = "1px solid #555";
               }}
             >
               {temporadas.map((temp) => (
@@ -212,7 +264,6 @@ export default function JugadorCliente({ jugadorId }) {
               ))}
             </select>
           </div>
-
           {isAdmin && (
             <div style={{ marginTop: "1rem" }}>
               <BotonLesionConEstado jugadorId={jugadorId} />

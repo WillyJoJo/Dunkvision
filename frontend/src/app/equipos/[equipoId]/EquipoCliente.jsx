@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getJugadoresByEquipoId } from "@/services/jugadoresService";
 import { getEquiposById } from "@/services/equiposService";
-import { getEstadisticasAvanzadasEquipoByEquipoId } from "@/services/estadisticasAvanzadasEquipoService";
+import { getEstadisticasAvanzadasEquipoByEquipoIdTemporadaId } from "@/services/estadisticasAvanzadasEquipoService";
+import { getTemporadas } from "@/services/temporadasService";
 import { DataTable } from "./data-table";
 import { DataTableEquipo } from "./data-table-equipo";
 import { columns } from "./columns";
@@ -13,13 +14,16 @@ export default function EquipoCliente({ equipoId }) {
   const [jugadores, setJugadores] = useState([]);
   const [equipo, setEquipo] = useState(null);
   const [estadisticas, setEstadisticas] = useState([]);
+  const [temporadas, setTemporadas] = useState([]);
+  const [temporadaId, setTemporadaId] = useState(24);
   const router = useRouter();
 
   useEffect(() => {
-    async function fetchData() {
-      const [equipoData, jugadoresData] = await Promise.all([
+    async function fetchInicial() {
+      const [equipoData, jugadoresData, temporadasData] = await Promise.all([
         getEquiposById(equipoId),
         getJugadoresByEquipoId(equipoId),
+        getTemporadas(),
       ]);
 
       const jugadoresConPos = jugadoresData.map((jugador) => ({
@@ -29,15 +33,25 @@ export default function EquipoCliente({ equipoId }) {
 
       setEquipo(equipoData);
       setJugadores(jugadoresConPos);
-
-      const estadisticasData = await getEstadisticasAvanzadasEquipoByEquipoId(equipoId);
-      if (estadisticasData) {
-        setEstadisticas([estadisticasData]);
-      }
+      setTemporadas(temporadasData);
     }
 
-    fetchData();
+    fetchInicial();
   }, [equipoId]);
+
+  useEffect(() => {
+    async function fetchEstadisticas() {
+      const estadisticasData = await getEstadisticasAvanzadasEquipoByEquipoIdTemporadaId(
+        equipoId,
+        temporadaId
+      );
+      setEstadisticas(estadisticasData ? [estadisticasData] : []);
+    }
+
+    if (temporadaId && equipoId) {
+      fetchEstadisticas();
+    }
+  }, [equipoId, temporadaId]);
 
   const convertirPosicion = (pos) => {
     if (!pos) return "Desconocida";
@@ -61,7 +75,7 @@ export default function EquipoCliente({ equipoId }) {
   };
 
   return (
-    <div>
+    <div style={{ padding: "2rem", color: "#fff" }}>
       {/* Encabezado del equipo */}
       <div
         style={{
@@ -71,33 +85,29 @@ export default function EquipoCliente({ equipoId }) {
           borderRadius: "12px",
           marginBottom: "2rem",
           maxWidth: "800px",
-          marginLeft: "0",
-          marginRight: "auto",
           display: "flex",
           alignItems: "center",
           gap: "2rem",
         }}
       >
         {equipo && (
-          <div style={{ flexShrink: 0 }}>
-            <img
-              src={`https://cdn.nba.com/logos/nba/${equipo.id}/global/L/logo.svg`}
-              alt="Logo Equipo"
-              style={{
-                width: "90px",
-                height: "90px",
-                objectFit: "contain",
-                backgroundColor: "#fff",
-                borderRadius: "12px",
-                padding: "0.5rem",
-              }}
-              onError={(e) => {
-                e.target.src = "/placeholder-logo.svg";
-              }}
-            />
-          </div>
+          <img
+            src={`https://cdn.nba.com/logos/nba/${equipo.id}/global/L/logo.svg`}
+            alt="Logo Equipo"
+            style={{
+              width: "90px",
+              height: "90px",
+              objectFit: "contain",
+              backgroundColor: "#fff",
+              borderRadius: "12px",
+              padding: "0.5rem",
+            }}
+            onError={(e) => {
+              e.target.src = "/placeholder-logo.svg";
+            }}
+          />
         )}
-        <div style={{ textAlign: "left" }}>
+        <div>
           <h2 style={{ margin: 0, fontSize: "2.2rem" }}>
             {equipo ? equipo.nombre : "Cargando equipo..."}
           </h2>
@@ -109,14 +119,70 @@ export default function EquipoCliente({ equipoId }) {
         </div>
       </div>
 
-      {/* TABLA DE ESTADÍSTICAS DE EQUIPO - ARRIBA */}
-      {estadisticas.length > 0 && (
+      {/* Selector de temporada mejorado */}
+      <div style={{ marginBottom: "2rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <label
+          htmlFor="temporada-select"
+          style={{
+            fontSize: "1rem",
+            color: "#888",
+            fontWeight: "bold",
+            textTransform: "uppercase",
+          }}
+        >
+          Temporada:
+        </label>
+        <select
+          id="temporada-select"
+          value={temporadaId}
+          onChange={(e) => setTemporadaId(parseInt(e.target.value))}
+          style={{
+            backgroundColor: "#111",
+            color: "#fff",
+            padding: "0.5rem 1rem",
+            borderRadius: "8px",
+            border: "1px solid #333",
+            fontSize: "1rem",
+            cursor: "pointer",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.3)",
+            outline: "none",
+            appearance: "none",
+            backgroundImage: "url('/icons/dropdown-icon.svg')",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "right 10px top 50%",
+            backgroundSize: "12px",
+          }}
+        >
+          {temporadas.map((temp) => (
+            <option key={temp.id} value={temp.id}>
+              {temp.nombre}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Tabla de estadísticas de equipo */}
+      {estadisticas.length > 0 ? (
         <div style={{ marginBottom: "3rem" }}>
           <DataTableEquipo data={estadisticas} />
         </div>
+      ) : (
+        <div
+          style={{
+            padding: "2rem",
+            backgroundColor: "#1a1a1a",
+            borderRadius: "10px",
+            textAlign: "center",
+            marginBottom: "3rem",
+          }}
+        >
+          <p style={{ fontSize: "1.1rem", margin: 0 }}>
+            No se encontraron estadísticas avanzadas para este equipo en la temporada seleccionada.
+          </p>
+        </div>
       )}
 
-      {/* TABLA DE JUGADORES */}
+      {/* Tabla de jugadores */}
       <DataTable columns={columns} data={jugadores} onRowClick={handleRowClick} />
     </div>
   );

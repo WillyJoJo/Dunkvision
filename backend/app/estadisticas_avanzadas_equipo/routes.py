@@ -13,9 +13,9 @@ def route_estadisticas_avanzadas_equipo():
     return jsonify(respuesta), status
 
 ## GET: Estadísticas avanzadas por equipo_id y temporada_id
-@estadisticas_equipo_bp.route('/<int:equipo_id>', methods=['GET'])
-def route_estadisticas_equipoId(equipo_id):
-    estadisticas = estadisticas_avanzadas_equipo_existente(equipo_id)
+@estadisticas_equipo_bp.route('/<int:equipo_id>/<int:temporada_id>', methods=['GET'])
+def route_estadisticas_equipoId(equipo_id, temporada_id):
+    estadisticas = estadisticas_avanzadas_equipo_existente(equipo_id, temporada_id)
     if estadisticas:
         return jsonify({
             "puntos": estadisticas.puntos,

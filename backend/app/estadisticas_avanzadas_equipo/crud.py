@@ -38,5 +38,8 @@ def listar_estadisticas_avanzadas_equipo():
         })
     return lista, 200
 
-def estadisticas_avanzadas_equipo_existente(equipo_id):
-    return Estadisticas_Avanzadas_Equipo.query.filter_by(equipo_id=equipo_id).first()
+def estadisticas_avanzadas_equipo_existente(equipo_id, temporada_id):
+    return Estadisticas_Avanzadas_Equipo.query.filter_by(
+        equipo_id=equipo_id,
+        temporada_id=temporada_id
+    ).first()

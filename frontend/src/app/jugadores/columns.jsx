@@ -5,7 +5,20 @@ import Link from "next/link";
 export const columns = [
   {
     accessorKey: "nombre",
-    header: "Jugador",
+    header: ({ column }) => (
+      <div
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        style={{
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          userSelect: "none",
+        }}
+      >
+        Jugador&nbsp;
+        <span>{column.getIsSorted() === "asc" ? "↑" : column.getIsSorted() === "desc" ? "↓" : ""}</span>
+      </div>
+    ),
     cell: ({ row }) => {
       const jugador = row.original;
       return (
