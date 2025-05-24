@@ -1,18 +1,19 @@
 from flask import Blueprint, request, jsonify
 from app.estadisticas_avanzadas_equipo.crud import (
     listar_estadisticas_avanzadas_equipo,
-    estadisticas_avanzadas_equipo_existente
+    estadisticas_avanzadas_equipo_existente,
+    obtener_media_estadisticas_avanzadas_equipo_por_temporada  # <-- nueva función importada
 )
 
 estadisticas_equipo_bp = Blueprint('estadisticas_equipo_bp', __name__, url_prefix='/api/estadisticas_avanzadas_equipo')
 
-## GET: Listar estadísticas avanzadas de todos los equipos
+# GET: Listar estadísticas avanzadas de todos los equipos
 @estadisticas_equipo_bp.route('', methods=['GET'])
 def route_estadisticas_avanzadas_equipo():
     respuesta, status = listar_estadisticas_avanzadas_equipo()
     return jsonify(respuesta), status
 
-## GET: Estadísticas avanzadas por equipo_id y temporada_id
+# GET: Estadísticas avanzadas por equipo_id y temporada_id
 @estadisticas_equipo_bp.route('/<int:equipo_id>/<int:temporada_id>', methods=['GET'])
 def route_estadisticas_equipoId(equipo_id, temporada_id):
     estadisticas = estadisticas_avanzadas_equipo_existente(equipo_id, temporada_id)
@@ -47,3 +48,9 @@ def route_estadisticas_equipoId(equipo_id, temporada_id):
         }), 200
     else:
         return jsonify({"msg": "No se encontraron estadísticas avanzadas para el equipo y temporada especificados"}), 404
+
+# GET: Media de estadísticas avanzadas por temporada
+@estadisticas_equipo_bp.route('/media/<int:temporada_id>', methods=['GET'])
+def route_media_estadisticas_avanzadas_equipo(temporada_id):
+    media, status = obtener_media_estadisticas_avanzadas_equipo_por_temporada(temporada_id)
+    return jsonify(media), status

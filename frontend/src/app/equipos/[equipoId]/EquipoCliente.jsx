@@ -4,16 +4,21 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getJugadoresByEquipoId } from "@/services/jugadoresService";
 import { getEquiposById } from "@/services/equiposService";
-import { getEstadisticasAvanzadasEquipoByEquipoIdTemporadaId } from "@/services/estadisticasAvanzadasEquipoService";
+import {
+  getEstadisticasAvanzadasEquipoByEquipoIdTemporadaId,
+  getMediaEstadisticasAvanzadasEquipoByTemporadaId,
+} from "@/services/estadisticasAvanzadasEquipoService";
 import { getTemporadas } from "@/services/temporadasService";
 import { DataTable } from "./data-table";
 import { DataTableEquipo } from "./data-table-equipo";
 import { columns } from "./columns";
+import GraficoComparativoEquipoMedia from "@/components/ui/GraficoComparativoEquipoMedia";
 
 export default function EquipoCliente({ equipoId }) {
   const [jugadores, setJugadores] = useState([]);
   const [equipo, setEquipo] = useState(null);
   const [estadisticas, setEstadisticas] = useState([]);
+  const [media, setMedia] = useState(null);
   const [temporadas, setTemporadas] = useState([]);
   const [temporadaId, setTemporadaId] = useState(24);
   const router = useRouter();
@@ -41,11 +46,12 @@ export default function EquipoCliente({ equipoId }) {
 
   useEffect(() => {
     async function fetchEstadisticas() {
-      const estadisticasData = await getEstadisticasAvanzadasEquipoByEquipoIdTemporadaId(
-        equipoId,
-        temporadaId
-      );
-      setEstadisticas(estadisticasData ? [estadisticasData] : []);
+      const [equipoStats, mediaStats] = await Promise.all([
+        getEstadisticasAvanzadasEquipoByEquipoIdTemporadaId(equipoId, temporadaId),
+        getMediaEstadisticasAvanzadasEquipoByTemporadaId(temporadaId),
+      ]);
+      setEstadisticas(equipoStats ? [equipoStats] : []);
+      setMedia(mediaStats);
     }
 
     if (temporadaId && equipoId) {
@@ -119,7 +125,7 @@ export default function EquipoCliente({ equipoId }) {
         </div>
       </div>
 
-      {/* Selector de temporada mejorado */}
+      {/* Selector de temporada */}
       <div style={{ marginBottom: "2rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
         <label
           htmlFor="temporada-select"
@@ -161,10 +167,11 @@ export default function EquipoCliente({ equipoId }) {
         </select>
       </div>
 
-      {/* Tabla de estadísticas de equipo */}
+      {/* Tabla de estadísticas */}
       {estadisticas.length > 0 ? (
         <div style={{ marginBottom: "3rem" }}>
           <DataTableEquipo data={estadisticas} />
+          <GraficoComparativoEquipoMedia estadisticas={estadisticas[0]} media={media} />
         </div>
       ) : (
         <div

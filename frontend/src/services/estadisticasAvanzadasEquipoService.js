@@ -22,3 +22,12 @@ export async function getEstadisticasAvanzadasEquipoByEquipoIdTemporadaId(equipo
     throw new Error('Error al obtener las estadísticas del equipo para la temporada');
   }
 }
+
+export async function getMediaEstadisticasAvanzadasEquipoByTemporadaId(temporadaId) {
+  try {
+    const response = await axios.get(`${API_URL}/api/estadisticas_avanzadas_equipo/media/${temporadaId}`);
+    return response.data;
+  } catch (error) {
+    throw new Error('Error al obtener la media de estadísticas avanzadas de los equipos');
+  }
+}

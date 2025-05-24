@@ -1,5 +1,6 @@
 from app.models import Estadisticas_Avanzadas_Equipo
 from app import db
+from sqlalchemy import func
 
 def listar_estadisticas_avanzadas_equipo():
     registros = Estadisticas_Avanzadas_Equipo.query.all()
@@ -43,3 +44,44 @@ def estadisticas_avanzadas_equipo_existente(equipo_id, temporada_id):
         equipo_id=equipo_id,
         temporada_id=temporada_id
     ).first()
+
+def obtener_media_estadisticas_avanzadas_equipo_por_temporada(temporada_id):
+    promedio = db.session.query(
+        func.avg(Estadisticas_Avanzadas_Equipo.puntos).label("puntos"),
+        func.avg(Estadisticas_Avanzadas_Equipo.asistencias).label("asistencias"),
+        func.avg(Estadisticas_Avanzadas_Equipo.rebotes_ofensivos).label("rebotes_ofensivos"),
+        func.avg(Estadisticas_Avanzadas_Equipo.rebotes_defensivos).label("rebotes_defensivos"),
+        func.avg(Estadisticas_Avanzadas_Equipo.rebotes_totales).label("rebotes_totales"),
+        func.avg(Estadisticas_Avanzadas_Equipo.robos).label("robos"),
+        func.avg(Estadisticas_Avanzadas_Equipo.tapones).label("tapones"),
+        func.avg(Estadisticas_Avanzadas_Equipo.perdidas_balon).label("perdidas_balon"),
+        func.avg(Estadisticas_Avanzadas_Equipo.faltas_cometidas).label("faltas_cometidas"),
+        func.avg(Estadisticas_Avanzadas_Equipo.tiros_de_campo_intentados).label("tiros_de_campo_intentados"),
+        func.avg(Estadisticas_Avanzadas_Equipo.porcentaje_tiros_de_campo).label("porcentaje_tiros_de_campo"),
+        func.avg(Estadisticas_Avanzadas_Equipo.triples_intentados).label("triples_intentados"),
+        func.avg(Estadisticas_Avanzadas_Equipo.porcentaje_triples).label("porcentaje_triples"),
+        func.avg(Estadisticas_Avanzadas_Equipo.tiros_de_dos_intentados).label("tiros_de_dos_intentados"),
+        func.avg(Estadisticas_Avanzadas_Equipo.porcentaje_tiros_de_dos).label("porcentaje_tiros_de_dos"),
+        func.avg(Estadisticas_Avanzadas_Equipo.porcentaje_efectivo_tiros_de_campo).label("porcentaje_efectivo_tiros_de_campo"),
+        func.avg(Estadisticas_Avanzadas_Equipo.tiros_libres_intentados).label("tiros_libres_intentados"),
+        func.avg(Estadisticas_Avanzadas_Equipo.porcentaje_tiros_libres).label("porcentaje_tiros_libres"),
+        func.avg(Estadisticas_Avanzadas_Equipo.rating_ofensivo).label("rating_ofensivo"),
+        func.avg(Estadisticas_Avanzadas_Equipo.rating_defensivo).label("rating_defensivo"),
+        func.avg(Estadisticas_Avanzadas_Equipo.strength_of_schedule).label("strength_of_schedule"),
+        func.avg(Estadisticas_Avanzadas_Equipo.simple_rating_system).label("simple_rating_system"),
+        func.avg(Estadisticas_Avanzadas_Equipo.ritmo).label("ritmo"),
+        func.avg(Estadisticas_Avanzadas_Equipo.margen_de_victoria).label("margen_de_victoria"),
+        func.avg(Estadisticas_Avanzadas_Equipo.victorias).label("victorias"),
+        func.avg(Estadisticas_Avanzadas_Equipo.derrotas).label("derrotas")
+    ).filter(
+        Estadisticas_Avanzadas_Equipo.temporada_id == temporada_id
+    ).first()
+
+    resultado = {col: getattr(promedio, col) for col in promedio._fields}
+
+    # Forzar a 0 las estadísticas centradas en promedio 0
+    resultado["strength_of_schedule"] = 0
+    resultado["simple_rating_system"] = 0
+    resultado["margen_de_victoria"] = 0
+
+    return resultado, 200
