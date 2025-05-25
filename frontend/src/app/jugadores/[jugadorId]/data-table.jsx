@@ -29,16 +29,23 @@ const columnasPorcentaje = [
   "porcentaje_efectivo_tiros_de_campo",
   "porcentaje_triples",
   "porcentaje_tiros_de_dos",
-  "porcentaje_tiros_libres",
-  "usage_porcentage"
+  "porcentaje_tiros_libres"
 ];
+
+const columnasPorcentajeDirecto = ["usage_porcentage"];
 
 const formatearCelda = (cell) => {
   const { column, getValue } = cell;
   const valor = getValue();
 
+  console.log("Columna:", column.id, "Valor:", valor); // TEMPORAL PARA DEBUG
+
   if (columnasPorcentaje.includes(column.id)) {
     return valor !== null && valor !== undefined ? `${(valor * 100).toFixed(1)}%` : "-";
+  }
+
+  if (columnasPorcentajeDirecto.includes(column.id)) {
+    return valor !== null && valor !== undefined ? `${valor.toFixed(2)}%` : "-";
   }
 
   return valor;

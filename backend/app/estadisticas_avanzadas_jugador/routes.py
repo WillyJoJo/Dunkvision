@@ -1,7 +1,8 @@
 from flask import Blueprint, request, jsonify
 from app.estadisticas_avanzadas_jugador.crud import (
     listar_estadisticas_avanzadas,
-    estadisticas_avanzadas_jugador_existente
+    estadisticas_avanzadas_jugador_existente,
+    obtener_media_estadisticas_avanzadas_jugador_por_temporada
 )
 
 estadisticas_jugador_bp = Blueprint('estadisticas_jugador_bp', __name__, url_prefix='/api/estadisticas_avanzadas')
@@ -49,3 +50,9 @@ def route_estadisticas_avanzadas_jugadorId_temporadaId(jugador_id, temporada_id)
         }), 200
     else:
         return jsonify({"msg": "No se encontraron estadísticas avanzadas para el jugador y temporada especificados"}), 404
+    
+# GET: Media de estadísticas avanzadas de jugadores por temporada
+@estadisticas_jugador_bp.route('/media/<int:temporada_id>', methods=['GET'])
+def route_media_estadisticas_avanzadas_jugador(temporada_id):
+    media, status = obtener_media_estadisticas_avanzadas_jugador_por_temporada(temporada_id)
+    return jsonify(media), status

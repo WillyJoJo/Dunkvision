@@ -4,13 +4,17 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { getJugadoresById } from "@/services/jugadoresService";
 import { getEquiposById } from "@/services/equiposService";
-import { getEstadisticasAvanzadasJugadorByJugadorIdTemporadaId } from "@/services/estadisticasAvanzadasJugadorService";
+import {
+  getEstadisticasAvanzadasJugadorByJugadorIdTemporadaId,
+  getMediaEstadisticasAvanzadasJugadorByTemporadaId,
+} from "@/services/estadisticasAvanzadasJugadorService";
 import { getTemporadas } from "@/services/temporadasService";
+import { getJugadorPartidoByJugadorId } from "@/services/jugadorPartidoService";
+import { getEnfrentamientoByEnfrentamientoId } from "@/services/enfrentamientosService";
 import BotonLesionConEstado from "@/components/ui/BotonLesionConEstado";
 import { DataTableJugador } from "./data-table";
 import { DataTablePartido } from "./data-table-partido";
-import { getJugadorPartidoByJugadorId } from "@/services/jugadorPartidoService";
-import { getEnfrentamientoByEnfrentamientoId } from "@/services/enfrentamientosService";
+import GraficoComparativoJugadorMedia from "@/components/ui/GraficoComparativoJugadorMedia";
 import Link from "next/link";
 
 const transformarPosiciones = (abreviacion) => {
@@ -37,6 +41,7 @@ export default function JugadorCliente({ jugadorId }) {
   const [temporadas, setTemporadas] = useState([]);
   const [temporadaId, setTemporadaId] = useState(24);
   const [estadisticas, setEstadisticas] = useState(null);
+  const [media, setMedia] = useState(null);
   const [partidos, setPartidos] = useState([]);
 
   useEffect(() => {
@@ -76,6 +81,19 @@ export default function JugadorCliente({ jugadorId }) {
 
     if (jugadorId) fetchEstadisticas();
   }, [jugadorId, temporadaId]);
+
+  useEffect(() => {
+    const fetchMedia = async () => {
+      try {
+        const mediaData = await getMediaEstadisticasAvanzadasJugadorByTemporadaId(temporadaId);
+        setMedia(mediaData);
+      } catch (err) {
+        console.error("Error cargando media:", err);
+      }
+    };
+
+    if (temporadaId) fetchMedia();
+  }, [temporadaId]);
 
   useEffect(() => {
     const fetchPartidos = async () => {
@@ -168,7 +186,6 @@ export default function JugadorCliente({ jugadorId }) {
             flex: "1",
           }}
         >
-          {/* POSICIÓN */}
           <div style={{ marginBottom: "1.5rem" }}>
             <strong style={{ display: "block", marginBottom: "0.5rem" }}>Posición:</strong>
             <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
@@ -188,22 +205,12 @@ export default function JugadorCliente({ jugadorId }) {
             </div>
           </div>
 
-          {/* EQUIPO CON LOGO Y SELECT DE TEMPORADA */}
           <div style={{ marginBottom: "1.5rem" }}>
             <label htmlFor="equipo-link" style={{ display: "block", marginBottom: "0.5rem" }}>
               <strong>Equipo:</strong>
             </label>
             <div id="equipo-link" style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1rem" }}>
-              <Link
-                href={`/equipos/${equipo.id}`}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  textDecoration: "none",
-                  color: "white",
-                  gap: "0.75rem", // ✅ Aquí sí funciona
-                }}
-              >
+              <Link href={`/equipos/${equipo.id}`} style={{ display: "flex", alignItems: "center", textDecoration: "none", color: "white", gap: "0.75rem" }}>
                 <img
                   src={`https://cdn.nba.com/logos/nba/${equipo.id}/global/L/logo.svg`}
                   alt={`Logo de ${equipo.nombre}`}
@@ -219,14 +226,7 @@ export default function JugadorCliente({ jugadorId }) {
                     e.target.src = "/placeholder-team.png";
                   }}
                 />
-                <span
-                  style={{
-                    fontSize: "1rem",
-                    fontWeight: "600",
-                    color: "#fff",
-                    transition: "color 0.3s",
-                  }}
-                >
+                <span style={{ fontSize: "1rem", fontWeight: "600", color: "#fff", transition: "color 0.3s" }}>
                   {equipo.nombre}
                 </span>
               </Link>
@@ -248,13 +248,6 @@ export default function JugadorCliente({ jugadorId }) {
                 border: "1px solid #555",
                 fontSize: "0.95rem",
                 cursor: "pointer",
-                transition: "border 0.2s, box-shadow 0.2s",
-              }}
-              onMouseOver={(e) => {
-                e.target.style.border = "1px solid #888";
-              }}
-              onMouseOut={(e) => {
-                e.target.style.border = "1px solid #555";
               }}
             >
               {temporadas.map((temp) => (
@@ -264,6 +257,7 @@ export default function JugadorCliente({ jugadorId }) {
               ))}
             </select>
           </div>
+
           {isAdmin && (
             <div style={{ marginTop: "1rem" }}>
               <BotonLesionConEstado jugadorId={jugadorId} />
@@ -275,18 +269,14 @@ export default function JugadorCliente({ jugadorId }) {
       {/* ESTADÍSTICAS Y PARTIDOS */}
       <div style={{ marginTop: "3rem" }}>
         {estadisticas ? (
-          <DataTableJugador data={[estadisticas]} />
+          <>
+            <DataTableJugador data={[estadisticas]} />
+            {media && (
+              <GraficoComparativoJugadorMedia estadisticas={estadisticas} media={media} />
+            )}
+          </>
         ) : (
-          <div
-            style={{
-              padding: "2rem",
-              backgroundColor: "#1a1a1a",
-              color: "#fff",
-              borderRadius: "10px",
-              textAlign: "center",
-              marginBottom: "2rem",
-            }}
-          >
+          <div style={{ padding: "2rem", backgroundColor: "#1a1a1a", color: "#fff", borderRadius: "10px", textAlign: "center", marginBottom: "2rem" }}>
             <p style={{ fontSize: "1.1rem", margin: 0 }}>
               No se encontraron estadísticas avanzadas para el jugador y temporada seleccionados.
             </p>
@@ -296,16 +286,7 @@ export default function JugadorCliente({ jugadorId }) {
         {partidos.length > 0 ? (
           <DataTablePartido data={partidos} />
         ) : (
-          <div
-            style={{
-              padding: "2rem",
-              backgroundColor: "#1a1a1a",
-              color: "#fff",
-              borderRadius: "10px",
-              textAlign: "center",
-              marginTop: "1rem",
-            }}
-          >
+          <div style={{ padding: "2rem", backgroundColor: "#1a1a1a", color: "#fff", borderRadius: "10px", textAlign: "center", marginTop: "1rem" }}>
             <p style={{ fontSize: "1.1rem", margin: 0 }}>
               No se encontraron partidos para esta temporada.
             </p>
