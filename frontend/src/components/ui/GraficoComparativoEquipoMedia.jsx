@@ -1,7 +1,6 @@
 "use client";
 
 import GlossaryModal from "./GlossaryModal";
-
 import {
     BarChart,
     Bar,
@@ -10,7 +9,7 @@ import {
     CartesianGrid,
     Tooltip,
     Legend,
-    Cell
+    Cell,
 } from "recharts";
 import { useState } from "react";
 import { ChartContainer } from "./chart";
@@ -18,7 +17,7 @@ import {
     Card,
     CardHeader,
     CardTitle,
-    CardContent
+    CardContent,
 } from "@/components/ui/card";
 
 const GRUPOS = {
@@ -83,8 +82,8 @@ export default function GraficoComparativoEquipoMedia({ estadisticas, media }) {
 
         return {
             name: label,
-            equipo: Math.abs(valorEquipo),
-            media: Math.abs(valorMedia),
+            equipo: valorEquipo,
+            media: valorMedia,
             rawEquipo: valorEquipo,
             rawMedia: valorMedia,
         };
@@ -127,7 +126,7 @@ export default function GraficoComparativoEquipoMedia({ estadisticas, media }) {
                         <ChartContainer
                             config={{
                                 equipo: { label: "Equipo", color: "#2563eb" },
-                                media: { label: "Media", color: "#f97316" },
+                                media: { label: "Media", color: "#000" },
                             }}
                             className="mt-4"
                         >
@@ -140,7 +139,11 @@ export default function GraficoComparativoEquipoMedia({ estadisticas, media }) {
                                 <XAxis dataKey="name" interval={0} angle={-45} textAnchor="end" height={70} />
                                 <YAxis
                                     domain={
-                                        isPorcentaje ? [0, 100] : isAvanzado ? [0, 15] : [0, "dataMax + 1"]
+                                        isAvanzado
+                                            ? [(dataMin) => Math.floor(dataMin) - 1, (dataMax) => Math.ceil(dataMax) + 1]
+                                            : isPorcentaje
+                                                ? [0, 100]
+                                                : [0, (dataMax) => Math.ceil(dataMax) + 1]
                                     }
                                 />
                                 <Tooltip
@@ -162,7 +165,7 @@ export default function GraficoComparativoEquipoMedia({ estadisticas, media }) {
                                         <div style={{ display: "flex", justifyContent: "center", gap: "2rem", marginTop: "1rem" }}>
                                             {payload.map((entry, index) => {
                                                 const label = entry.value === "equipo" ? "Equipo" : "Media";
-                                                const fallbackColor = entry.value === "equipo" ? "#2563eb" : "#f97316";
+                                                const fallbackColor = entry.value === "equipo" ? "#2563eb" : "#000";
                                                 const color = entry.color || fallbackColor;
 
                                                 return (
@@ -185,11 +188,7 @@ export default function GraficoComparativoEquipoMedia({ estadisticas, media }) {
                                     {data.map((entry, index) => (
                                         <Cell
                                             key={`equipo-${index}`}
-                                            fill={
-                                                isAvanzado && entry.rawEquipo < 0
-                                                    ? "#ef4444"
-                                                    : "#2563eb"
-                                            }
+                                            fill={isAvanzado && entry.rawEquipo < 0 ? "#ef4444" : "#2563eb"}
                                         />
                                     ))}
                                 </Bar>
@@ -198,11 +197,7 @@ export default function GraficoComparativoEquipoMedia({ estadisticas, media }) {
                                         {data.map((entry, index) => (
                                             <Cell
                                                 key={`media-${index}`}
-                                                fill={
-                                                    isAvanzado && entry.rawMedia < 0
-                                                        ? "#ef4444"
-                                                        : "#f97316"
-                                                }
+                                                fill={isAvanzado && entry.rawMedia < 0 ? "#ef4444" : "#000"}
                                             />
                                         ))}
                                     </Bar>

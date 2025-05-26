@@ -126,8 +126,8 @@ export default function GraficoComparativoJugadorMedia({ estadisticas, media }) 
                     <div style={{ minWidth: "700px" }}>
                         <ChartContainer
                             config={{
-                                jugador: { label: "Jugador", color: "#16a34a" },
-                                media: { label: "Media", color: "#eab308" },
+                                jugador: { label: "Jugador", color: "#2563eb" },
+                                media: { label: "Media", color: "#000000" },
                             }}
                             className="mt-4"
                         >
@@ -162,7 +162,7 @@ export default function GraficoComparativoJugadorMedia({ estadisticas, media }) 
                                         <div style={{ display: "flex", justifyContent: "center", gap: "2rem", marginTop: "1rem" }}>
                                             {payload.map((entry, index) => {
                                                 const label = entry.dataKey === "jugador" ? "Jugador" : "Media";
-                                                const color = entry.color || (entry.dataKey === "jugador" ? "#16a34a" : "#eab308");
+                                                const color = entry.dataKey === "jugador" ? "#2563eb" : "#000000";
 
                                                 return (
                                                     <div key={index} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
@@ -186,7 +186,7 @@ export default function GraficoComparativoJugadorMedia({ estadisticas, media }) 
                                     {data.map((entry, index) => (
                                         <Cell
                                             key={`jugador-${index}`}
-                                            fill={isAvanzado && entry.rawJugador < 0 ? "#ef4444" : "#16a34a"}
+                                            fill={isAvanzado && entry.rawJugador < 0 ? "#ef4444" : "#2563eb"}
                                         />
                                     ))}
                                 </Bar>
@@ -195,7 +195,7 @@ export default function GraficoComparativoJugadorMedia({ estadisticas, media }) 
                                         {data.map((entry, index) => (
                                             <Cell
                                                 key={`media-${index}`}
-                                                fill={isAvanzado && entry.rawMedia < 0 ? "#ef4444" : "#eab308"}
+                                                fill={isAvanzado && entry.rawMedia < 0 ? "#ef4444" : "#000000"}
                                             />
                                         ))}
                                     </Bar>
