@@ -101,7 +101,7 @@ export default function GraficoComparativoJugadorMedia({ estadisticas, media }) 
         <Card className="mt-8 max-w-[1200px] mx-auto border border-[#2a2a2a]">
             <CardHeader className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 py-4 border-b">
                 <div className="flex items-center gap-2">
-                    <CardTitle className="text-lg">Comparativa con la media</CardTitle>
+                    <CardTitle className="text-lg">Gráfico Comparativo con la media</CardTitle>
                     <GlossaryModalJugadores />
                 </div>
                 <select

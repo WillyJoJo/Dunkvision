@@ -15,6 +15,7 @@ import BotonLesionConEstado from "@/components/ui/BotonLesionConEstado";
 import { DataTableJugador } from "./data-table";
 import { DataTablePartido } from "./data-table-partido";
 import GraficoComparativoJugadorMedia from "@/components/ui/GraficoComparativoJugadorMedia";
+import GraficoEvolucionJugador from "@/components/ui/GraficoEvolucionJugador";
 import Link from "next/link";
 
 const transformarPosiciones = (abreviacion) => {
@@ -284,9 +285,21 @@ export default function JugadorCliente({ jugadorId }) {
         )}
 
         {partidos.length > 0 ? (
-          <DataTablePartido data={partidos} />
+          <>
+            <DataTablePartido data={partidos} />
+            <GraficoEvolucionJugador partidos={partidos} />
+          </>
         ) : (
-          <div style={{ padding: "2rem", backgroundColor: "#1a1a1a", color: "#fff", borderRadius: "10px", textAlign: "center", marginTop: "1rem" }}>
+          <div
+            style={{
+              padding: "2rem",
+              backgroundColor: "#1a1a1a",
+              color: "#fff",
+              borderRadius: "10px",
+              textAlign: "center",
+              marginTop: "1rem",
+            }}
+          >
             <p style={{ fontSize: "1.1rem", margin: 0 }}>
               No se encontraron partidos para esta temporada.
             </p>
