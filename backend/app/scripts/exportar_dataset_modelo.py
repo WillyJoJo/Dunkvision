@@ -6,12 +6,7 @@ from app.models import (
 )
 from sqlalchemy import or_, and_
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
-import matplotlib.pyplot as plt
 import numpy as np
-import joblib
 
 
 def obtener_valor_racha(racha):
@@ -42,13 +37,9 @@ def obtener_dataset_entrenamiento():
 
         for enf in enfrentamientos:
             contexto = enf.contexto
-            if not contexto:
+            if not contexto or enf.puntos_equipo1 is None or enf.puntos_equipo2 is None:
                 continue
 
-            if enf.puntos_equipo1 is None or enf.puntos_equipo2 is None:
-                continue
-
-            # Historial entre ambos equipos
             historial = db.session.query(Historial_Enfrentamientos).filter(
                 or_(
                     and_(Historial_Enfrentamientos.equipo1_id == enf.equipo1_id,
@@ -61,32 +52,27 @@ def obtener_dataset_entrenamiento():
             victorias1 = historial.victorias_equipo1 if historial and historial.equipo1_id == enf.equipo1_id else historial.victorias_equipo2 if historial else 0
             victorias2 = historial.victorias_equipo2 if historial and historial.equipo2_id == enf.equipo2_id else historial.victorias_equipo1 if historial else 0
 
-            # Estadísticas avanzadas de equipo
             estad_eq1 = db.session.query(Estadisticas_Avanzadas_Equipo).filter_by(equipo_id=enf.equipo1_id).first()
             estad_eq2 = db.session.query(Estadisticas_Avanzadas_Equipo).filter_by(equipo_id=enf.equipo2_id).first()
-
             if not estad_eq1 or not estad_eq2:
                 continue
 
-            # Jugadores disponibles
             jugadores_eq1 = db.session.query(Jugador).filter_by(equipo_id=enf.equipo1_id).all()
             jugadores_eq2 = db.session.query(Jugador).filter_by(equipo_id=enf.equipo2_id).all()
 
             jugadores_disponibles1 = [j for j in jugadores_eq1 if j.id_jugador in jugadores_stats]
             jugadores_disponibles2 = [j for j in jugadores_eq2 if j.id_jugador in jugadores_stats]
 
-            # Win Share total por equipo (disponibles)
             ws_total_eq1 = sum([jugadores_stats[j.id_jugador].win_share_total or 0 for j in jugadores_disponibles1])
             ws_total_eq2 = sum([jugadores_stats[j.id_jugador].win_share_total or 0 for j in jugadores_disponibles2])
 
-            # Jugador_Partido agregados (si existen)
             def stats_jugador_partido(equipo_id):
                 stats = db.session.query(Jugador_Partido).filter_by(
                     enfrentamiento_id=enf.id_enfrentamiento,
                     equipo_id=equipo_id
                 ).all()
-                if not stats or len(stats) == 0:
-                    return None
+                if not stats:
+                    return {}
                 return {
                     "puntos": sum(s.puntos or 0 for s in stats),
                     "asistencias": sum(s.asistencias or 0 for s in stats),
@@ -96,29 +82,24 @@ def obtener_dataset_entrenamiento():
                     "pct_libres": np.mean([s.porcentaje_tiros_libres for s in stats if s.porcentaje_tiros_libres is not None]) or 0,
                 }
 
-            stats_eq1 = stats_jugador_partido(enf.equipo1_id) or {}
-            stats_eq2 = stats_jugador_partido(enf.equipo2_id) or {}
+            stats_eq1 = stats_jugador_partido(enf.equipo1_id)
+            stats_eq2 = stats_jugador_partido(enf.equipo2_id)
 
             equipo1_gana = 1 if enf.puntos_equipo1 > enf.puntos_equipo2 else 0
 
             datos.append({
-                # Contexto y historial
                 "dias_descanso_eq1": contexto.dias_descanso_equipo1,
                 "dias_descanso_eq2": contexto.dias_descanso_equipo2,
                 "racha_eq1": obtener_valor_racha(contexto.racha_equipo1),
                 "racha_eq2": obtener_valor_racha(contexto.racha_equipo2),
                 "victorias_eq1_vs_eq2": victorias1,
                 "victorias_eq2_vs_eq1": victorias2,
-
-                # Deltas
                 "delta_rating_of": (estad_eq1.rating_ofensivo or 0) - (estad_eq2.rating_ofensivo or 0),
                 "delta_rating_def": (estad_eq1.rating_defensivo or 0) - (estad_eq2.rating_defensivo or 0),
                 "delta_margen_victoria": (estad_eq1.margen_de_victoria or 0) - (estad_eq2.margen_de_victoria or 0),
                 "delta_simple_rating": (estad_eq1.simple_rating_system or 0) - (estad_eq2.simple_rating_system or 0),
                 "delta_ws_total": ws_total_eq1 - ws_total_eq2,
                 "delta_racha": obtener_valor_racha(contexto.racha_equipo1) - obtener_valor_racha(contexto.racha_equipo2),
-
-                # Jugador_Partido agregados
                 "puntos_eq1": stats_eq1.get("puntos", 0),
                 "puntos_eq2": stats_eq2.get("puntos", 0),
                 "asistencias_eq1": stats_eq1.get("asistencias", 0),
@@ -131,8 +112,6 @@ def obtener_dataset_entrenamiento():
                 "pct_triples_eq2": stats_eq2.get("pct_triples", 0),
                 "pct_libres_eq1": stats_eq1.get("pct_libres", 0),
                 "pct_libres_eq2": stats_eq2.get("pct_libres", 0),
-
-                # Etiqueta
                 "equipo1_gana": equipo1_gana
             })
 
@@ -140,40 +119,10 @@ def obtener_dataset_entrenamiento():
         return df
 
 
-def entrenar_y_guardar_modelo():
+if __name__ == "__main__":
     df = obtener_dataset_entrenamiento()
     if df.empty:
-        print("❌ No hay datos suficientes para entrenar el modelo.")
-        return
-
-    X = df.drop(columns=["equipo1_gana"])
-    y = df["equipo1_gana"]
-
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-    model = RandomForestClassifier(n_estimators=300, class_weight="balanced", random_state=42)
-    model.fit(X_train, y_train)
-
-    y_pred = model.predict(X_test)
-    accuracy = accuracy_score(y_test, y_pred)
-    print(f"✅ Precisión del modelo: {accuracy:.2f}")
-
-    joblib.dump(model, "modelo_prediccion_partidos.pkl")
-    print("📦 Modelo guardado como 'modelo_prediccion_partidos.pkl'")
-
-    # Gráfico de importancia
-    importancias = model.feature_importances_
-    caracteristicas = X.columns
-    indices = np.argsort(importancias)[::-1]
-
-    plt.figure(figsize=(12, 6))
-    plt.bar(range(len(importancias)), importancias[indices])
-    plt.xticks(range(len(importancias)), caracteristicas[indices], rotation=90)
-    plt.title("Importancia de cada variable en el modelo")
-    plt.tight_layout()
-    plt.savefig("importancia_variables.png")
-    print("📊 Gráfico de importancia guardado como 'importancia_variables.png'")
-
-
-if __name__ == "__main__":
-    entrenar_y_guardar_modelo()
+        print("❌ No se generó ningún dato.")
+    else:
+        df.to_csv("dataset_prediccion.csv", index=False)
+        print("📄 Dataset exportado a 'dataset_prediccion.csv'")
