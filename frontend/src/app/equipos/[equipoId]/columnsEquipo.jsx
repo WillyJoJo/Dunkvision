@@ -24,7 +24,7 @@ export const columnsEquipo = [
   { accessorKey: "strength_of_schedule", header: "SOS", tooltip: "Fuerza del Calendario", numeric: true },
   { accessorKey: "simple_rating_system", header: "SRS", tooltip: "Sistema de Rating Simple", numeric: true },
   { accessorKey: "ritmo", header: "Pace", tooltip: "Ritmo", numeric: true },
-  { accessorKey: "margen_de_victoria", header: "+/-", tooltip: "Margen de Victoria", numeric: true },
+  { accessorKey: "margen_de_victoria", header: "MOV", tooltip: "Margen de Victoria", numeric: true },
   { accessorKey: "victorias", header: "W", tooltip: "Victorias", numeric: true },
   { accessorKey: "derrotas", header: "L", tooltip: "Derrotas", numeric: true },
 ];

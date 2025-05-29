@@ -56,7 +56,7 @@ export function DataTable({ data, onRowClick }) {
 
   return (
     <section className="mt-8 rounded-2xl border border-zinc-700 bg-[#0d0d0d] px-4 py-6">
-      <h2 className="text-2xl font-bold text-white mb-4">Jugadores del Equipo</h2>
+      <h2 className="text-2xl font-bold text-white mb-4">Jugadores actuales del Equipo</h2>
 
       <div className="overflow-x-auto">
         <Table>
