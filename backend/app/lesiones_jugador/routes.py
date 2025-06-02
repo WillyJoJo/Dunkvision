@@ -80,7 +80,6 @@ def route_editar_lesion(lesion_id):
     respuesta, status = editar_lesion(lesion_id, data)
     return jsonify(respuesta), status
 
-# Ruta especial fuera del prefijo principal
 # GET : Obtener todas las lesiones posibles
 @lesiones_bp.route("/posibles_lesiones_jugador", methods=["GET"])
 def route_obtener_posibles_lesiones():

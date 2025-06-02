@@ -1,12 +1,15 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+
 from app import app, db
 from app.models import (
     Enfrentamiento, Contexto_Partido, Historial_Enfrentamientos,
     Estadisticas_Avanzadas_Equipo, Estadisticas_Avanzadas_Jugador,
-    Jugador, Equipo, Jugador_Partido
+    Jugador
 )
 from sqlalchemy import or_, and_
 import pandas as pd
-import numpy as np
 
 
 def obtener_valor_racha(racha):
@@ -66,25 +69,6 @@ def obtener_dataset_entrenamiento():
             ws_total_eq1 = sum([jugadores_stats[j.id_jugador].win_share_total or 0 for j in jugadores_disponibles1])
             ws_total_eq2 = sum([jugadores_stats[j.id_jugador].win_share_total or 0 for j in jugadores_disponibles2])
 
-            def stats_jugador_partido(equipo_id):
-                stats = db.session.query(Jugador_Partido).filter_by(
-                    enfrentamiento_id=enf.id_enfrentamiento,
-                    equipo_id=equipo_id
-                ).all()
-                if not stats:
-                    return {}
-                return {
-                    "puntos": sum(s.puntos or 0 for s in stats),
-                    "asistencias": sum(s.asistencias or 0 for s in stats),
-                    "minutos": sum(s.minutos_jugados or 0 for s in stats),
-                    "pct_tiros": np.mean([s.porcentaje_tiros_de_campo for s in stats if s.porcentaje_tiros_de_campo is not None]) or 0,
-                    "pct_triples": np.mean([s.porcentaje_triples for s in stats if s.porcentaje_triples is not None]) or 0,
-                    "pct_libres": np.mean([s.porcentaje_tiros_libres for s in stats if s.porcentaje_tiros_libres is not None]) or 0,
-                }
-
-            stats_eq1 = stats_jugador_partido(enf.equipo1_id)
-            stats_eq2 = stats_jugador_partido(enf.equipo2_id)
-
             equipo1_gana = 1 if enf.puntos_equipo1 > enf.puntos_equipo2 else 0
 
             datos.append({
@@ -94,24 +78,29 @@ def obtener_dataset_entrenamiento():
                 "racha_eq2": obtener_valor_racha(contexto.racha_equipo2),
                 "victorias_eq1_vs_eq2": victorias1,
                 "victorias_eq2_vs_eq1": victorias2,
+
                 "delta_rating_of": (estad_eq1.rating_ofensivo or 0) - (estad_eq2.rating_ofensivo or 0),
                 "delta_rating_def": (estad_eq1.rating_defensivo or 0) - (estad_eq2.rating_defensivo or 0),
                 "delta_margen_victoria": (estad_eq1.margen_de_victoria or 0) - (estad_eq2.margen_de_victoria or 0),
                 "delta_simple_rating": (estad_eq1.simple_rating_system or 0) - (estad_eq2.simple_rating_system or 0),
                 "delta_ws_total": ws_total_eq1 - ws_total_eq2,
                 "delta_racha": obtener_valor_racha(contexto.racha_equipo1) - obtener_valor_racha(contexto.racha_equipo2),
-                "puntos_eq1": stats_eq1.get("puntos", 0),
-                "puntos_eq2": stats_eq2.get("puntos", 0),
-                "asistencias_eq1": stats_eq1.get("asistencias", 0),
-                "asistencias_eq2": stats_eq2.get("asistencias", 0),
-                "minutos_eq1": stats_eq1.get("minutos", 0),
-                "minutos_eq2": stats_eq2.get("minutos", 0),
-                "pct_tiros_eq1": stats_eq1.get("pct_tiros", 0),
-                "pct_tiros_eq2": stats_eq2.get("pct_tiros", 0),
-                "pct_triples_eq1": stats_eq1.get("pct_triples", 0),
-                "pct_triples_eq2": stats_eq2.get("pct_triples", 0),
-                "pct_libres_eq1": stats_eq1.get("pct_libres", 0),
-                "pct_libres_eq2": stats_eq2.get("pct_libres", 0),
+
+                "delta_puntos": (estad_eq1.puntos or 0) - (estad_eq2.puntos or 0),
+                "delta_asistencias": (estad_eq1.asistencias or 0) - (estad_eq2.asistencias or 0),
+                "delta_rebotes": (estad_eq1.rebotes_totales or 0) - (estad_eq2.rebotes_totales or 0),
+                "delta_robos": (estad_eq1.robos or 0) - (estad_eq2.robos or 0),
+                "delta_tapones": (estad_eq1.tapones or 0) - (estad_eq2.tapones or 0),
+                "delta_pct_tiros": (estad_eq1.porcentaje_tiros_de_campo or 0) - (estad_eq2.porcentaje_tiros_de_campo or 0),
+                "delta_pct_triples": (estad_eq1.porcentaje_triples or 0) - (estad_eq2.porcentaje_triples or 0),
+                "delta_pct_dos": (estad_eq1.porcentaje_tiros_de_dos or 0) - (estad_eq2.porcentaje_tiros_de_dos or 0),
+                "delta_pct_efectivo": (estad_eq1.porcentaje_efectivo_tiros_de_campo or 0) - (estad_eq2.porcentaje_efectivo_tiros_de_campo or 0),
+                "delta_pct_libres": (estad_eq1.porcentaje_tiros_libres or 0) - (estad_eq2.porcentaje_tiros_libres or 0),
+                "delta_ritmo": (estad_eq1.ritmo or 0) - (estad_eq2.ritmo or 0),
+                "delta_sos": (estad_eq1.strength_of_schedule or 0) - (estad_eq2.strength_of_schedule or 0),
+                "delta_victorias": (estad_eq1.victorias or 0) - (estad_eq2.victorias or 0),
+                "delta_derrotas": (estad_eq1.derrotas or 0) - (estad_eq2.derrotas or 0),
+
                 "equipo1_gana": equipo1_gana
             })
 
@@ -124,5 +113,5 @@ if __name__ == "__main__":
     if df.empty:
         print("❌ No se generó ningún dato.")
     else:
-        df.to_csv("dataset_prediccion.csv", index=False)
-        print("📄 Dataset exportado a 'dataset_prediccion.csv'")
+        df.to_csv("dataset_entrenamiento_real.csv", index=False)
+        print("📄 Dataset exportado a 'dataset_entrenamiento_real.csv'")
