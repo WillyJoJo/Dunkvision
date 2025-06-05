@@ -187,3 +187,23 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
+/* Estilos para react-autosuggest en modo oscuro */
+.react-autosuggest__container {
+  @apply relative w-full;
+}
+
+.react-autosuggest__input {
+  @apply w-full p-2 bg-[#222] text-white border border-gray-600 rounded;
+}
+
+.react-autosuggest__suggestions-container {
+  @apply absolute z-50 bg-[#111] text-white border border-gray-600 rounded-b max-h-60 overflow-y-auto mt-1;
+}
+
+.react-autosuggest__suggestion {
+  @apply p-2 cursor-pointer hover:bg-[#333] flex items-center gap-2;
+}
+
+.react-autosuggest__suggestion--highlighted {
+  @apply bg-[#444];
+}
