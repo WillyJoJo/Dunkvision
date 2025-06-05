@@ -1,26 +1,34 @@
+# exportar_dataset_modelo_jugadores.py
+
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
 from app import app, db
 from app.models import (
-    Enfrentamiento, Contexto_Partido, Historial_Enfrentamientos,
-    Estadisticas_Avanzadas_Equipo, Estadisticas_Avanzadas_Jugador,
-    Jugador
+    Enfrentamiento, Contexto_Partido, Estadisticas_Avanzadas_Jugador,
+    Jugador, Jugador_Partido
 )
-from sqlalchemy import or_, and_
 import pandas as pd
 
 
-def obtener_valor_racha(racha):
-    if not racha:
-        return 0
-    try:
-        if '-' in racha:
-            partes = racha.split('-')
-            return int(partes[0]) - int(partes[1])
-    except Exception:
-        return 0
+def media(jugadores, atributo, jugadores_stats):
+    valores = []
+    for j in jugadores:
+        if j.id_jugador in jugadores_stats:
+            valor = getattr(jugadores_stats[j.id_jugador], atributo, None)
+            if valor is not None:
+                valores.append(valor)
+    return sum(valores) / len(valores) if valores else 0
+
+
+def media_partido(equipo_id, enfrentamiento_id, atributo):
+    filas = db.session.query(Jugador_Partido).filter_by(
+        equipo_id=equipo_id,
+        enfrentamiento_id=enfrentamiento_id
+    ).all()
+    valores = [getattr(fp, atributo, None) for fp in filas if getattr(fp, atributo, None) is not None]
+    return sum(valores) / len(valores) if valores else None
 
 
 def obtener_dataset_entrenamiento():
@@ -43,69 +51,41 @@ def obtener_dataset_entrenamiento():
             if not contexto or enf.puntos_equipo1 is None or enf.puntos_equipo2 is None:
                 continue
 
-            historial = db.session.query(Historial_Enfrentamientos).filter(
-                or_(
-                    and_(Historial_Enfrentamientos.equipo1_id == enf.equipo1_id,
-                         Historial_Enfrentamientos.equipo2_id == enf.equipo2_id),
-                    and_(Historial_Enfrentamientos.equipo1_id == enf.equipo2_id,
-                         Historial_Enfrentamientos.equipo2_id == enf.equipo1_id)
-                )
-            ).first()
-
-            victorias1 = historial.victorias_equipo1 if historial and historial.equipo1_id == enf.equipo1_id else historial.victorias_equipo2 if historial else 0
-            victorias2 = historial.victorias_equipo2 if historial and historial.equipo2_id == enf.equipo2_id else historial.victorias_equipo1 if historial else 0
-
-            estad_eq1 = db.session.query(Estadisticas_Avanzadas_Equipo).filter_by(equipo_id=enf.equipo1_id).first()
-            estad_eq2 = db.session.query(Estadisticas_Avanzadas_Equipo).filter_by(equipo_id=enf.equipo2_id).first()
-            if not estad_eq1 or not estad_eq2:
-                continue
-
             jugadores_eq1 = db.session.query(Jugador).filter_by(equipo_id=enf.equipo1_id).all()
             jugadores_eq2 = db.session.query(Jugador).filter_by(equipo_id=enf.equipo2_id).all()
 
-            jugadores_disponibles1 = [j for j in jugadores_eq1 if j.id_jugador in jugadores_stats]
-            jugadores_disponibles2 = [j for j in jugadores_eq2 if j.id_jugador in jugadores_stats]
+            delta_dict = {
+                "delta_ws_total": media(jugadores_eq1, "win_share_total", jugadores_stats) - media(jugadores_eq2, "win_share_total", jugadores_stats),
+                "delta_ws_of": media(jugadores_eq1, "win_share_ofensivo", jugadores_stats) - media(jugadores_eq2, "win_share_ofensivo", jugadores_stats),
+                "delta_ws_def": media(jugadores_eq1, "win_share_defensivo", jugadores_stats) - media(jugadores_eq2, "win_share_defensivo", jugadores_stats),
+                "delta_per": media(jugadores_eq1, "player_efficiency_rating", jugadores_stats) - media(jugadores_eq2, "player_efficiency_rating", jugadores_stats),
+                "delta_usg": media(jugadores_eq1, "usage_porcentage", jugadores_stats) - media(jugadores_eq2, "usage_porcentage", jugadores_stats),
+                "delta_bpm": media(jugadores_eq1, "box_plus_minus", jugadores_stats) - media(jugadores_eq2, "box_plus_minus", jugadores_stats),
+                "delta_rating_of_jug": media(jugadores_eq1, "rating_ofensivo", jugadores_stats) - media(jugadores_eq2, "rating_ofensivo", jugadores_stats),
+                "delta_rating_def_jug": media(jugadores_eq1, "rating_defensivo", jugadores_stats) - media(jugadores_eq2, "rating_defensivo", jugadores_stats),
+                "delta_efg": media(jugadores_eq1, "porcentaje_efectivo_tiros_de_campo", jugadores_stats) - media(jugadores_eq2, "porcentaje_efectivo_tiros_de_campo", jugadores_stats),
+                "delta_faltas_cometidas": media(jugadores_eq2, "faltas_cometidas", jugadores_stats) - media(jugadores_eq1, "faltas_cometidas", jugadores_stats),
+                "delta_perdidas_balon": media(jugadores_eq2, "perdidas_balon", jugadores_stats) - media(jugadores_eq1, "perdidas_balon", jugadores_stats),
+                "delta_puntos": media(jugadores_eq1, "puntos", jugadores_stats) - media(jugadores_eq2, "puntos", jugadores_stats),
+                "delta_asistencias": media(jugadores_eq1, "asistencias", jugadores_stats) - media(jugadores_eq2, "asistencias", jugadores_stats),
+                "delta_rebotes_totales": media(jugadores_eq1, "rebotes_totales", jugadores_stats) - media(jugadores_eq2, "rebotes_totales", jugadores_stats),
+                "delta_robos": media(jugadores_eq1, "robos", jugadores_stats) - media(jugadores_eq2, "robos", jugadores_stats),
+                "delta_tapones": media(jugadores_eq1, "tapones", jugadores_stats) - media(jugadores_eq2, "tapones", jugadores_stats),
+                "delta_tiros_libres": media(jugadores_eq1, "porcentaje_tiros_libres", jugadores_stats) - media(jugadores_eq2, "porcentaje_tiros_libres", jugadores_stats),
 
-            ws_total_eq1 = sum([jugadores_stats[j.id_jugador].win_share_total or 0 for j in jugadores_disponibles1])
-            ws_total_eq2 = sum([jugadores_stats[j.id_jugador].win_share_total or 0 for j in jugadores_disponibles2])
+                "delta_real_puntos": (media_partido(enf.equipo1_id, enf.id_enfrentamiento, "puntos") or 0) - (media_partido(enf.equipo2_id, enf.id_enfrentamiento, "puntos") or 0),
+                "delta_real_asistencias": (media_partido(enf.equipo1_id, enf.id_enfrentamiento, "asistencias") or 0) - (media_partido(enf.equipo2_id, enf.id_enfrentamiento, "asistencias") or 0),
+                "delta_real_reb_def": (media_partido(enf.equipo1_id, enf.id_enfrentamiento, "rebotes_defensivos") or 0) - (media_partido(enf.equipo2_id, enf.id_enfrentamiento, "rebotes_defensivos") or 0),
+                "delta_real_robos": (media_partido(enf.equipo1_id, enf.id_enfrentamiento, "robos") or 0) - (media_partido(enf.equipo2_id, enf.id_enfrentamiento, "robos") or 0),
+                "delta_real_tapones": (media_partido(enf.equipo1_id, enf.id_enfrentamiento, "tapones") or 0) - (media_partido(enf.equipo2_id, enf.id_enfrentamiento, "tapones") or 0),
 
-            equipo1_gana = 1 if enf.puntos_equipo1 > enf.puntos_equipo2 else 0
+                "equipo1_gana": 1 if enf.puntos_equipo1 > enf.puntos_equipo2 else 0
+            }
 
-            datos.append({
-                "dias_descanso_eq1": contexto.dias_descanso_equipo1,
-                "dias_descanso_eq2": contexto.dias_descanso_equipo2,
-                "racha_eq1": obtener_valor_racha(contexto.racha_equipo1),
-                "racha_eq2": obtener_valor_racha(contexto.racha_equipo2),
-                "victorias_eq1_vs_eq2": victorias1,
-                "victorias_eq2_vs_eq1": victorias2,
+            if any(v is not None for k, v in delta_dict.items() if k.startswith("delta_real_")):
+                datos.append(delta_dict)
 
-                "delta_rating_of": (estad_eq1.rating_ofensivo or 0) - (estad_eq2.rating_ofensivo or 0),
-                "delta_rating_def": (estad_eq1.rating_defensivo or 0) - (estad_eq2.rating_defensivo or 0),
-                "delta_margen_victoria": (estad_eq1.margen_de_victoria or 0) - (estad_eq2.margen_de_victoria or 0),
-                "delta_simple_rating": (estad_eq1.simple_rating_system or 0) - (estad_eq2.simple_rating_system or 0),
-                "delta_ws_total": ws_total_eq1 - ws_total_eq2,
-                "delta_racha": obtener_valor_racha(contexto.racha_equipo1) - obtener_valor_racha(contexto.racha_equipo2),
-
-                "delta_puntos": (estad_eq1.puntos or 0) - (estad_eq2.puntos or 0),
-                "delta_asistencias": (estad_eq1.asistencias or 0) - (estad_eq2.asistencias or 0),
-                "delta_rebotes": (estad_eq1.rebotes_totales or 0) - (estad_eq2.rebotes_totales or 0),
-                "delta_robos": (estad_eq1.robos or 0) - (estad_eq2.robos or 0),
-                "delta_tapones": (estad_eq1.tapones or 0) - (estad_eq2.tapones or 0),
-                "delta_pct_tiros": (estad_eq1.porcentaje_tiros_de_campo or 0) - (estad_eq2.porcentaje_tiros_de_campo or 0),
-                "delta_pct_triples": (estad_eq1.porcentaje_triples or 0) - (estad_eq2.porcentaje_triples or 0),
-                "delta_pct_dos": (estad_eq1.porcentaje_tiros_de_dos or 0) - (estad_eq2.porcentaje_tiros_de_dos or 0),
-                "delta_pct_efectivo": (estad_eq1.porcentaje_efectivo_tiros_de_campo or 0) - (estad_eq2.porcentaje_efectivo_tiros_de_campo or 0),
-                "delta_pct_libres": (estad_eq1.porcentaje_tiros_libres or 0) - (estad_eq2.porcentaje_tiros_libres or 0),
-                "delta_ritmo": (estad_eq1.ritmo or 0) - (estad_eq2.ritmo or 0),
-                "delta_sos": (estad_eq1.strength_of_schedule or 0) - (estad_eq2.strength_of_schedule or 0),
-                "delta_victorias": (estad_eq1.victorias or 0) - (estad_eq2.victorias or 0),
-                "delta_derrotas": (estad_eq1.derrotas or 0) - (estad_eq2.derrotas or 0),
-
-                "equipo1_gana": equipo1_gana
-            })
-
-        df = pd.DataFrame(datos)
-        return df
+        return pd.DataFrame(datos)
 
 
 if __name__ == "__main__":
@@ -113,5 +93,6 @@ if __name__ == "__main__":
     if df.empty:
         print("❌ No se generó ningún dato.")
     else:
-        df.to_csv("dataset_entrenamiento_real.csv", index=False)
-        print("📄 Dataset exportado a 'dataset_entrenamiento_real.csv'")
+        nombre_archivo = "dataset_entrenamiento_jugadores.csv"
+        df.to_csv(nombre_archivo, index=False)
+        print(f"📄 Dataset exportado correctamente a '{nombre_archivo}'")
