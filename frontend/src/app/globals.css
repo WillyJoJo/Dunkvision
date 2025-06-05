@@ -187,23 +187,62 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-/* Estilos para react-autosuggest en modo oscuro */
+/* Contenedor del input */
 .react-autosuggest__container {
-  @apply relative w-full;
+  position: relative;
+  width: 100%;
 }
 
+/* Input de búsqueda */
 .react-autosuggest__input {
-  @apply w-full p-2 bg-[#222] text-white border border-gray-600 rounded;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  background-color: #222;
+  color: white;
+  border: 1px solid #555;
+  border-radius: 6px;
+  outline: none;
 }
 
+.react-autosuggest__input:focus {
+  border-color: #888;
+}
+
+/* Contenedor de sugerencias */
 .react-autosuggest__suggestions-container {
-  @apply absolute z-50 bg-[#111] text-white border border-gray-600 rounded-b max-h-60 overflow-y-auto mt-1;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #111;
+  border: 1px solid #333;
+  border-top: none;
+  z-index: 1000;
+  border-radius: 0 0 6px 6px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
 }
 
+/* Lista de sugerencias */
+.react-autosuggest__suggestions-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Cada sugerencia */
 .react-autosuggest__suggestion {
-  @apply p-2 cursor-pointer hover:bg-[#333] flex items-center gap-2;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: white;
+  transition: background-color 0.2s;
 }
 
+.react-autosuggest__suggestion:hover,
 .react-autosuggest__suggestion--highlighted {
-  @apply bg-[#444];
+  background-color: #333;
 }

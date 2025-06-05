@@ -8,30 +8,29 @@ import { getJugadoresByEquipoId, getJugadores } from "@/services/jugadoresServic
 import { getJugadorFichado, predecirPartido } from "@/services/prediccionService";
 import { toast } from "sonner";
 
-// Estilos personalizados para react-select
+// Estilos react-select personalizados
 const customSelectStyles = {
   control: (base, state) => ({
     ...base,
     backgroundColor: "#222",
-    color: "#fff",
     borderColor: state.isFocused ? "#555" : "#333",
     boxShadow: "none",
     "&:hover": { borderColor: "#777" },
+    color: "#fff",
   }),
   singleValue: (base) => ({ ...base, color: "#fff" }),
-  menu: (base) => ({ ...base, backgroundColor: "#111", color: "#fff", zIndex: 1000 }),
+  input: (base) => ({ ...base, color: "#fff" }),
+  placeholder: (base) => ({ ...base, color: "#bbb" }),
+  menu: (base) => ({ ...base, backgroundColor: "#111", zIndex: 9999 }),
   option: (base, state) => ({
     ...base,
-    backgroundColor: state.isFocused ? "#333" : state.isSelected ? "#444" : "#111",
+    backgroundColor: state.isFocused ? "#333" : "#111",
     color: "#fff",
-    cursor: "pointer",
+    padding: "0.5rem 1rem",
     display: "flex",
     alignItems: "center",
     gap: "0.5rem",
-    padding: "0.5rem",
   }),
-  input: (base) => ({ ...base, color: "#fff" }),
-  placeholder: (base) => ({ ...base, color: "#bbb" }),
 };
 
 export default function PrediccionCliente() {
@@ -61,9 +60,7 @@ export default function PrediccionCliente() {
   useEffect(() => {
     setFichajes((prev) =>
       prev.filter(
-        (f) =>
-          f.equipo_id === parseInt(equipo1?.value) ||
-          f.equipo_id === parseInt(equipo2?.value)
+        (f) => f.equipo_id === parseInt(equipo1?.value) || f.equipo_id === parseInt(equipo2?.value)
       )
     );
   }, [equipo1, equipo2]);
@@ -79,17 +76,17 @@ export default function PrediccionCliente() {
   const onSuggestionsClearRequested = () => setSugerencias([]);
   const getSuggestionValue = (s) => s.nombre;
   const renderSuggestion = (s) => (
-    <div className="flex items-center gap-2 p-2 text-white">
+    <div className="flex items-center gap-3 p-2">
       <img
         src={`https://cdn.nba.com/headshots/nba/latest/260x190/${s.id}.png`}
+        onError={(e) => (e.target.src = "/placeholder-player.png")}
         alt={s.nombre}
         className="w-8 h-8 rounded bg-white"
-        onError={(e) => (e.target.src = "/placeholder-player.png")}
       />
-      <span>
-        {s.nombre}{" "}
+      <div>
+        <span className="font-medium">{s.nombre}</span>{" "}
         <span className="text-gray-400">({s.nombre_equipo})</span>
-      </span>
+      </div>
     </div>
   );
 
@@ -157,7 +154,6 @@ export default function PrediccionCliente() {
           src={`https://cdn.nba.com/logos/nba/${eq.id}/global/L/logo.svg`}
           alt={eq.nombre}
           className="w-6 h-6 object-contain bg-white rounded"
-          onError={(e) => (e.target.src = "/placeholder-logo.svg")}
         />
         <span>{eq.nombre}</span>
       </div>
@@ -251,13 +247,7 @@ export default function PrediccionCliente() {
               placeholder: "Buscar jugador",
               value: busquedaFichaje,
               onChange: (_, { newValue }) => setBusquedaFichaje(newValue),
-              className: "react-autosuggest__input",
-            }}
-            theme={{
-              container: "react-autosuggest__container",
-              suggestionsContainer: "react-autosuggest__suggestions-container",
-              suggestion: "react-autosuggest__suggestion",
-              suggestionHighlighted: "react-autosuggest__suggestion--highlighted",
+              className: "px-3 py-2 bg-[#222] text-white rounded border border-gray-600 w-full",
             }}
           />
 
@@ -288,6 +278,31 @@ export default function PrediccionCliente() {
             Añadir
           </button>
         </div>
+
+        {fichajes.length > 0 && (
+          <ul className="mt-4 space-y-2">
+            {fichajes.map((j) => (
+              <li key={j.id_jugador} className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <img
+                    src={`https://cdn.nba.com/headshots/nba/latest/260x190/${j.id_jugador}.png`}
+                    alt={j.nombre}
+                    className="w-8 h-8 object-cover rounded bg-white"
+                    onError={(e) => (e.target.src = "/placeholder-player.png")}
+                  />
+                  <span>{j.nombre} (Equipo: {nombreEquipo(j.equipo_id)})</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFichajes((prev) => prev.filter((f) => f.id_jugador !== j.id_jugador))}
+                  className="text-red-500 hover:text-red-400"
+                >
+                  ❌
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {/* Botón */}
@@ -323,14 +338,8 @@ export default function PrediccionCliente() {
             })}
           </div>
           <div className="text-center text-sm">
-            <p>
-              {nombreEquipo(equipo1.value)}:{" "}
-              <strong>{resultado.probabilidad_equipo1.toFixed(2)}%</strong>
-            </p>
-            <p>
-              {nombreEquipo(equipo2.value)}:{" "}
-              <strong>{resultado.probabilidad_equipo2.toFixed(2)}%</strong>
-            </p>
+            <p>{nombreEquipo(equipo1.value)}: <strong>{resultado.probabilidad_equipo1.toFixed(2)}%</strong></p>
+            <p>{nombreEquipo(equipo2.value)}: <strong>{resultado.probabilidad_equipo2.toFixed(2)}%</strong></p>
           </div>
         </div>
       )}
