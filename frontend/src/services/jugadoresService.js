@@ -10,7 +10,7 @@ export async function getJugadores(filters = {}) {
   const { busqueda, equipo, posicion } = filters;
   const params = {};
 
-  if (busqueda) params.busqueda = busqueda;   // Reemplaza 'letra_apellido'
+  if (busqueda) params.busqueda = busqueda;   
   if (equipo) params.equipo = equipo;
   if (posicion) params.posicion = posicion;
 
@@ -50,7 +50,15 @@ export async function getJugadoresById(id) {
 
 export async function getJugadoresByEquipoId(id) {
   const response = await axios.get(`${API_URL}/api/jugadores/equipo/${id}`);
-  return response.data;
+  const data = response.data;
+
+  return data.map(j => ({
+    ...j,
+    id_jugador: j.id_jugador || j.id,  // normaliza la clave
+    nombre: j.nombre,
+    equipo_id: j.equipo_id,
+    posicion: j.posicion
+  }));
 }
 
 //Obtiene el nombre del jugador por su ID.

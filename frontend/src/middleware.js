@@ -41,5 +41,6 @@ export const config = {
     "/jugadores/:path*",
     "/lesiones/:path*",
     "/enfrentamiento/:path*",
+    "/prediccion/:path*",
   ],
 };

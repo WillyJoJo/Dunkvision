@@ -12,7 +12,8 @@ const items = [
   { label: "Equipos", href: "/equipos" },
   { label: "Jugadores", href: "/jugadores" },
   { label: "Lesiones", href: "/lesiones" },
-  { label: "Partidos", href: "/enfrentamiento" }
+  { label: "Partidos", href: "/enfrentamiento" },
+  { label: "Predicción", href: "/prediccion" }
 ];
 
 const geistSans = Geist({
