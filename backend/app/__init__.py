@@ -41,5 +41,3 @@ app.register_blueprint(prediccion_bp)
 app.register_blueprint(contexto_partido_bp)
 app.register_blueprint(historial_enfrentamientos_bp)
 app.register_blueprint(temporada_bp)
-
-from app import routes  # solo si tienes rutas aún sin modular

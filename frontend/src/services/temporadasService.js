@@ -6,3 +6,8 @@ export async function getTemporadas() {
   const response = await axios.get(`${API_URL}/api/temporadas`);
   return response.data;
 }
+
+export async function crearTemporadaSiNoExiste() {
+  const response = await axios.post(`${API_URL}/api/temporadas/crear_si_no_existe`);
+  return response.data;
+}

@@ -1,24 +1,46 @@
 "use client";
-
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Card,
   CardContent,
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button"; // Tu botón personalizado
+import { Button } from "@/components/ui/button";
+import { actualizarContextoPartido } from "@/services/contextoPartidoService";
+import { actualizarHistorialEnfrentamientos } from "@/services/historialEnfrentamientosService";
+import { crearTemporadaSiNoExiste } from "@/services/temporadasService";
 
 export default function HomePage() {
+  useEffect(() => {
+    const ejecutarActualizaciones = async () => {
+      const ultimaEjecucion = localStorage.getItem("ultimaActualizacion");
+      const ahora = Date.now();
+      const COOLDOWN_MS = 60 * 1000;
+
+      if (!ultimaEjecucion || ahora - parseInt(ultimaEjecucion, 10) > COOLDOWN_MS) {
+        try {
+          await crearTemporadaSiNoExiste();
+          await actualizarContextoPartido();
+          await actualizarHistorialEnfrentamientos();
+          localStorage.setItem("ultimaActualizacion", ahora.toString());
+          console.log("Actualización ejecutada correctamente");
+        } catch (error) {
+          console.error("Error al actualizar datos:", error);
+        }
+      } else {
+        console.log("Cooldown activo: se omite la actualización");
+      }
+    };
+
+    ejecutarActualizaciones();
+  }, []);
+
   return (
     <main className="flex justify-center items-center min-h-[calc(100vh-4rem)] px-4 bg-muted">
       <Card className="w-full max-w-4xl shadow-lg p-10">
         <CardContent className="flex flex-col items-center text-center space-y-8">
-          <img
-            src="/logo.png"
-            alt="Logo Dunkvision"
-            className="w-28 h-28"
-          />
+          <img src="/logo.png" alt="Logo Dunkvision" className="w-28 h-28" />
 
           <div>
             <CardTitle className="text-4xl font-bold text-red-600 mb-2">
