@@ -25,6 +25,9 @@ from app.lesiones_jugador.routes import lesiones_bp
 from app.enfrentamiento.routes import enfrentamientos_bp
 from app.jugador_partido.routes import jugador_partido_bp
 from app.prediccion_partido.routes import prediccion_bp
+from app.contexto_partido.routes import contexto_partido_bp
+from app.historial_enfrentamientos.routes import historial_enfrentamientos_bp
+from app.temporada.routes import temporada_bp
 
 app.register_blueprint(jugador_bp)
 app.register_blueprint(equipo_bp)
@@ -35,5 +38,8 @@ app.register_blueprint(lesiones_bp)
 app.register_blueprint(enfrentamientos_bp)
 app.register_blueprint(jugador_partido_bp)
 app.register_blueprint(prediccion_bp)
+app.register_blueprint(contexto_partido_bp)
+app.register_blueprint(historial_enfrentamientos_bp)
+app.register_blueprint(temporada_bp)
 
 from app import routes  # solo si tienes rutas aún sin modular
