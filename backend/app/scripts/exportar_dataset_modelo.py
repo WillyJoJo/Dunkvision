@@ -1,5 +1,3 @@
-# exportar_dataset_modelo_jugadores.py
-
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
@@ -91,8 +89,8 @@ def obtener_dataset_entrenamiento():
 if __name__ == "__main__":
     df = obtener_dataset_entrenamiento()
     if df.empty:
-        print("❌ No se generó ningún dato.")
+        print("No se generó ningún dato.")
     else:
         nombre_archivo = "dataset_entrenamiento_jugadores.csv"
         df.to_csv(nombre_archivo, index=False)
-        print(f"📄 Dataset exportado correctamente a '{nombre_archivo}'")
+        print(f"Dataset exportado correctamente a '{nombre_archivo}'")

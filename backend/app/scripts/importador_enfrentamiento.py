@@ -5,7 +5,7 @@ from requests.exceptions import RequestException
 
 # 1) Cargamos el archivo config.ini
 config = configparser.ConfigParser()
-config.read("config.ini")  # ← como ya lo tenías
+config.read("config.ini")
 
 # 2) Leemos las secciones
 NBA_API_URL = config["NBA_API"]["url_enfrentamiento"]

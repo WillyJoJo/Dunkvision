@@ -97,7 +97,7 @@ def obtener_dataset_entrenamiento():
 def entrenar_y_guardar_modelo():
     df = obtener_dataset_entrenamiento()
     if df.empty:
-        print("❌ No hay datos suficientes para entrenar el modelo.")
+        print("No hay datos suficientes para entrenar el modelo.")
         return
     
     columnas_ordenadas = [
@@ -132,7 +132,7 @@ def entrenar_y_guardar_modelo():
 
     y_pred = modelo.predict(X_test)
     acc = accuracy_score(y_test, y_pred)
-    print(f"✅ Precisión del modelo (XGBoost): {acc:.2f}")
+    print(f"Precisión del modelo (XGBoost): {acc:.2f}")
 
     ruta_modelo = os.path.join(os.path.dirname(__file__), "modelo_prediccion_jugadores_xgb.pkl")
     joblib.dump((modelo, columnas_ordenadas), ruta_modelo)
