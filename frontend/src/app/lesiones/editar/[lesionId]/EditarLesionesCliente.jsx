@@ -25,7 +25,7 @@ import {
   AlertDescription,
 } from "@/components/ui/alert";
 
-import { toast } from "sonner"; // ✅ para mostrar notificaciones
+import { toast } from "sonner";
 
 export default function EditarLesionesCliente() {
   const { lesionId } = useParams();

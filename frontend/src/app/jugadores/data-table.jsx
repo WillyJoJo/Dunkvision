@@ -5,7 +5,7 @@ import {
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
-  getSortedRowModel, // ✅ IMPORTANTE
+  getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 
@@ -25,11 +25,11 @@ export function DataTable({ jugadores = [] }) {
     data: jugadores,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(), // ✅ NECESARIO para ordenar
+    getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     initialState: {
       pagination: { pageSize: 20 },
-      sorting: [], // ✅ inicia sin orden aplicado
+      sorting: [],
     },
   });
 

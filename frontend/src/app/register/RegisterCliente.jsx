@@ -3,13 +3,14 @@
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { PasswordInput } from "@/components/ui/password-input";
 
 export default function RegisterCliente() {
   const [errors, setErrors] = useState([]);
-  const [name, setName] = useState("test");
-  const [email, setEmail] = useState("test@test.com");
-  const [password, setPassword] = useState("123123");
-  const [repeatPassword, setRepeatPassword] = useState("123123");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [repeatPassword, setRepeatPassword] = useState("");
   const router = useRouter();
 
   const isPasswordTooShort = password.length > 0 && password.length < 8;
@@ -134,18 +135,15 @@ export default function RegisterCliente() {
           <label htmlFor="password" style={{ fontSize: "1.1rem", fontWeight: "bold" }}>
             Contraseña
           </label>
-          <input
-            type="password"
+          <PasswordInput
             id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             placeholder="Mínimo 8 caracteres"
-            name="password"
-            className="form-control"
             style={{
               fontSize: "1.1rem",
               borderColor: isPasswordTooShort ? "red" : undefined,
             }}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
           />
           {isPasswordTooShort && (
             <small style={{ color: "red" }}>
@@ -158,18 +156,15 @@ export default function RegisterCliente() {
           <label htmlFor="repeatPassword" style={{ fontSize: "1.1rem", fontWeight: "bold" }}>
             Repetir Contraseña
           </label>
-          <input
-            type="password"
+          <PasswordInput
             id="repeatPassword"
+            value={repeatPassword}
+            onChange={(e) => setRepeatPassword(e.target.value)}
             placeholder="Repite la contraseña"
-            name="repeatPassword"
-            className="form-control"
             style={{
               fontSize: "1.1rem",
               borderColor: repeatPassword && !doPasswordsMatch ? "red" : undefined,
             }}
-            value={repeatPassword}
-            onChange={(e) => setRepeatPassword(e.target.value)}
           />
           {repeatPassword && !doPasswordsMatch && (
             <small style={{ color: "red" }}>

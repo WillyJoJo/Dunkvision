@@ -7,13 +7,13 @@ def sql_value(val):
     """
     Convierte el valor en una cadena válida para SQL:
     - Si val es NaN o None, devuelve 'null'.
-    - Si es cadena, la devuelve entre comillas simples, escapando apóstrofes.
+    - Si es cadena, la devuelve entre comillas simples, evitando apóstrofes.
     - En caso contrario, la convierte directamente a cadena.
     """
     if pd.isna(val) or val is None:
         return "null"
     elif isinstance(val, str):
-        # Escapa apóstrofes y envuelve la cadena en comillas simples
+        # Evita apóstrofes y envuelve la cadena en comillas simples
         escaped = val.replace("'", "''")
         return f"'{escaped}'"
     else:

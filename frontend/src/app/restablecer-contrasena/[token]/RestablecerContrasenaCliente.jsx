@@ -21,7 +21,7 @@ export default function RestablecerContrasenaCliente() {
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
-  const [formReady, setFormReady] = useState(false); // indica si la validación pasó
+  const [formReady, setFormReady] = useState(false);
   const router = useRouter();
 
   const handlePreSubmit = (e) => {
@@ -39,7 +39,7 @@ export default function RestablecerContrasenaCliente() {
     }
 
     setFormReady(true);
-    setOpenDialog(true); // abre el diálogo si todo está bien
+    setOpenDialog(true);
   };
 
   const handleConfirmSubmit = async () => {

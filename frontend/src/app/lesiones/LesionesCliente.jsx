@@ -42,7 +42,7 @@ export default function LesionesCliente() {
     }
   }, [session?.user?.token]);
 
-  // NUEVO: Llamada a posibles lesiones si han pasado más de 5 minutos
+  // Llamada a posibles lesiones si han pasado más de 5 minutos
   useEffect(() => {
     const fetchPosiblesLesionesSiEsNecesario = async () => {
       const ultimaConsulta = localStorage.getItem("ultimaConsultaPosiblesLesiones");

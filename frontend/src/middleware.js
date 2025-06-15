@@ -36,7 +36,6 @@ export default withAuth(
 // Rutas a las que se aplicará este middleware
 export const config = {
   matcher: [
-    "/dashboard/:path*",
     "/equipos/:path*",
     "/jugadores/:path*",
     "/lesiones/:path*",

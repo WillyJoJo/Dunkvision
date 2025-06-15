@@ -4,12 +4,12 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
-import { PasswordInput } from "@/components/ui/password-input"; // asegúrate de que la ruta es correcta
+import { PasswordInput } from "@/components/ui/password-input";
 
 export default function LoginCliente() {
   const [errors, setErrors] = useState([]);
-  const [email, setEmail] = useState("usuario@gmail.com");
-  const [password, setPassword] = useState("admin123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const router = useRouter();
 
   const handleSubmit = async (event) => {
@@ -74,7 +74,7 @@ export default function LoginCliente() {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="8caracteres"
         />
-        
+
         <div style={{ textAlign: "right", marginTop: "0.5rem" }}>
           <Link href="/recuperar-contrasena" style={{ fontSize: "0.95rem", textDecoration: "underline", color: "#007bff" }}>
             ¿Olvidaste tu contraseña?

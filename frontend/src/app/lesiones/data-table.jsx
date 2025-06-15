@@ -107,7 +107,7 @@ export function DataTable({ lesiones = [], isAdmin = false, onDelete }) {
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(), // ✅ ordenación activada
+    getSortedRowModel: getSortedRowModel(),
     initialState: {
       pagination: { pageSize: 20 },
       sorting: [],
