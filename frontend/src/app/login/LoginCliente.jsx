@@ -72,7 +72,7 @@ export default function LoginCliente() {
         <PasswordInput
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="8caracteres"
+          placeholder="8 caracteres"
         />
 
         <div style={{ textAlign: "right", marginTop: "0.5rem" }}>

@@ -46,6 +46,7 @@ export default function RecuperarContrasenaCliente() {
           className="form-control mb-3"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          placeholder="ejemplo@email.com"
           required
         />
         <button type="submit" className="btn btn-primary w-100">

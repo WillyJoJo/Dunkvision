@@ -13,7 +13,7 @@ export default function SimpleDatePicker({ date, setDate }) {
     ? `Día ${format(date, "dd/MM/yyyy")}`
     : "Seleccionar día";
 
-  // ⛔️ Cierra el calendario al hacer clic fuera
+  // Cierra el calendario al hacer clic fuera
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -57,7 +57,7 @@ export default function SimpleDatePicker({ date, setDate }) {
         <div
           style={{
             position: "absolute",
-            bottom: "110%", // ✅ aparece encima del botón
+            bottom: "110%",
             left: 0,
             zIndex: 20,
             backgroundColor: "#fff",
@@ -73,7 +73,7 @@ export default function SimpleDatePicker({ date, setDate }) {
             selected={date}
             onSelect={(selectedDate) => {
               setDate(selectedDate);
-              setShowCalendar(false); // ✅ auto-cierre
+              setShowCalendar(false);
             }}
             defaultMonth={new Date()}
           />
