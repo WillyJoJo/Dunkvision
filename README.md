@@ -41,3 +41,29 @@ El modelo de predicción ha sido entrenado con estadísticas avanzadas históric
 El modelo final alcanza una **precisión del 77 %** en el conjunto de prueba.
 
 ---
+## ▶️ Ejecución local
+
+### Requisitos
+- Python 3.11+
+- Node.js 18+
+- MySQL 8+
+
+### 1. Backend
+
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # en Windows: venv\Scripts\activate
+pip install -r requirements.txt
+
+# Crear la base de datos
+mysql -u root -p < scripts/dunkvision01.sql
+
+# Ejecutar la API
+flask run
+```
+
+### 2. Frontend
+cd frontend
+npm install
+npm run dev
