@@ -94,7 +94,7 @@ npm run dev
 
 ## 📖 Autor
 
-**Willy JoJo** – Universidad de Málaga  
+**Guillermo Pichaco Panal** – Universidad de Málaga  
 TFG en Ingeniería del Software – Curso 2024/2025
 
 ## 📄 Licencia
